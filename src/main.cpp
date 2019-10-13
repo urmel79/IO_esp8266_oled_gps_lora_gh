@@ -2,8 +2,15 @@
 
 #include "config.hpp"
 
+// include wifi functionality for asynchronous wifi handling
+#include "function_wifi.hpp"
+
+// include OTA functionality (ability for Over The Air updates)
+#include "function_ota.hpp"
+
 #include "function_oled.hpp"
 
+bool g_b_wifi_connected = false;
 bool g_b_iicOLED_connected = false;
 // unsigned long g_ul_delayTime = 2000; // ms
 
@@ -20,12 +27,15 @@ void setup() {
 
   pinMode(g_i_led_pin, OUTPUT);
 
+  g_b_wifi_connected = connectToWifi();
+
+  if (g_b_wifi_connected) function_ota_setup(HOSTNAME);   // setup OTA functionality
+
   g_b_iicOLED_connected = connectOLEDiic();
 }
 
 void loop() {
-  // updating the oled display non-blocking with Ticker does produce hard panic errors (esp8266 crashes)
-  if (g_b_iicOLED_connected) printOLED_str("Das ist ein Test.");
+  function_ota_handle();  // call handler function for OTA
 
   // loop to blink without delay
   unsigned long currentMillis = millis();
@@ -36,5 +46,14 @@ void loop() {
     g_b_ledState = not(g_b_ledState);
     // set the LED with the ledState of the variable:
     digitalWrite(g_i_led_pin,  g_b_ledState);
+
+    // updating the oled display non-blocking with Ticker does produce hard panic errors (esp8266 crashes)
+    if (g_b_iicOLED_connected) {
+      printOLED_begin();
+      printOLED_values(0, "Host: ", get_wifi_hostname());
+      printOLED_values(10, "IP: ", get_wifi_IP_str());
+      printOLED_values(20, "RSSI: ", String(get_wifi_RSSI()));
+      printOLED_end();
+    }
   }
 }

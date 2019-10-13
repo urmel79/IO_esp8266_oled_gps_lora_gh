@@ -46,23 +46,42 @@ bool connectOLEDiic() {
 //   display.display();
 // }
 
-void printOLED_str(String str){
+void printOLED_str(int line, String str) {
   display.clear();
 
   // Sets the current font. Available default fonts:
   // ArialMT_Plain_10, ArialMT_Plain_16, ArialMT_Plain_24
   display.setFont(ArialMT_Plain_10); //I like fonts
 
-  // display static text (header)
-  display.setTextAlignment(TEXT_ALIGN_CENTER);
-  display.drawString(64,0,"Überschrift");
+  // // display static text (header)
+  // display.setTextAlignment(TEXT_ALIGN_CENTER);
+  // display.drawString(64,0,"Überschrift");
 
-  // Draw a line horizontally
-  display.drawHorizontalLine(0, 12, 128);
+  // // Draw a line horizontally
+  // display.drawHorizontalLine(0, 12, 128);
 
   display.setTextAlignment(TEXT_ALIGN_LEFT);
 
-  display.drawString(0,15, str);
+  display.drawString(0, line, str);
 
   display.display();
+}
+
+void printOLED_begin() {
+  display.clear();
+
+  // Sets the current font. Available default fonts:
+  // ArialMT_Plain_10, ArialMT_Plain_16, ArialMT_Plain_24
+  display.setFont(ArialMT_Plain_10); //I like fonts
+
+  display.setTextAlignment(TEXT_ALIGN_LEFT);
+}
+
+void printOLED_end() {
+  display.display();
+}
+
+void printOLED_values(int line, String identifier, String value) {
+  String str_display = identifier+value;
+  display.drawString(0, line, str_display);
 }
