@@ -15,7 +15,7 @@
  * D1 = SDA
  * D2 = SCL
 */
-#if defined(WEMOS_D1_MINI_PRO) || defined(NODE_MCU_V2)
+#if defined(WEMOS_D1_MINI_PRO) || defined(NODE_MCU_LORA_1) || defined(NODE_MCU_LORA_2)
   const int sdaPin = D2;
   const int sclPin = D1;
 #elif defined(DEAUTHER_OLED)

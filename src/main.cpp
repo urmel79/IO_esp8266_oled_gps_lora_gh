@@ -10,6 +10,29 @@
 
 #include "function_oled.hpp"
 
+#if !defined(D5)
+  #define D5 (14)
+  #define D6 (12)
+
+  // if D8 ist connected to TxD during boot, there will be errors
+  // => better use D5+D6 for serial
+  #define D7 (13)
+  #define D8 (15)
+#endif
+
+// Install EspSoftwareSerial by Peter Lerup
+// Implementation of the Arduino software serial for ESP8266/ESP32.
+// Important: v5.0.4 is the latest version what compiles without errors
+// (current versions spill massive errors, maybe about interrupt handling?)
+#include<SoftwareSerial.h> //Included SoftwareSerial Library
+//Started SoftwareSerial at RX and TX pin of ESP8266/NodeMCU
+SoftwareSerial serial_gps(D5, D6); // RxD: GPIO13 (D5), TxD: GPIO15 (D6)
+#define BAUD_RATE 9600
+
+#include <TinyGPS++.h>
+// The TinyGPS++ object
+TinyGPSPlus gps;
+
 bool g_b_wifi_connected = false;
 bool g_b_iicOLED_connected = false;
 // unsigned long g_ul_delayTime = 2000; // ms
@@ -22,8 +45,11 @@ bool g_b_ledState = false;  // ledState used to set the LED
 
 void setup() {
   Serial.begin(9600);
-  Serial.println();
-  Serial.println();
+  while (!Serial) {
+    ; // wait for serial port to connect. Needed for native USB port only
+  }
+
+  serial_gps.begin(BAUD_RATE);
 
   pinMode(g_i_led_pin, OUTPUT);
 
@@ -36,6 +62,27 @@ void setup() {
 
 void loop() {
   function_ota_handle();  // call handler function for OTA
+
+  // By default, the last intialized port is listening.
+  // when you want to listen on a port, explicitly select it:
+  // serial_gps.listen();
+  // while there is data coming in, read it
+  // and send to the hardware serial port:
+  while (serial_gps.available() > 0) {
+		Serial.write(serial_gps.read());
+		yield();
+	}
+
+  // // This sketch displays information every time a new sentence is correctly encoded.
+  // while (serial_gps.available() > 0){
+  //   gps.encode(serial_gps.read());
+  //   if (gps.location.isUpdated()){
+  //     Serial.print("Latitude= ");
+  //     Serial.print(gps.location.lat(), 6);
+  //     Serial.print(" Longitude= ");
+  //     Serial.println(gps.location.lng(), 6);
+  //   }
+  // }
 
   // loop to blink without delay
   unsigned long currentMillis = millis();
@@ -54,6 +101,12 @@ void loop() {
       printOLED_values(10, "IP: ", get_wifi_IP_str());
       printOLED_values(20, "RSSI: ", String(get_wifi_RSSI()));
       printOLED_end();
+
+      // Serial.println("############## WIFI ##############");
+      // Serial.println(get_wifi_hostname());
+      // Serial.println(get_wifi_IP_str());
+      // Serial.println(get_wifi_RSSI());
+      // Serial.println("############## WIFI ##############");
     }
   }
 }

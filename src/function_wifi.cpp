@@ -19,7 +19,7 @@ bool connectToWifi() {
 void onWifiConnect(const WiFiEventStationModeGotIP& event) {
   Serial.println("Connected to Wi-Fi.");
 
-  Serial.print("Setting the ESP's hotsname to: ");
+  Serial.print("Setting the ESP's hostname to: ");
   Serial.println(String(HOSTNAME));
   WiFi.hostname(String(HOSTNAME));
   Serial.print("ESP8266 MAC: ");
