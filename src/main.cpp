@@ -31,16 +31,18 @@ SoftwareSerial serial_gps(D5, D6); // RxD: GPIO13 (D5), TxD: GPIO15 (D6)
 
 #include <TinyGPS++.h>
 // The TinyGPS++ object
+// Example: https://github.com/mkconer/ESP8266_GPS/blob/master/ESP8266_GPS_OLED_Youtube.ino
 TinyGPSPlus gps;
 
 bool g_b_wifi_connected = false;
 bool g_b_iicOLED_connected = false;
+bool g_b_valid_gps_signal = false;
 // unsigned long g_ul_delayTime = 2000; // ms
 
 //variables for blinking an LED with Millis
 const int g_i_led_pin = 2; // ESP8266 Pin to which onboard LED is connected
 unsigned long g_ul_previousMillis = 0;  // will store last time LED was updated
-const unsigned long g_ul_delayTime = 500;  // interval at which to blink (milliseconds)
+const unsigned long g_ul_delayTime = 2000;  // interval at which to blink (milliseconds)
 bool g_b_ledState = false;  // ledState used to set the LED
 
 void setup() {
@@ -63,26 +65,36 @@ void setup() {
 void loop() {
   function_ota_handle();  // call handler function for OTA
 
-  // By default, the last intialized port is listening.
-  // when you want to listen on a port, explicitly select it:
-  // serial_gps.listen();
-  // while there is data coming in, read it
-  // and send to the hardware serial port:
-  while (serial_gps.available() > 0) {
-		Serial.write(serial_gps.read());
-		yield();
-	}
+  // // while there is data coming in, read it
+  // // and send to the hardware serial port:
+  // while (serial_gps.available() > 0) {
+	// 	Serial.write(serial_gps.read());
+	// 	yield();
+	// }
 
-  // // This sketch displays information every time a new sentence is correctly encoded.
-  // while (serial_gps.available() > 0){
-  //   gps.encode(serial_gps.read());
-  //   if (gps.location.isUpdated()){
-  //     Serial.print("Latitude= ");
-  //     Serial.print(gps.location.lat(), 6);
-  //     Serial.print(" Longitude= ");
-  //     Serial.println(gps.location.lng(), 6);
-  //   }
-  // }
+  // This sketch displays information every time a new sentence is correctly encoded.
+  while (serial_gps.available() > 0){
+    gps.encode(serial_gps.read());
+    if (gps.location.isUpdated()){
+      Serial.print("Latitude= ");
+      Serial.print(gps.location.lat(), 6);
+      Serial.print(" Longitude= ");
+      Serial.println(gps.location.lng(), 6);
+      g_b_valid_gps_signal = true;
+    }
+    else g_b_valid_gps_signal = false;
+
+    // Yielding
+    // This is one of the most critical differences between the ESP8266 and a more classical
+    // Arduino microcontroller. The ESP8266 runs a lot of utility functions in the background –
+    // keeping WiFi connected, managing the TCP/IP stack, and performing other duties.
+    // Blocking these functions from running can cause the ESP8266 to crash and reset itself.
+    // To avoid these mysterious resets, avoid long, blocking loops in your sketch.
+    //
+    // The amazing creators of the ESP8266 Arduino libraries also implemented a yield() function,
+    // which calls on the background functions to allow them to do their things.
+    yield();
+  }
 
   // loop to blink without delay
   unsigned long currentMillis = millis();
@@ -107,6 +119,8 @@ void loop() {
       // Serial.println(get_wifi_IP_str());
       // Serial.println(get_wifi_RSSI());
       // Serial.println("############## WIFI ##############");
+
+      if (!g_b_valid_gps_signal) Serial.println("#### No GPS Signal .. ####");
     }
   }
 }
