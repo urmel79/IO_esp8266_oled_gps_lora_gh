@@ -163,7 +163,7 @@ void loop() {
         Serial.print(gps.speed.kmph());
         Serial.println(" km/h");
 
-        printOLED_begin();
+        // printOLED_begin();
         printOLED_values(30, "Lat.: ", String(gps.location.lat()));
         printOLED_values(40, "Long.: ", String(gps.location.lng()));
         printOLED_values(50, "Sat.: ", String(gps.satellites.value()));
