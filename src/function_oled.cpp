@@ -18,55 +18,6 @@ bool connectOLEDiic() {
   return status;
 }
 
-// void printOLED_bme280(double temp, int hum, double press, int alt) {
-//
-//   display.clear();
-//
-//   // Sets the current font. Available default fonts:
-//   // ArialMT_Plain_10, ArialMT_Plain_16, ArialMT_Plain_24
-//   display.setFont(ArialMT_Plain_10); //I like fonts
-//
-//   // display static text (header)
-//   display.setTextAlignment(TEXT_ALIGN_CENTER);
-//   display.drawString(64,0,"Sensor BME280");
-//
-//   // Draw a line horizontally
-//   display.drawHorizontalLine(0, 12, 128);
-//
-//   display.setTextAlignment(TEXT_ALIGN_LEFT);
-//
-//   display.drawString(0,15,"Temperat: " + String(temp) + " °C");
-//   display.drawString(0,25,"Humidity: " + String(hum) + " % rF");
-//   display.drawString(0,35,"Pressure: " + String(press) + " hPa");
-//
-//   if ( alt !=0 ) display.drawString(0,45,"Altitude: " + String(alt) + " m");
-//   else display.drawString(0,45,"Altitude: nischt geschoits");
-//
-//
-//   display.display();
-// }
-
-void printOLED_str(int line, String str) {
-  display.clear();
-
-  // Sets the current font. Available default fonts:
-  // ArialMT_Plain_10, ArialMT_Plain_16, ArialMT_Plain_24
-  display.setFont(ArialMT_Plain_10); //I like fonts
-
-  // // display static text (header)
-  // display.setTextAlignment(TEXT_ALIGN_CENTER);
-  // display.drawString(64,0,"Überschrift");
-
-  // // Draw a line horizontally
-  // display.drawHorizontalLine(0, 12, 128);
-
-  display.setTextAlignment(TEXT_ALIGN_LEFT);
-
-  display.drawString(0, line, str);
-
-  display.display();
-}
-
 void printOLED_begin() {
   display.clear();
 
@@ -79,6 +30,10 @@ void printOLED_begin() {
 
 void printOLED_end() {
   display.display();
+}
+
+void printOLED_str(int line, String str) {
+  display.drawString(0, line, str);
 }
 
 void printOLED_values(int line, String identifier, String value) {

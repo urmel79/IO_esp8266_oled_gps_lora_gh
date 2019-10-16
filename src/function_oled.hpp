@@ -25,10 +25,10 @@
 
 bool connectOLEDiic();
 
-void printOLED_str(int line, String str);
-
 void printOLED_begin();
 void printOLED_end();
+
+void printOLED_str(int line, String str);
 void printOLED_values(int line, String identifier, String value);
 
 #endif // function_oled_hpp
