@@ -31,7 +31,9 @@ SoftwareSerial serial_gps(D5, D6); // RxD: GPIO13 (D5), TxD: GPIO15 (D6)
 
 #include <TinyGPS++.h>
 // The TinyGPS++ object
-// Example: https://github.com/mkconer/ESP8266_GPS/blob/master/ESP8266_GPS_OLED_Youtube.ino
+// Examples:
+// https://github.com/mkconer/ESP8266_GPS/blob/master/ESP8266_GPS_OLED_Youtube.ino
+// https://circuitdigest.com/microcontroller-projects/interfacing-gps-with-nodemcu-esp12
 TinyGPSPlus gps;
 
 bool g_b_wifi_connected = false;
@@ -52,6 +54,9 @@ void setup() {
   }
 
   serial_gps.begin(BAUD_RATE);
+  while (!serial_gps) {
+    ; // wait for serial port to connect. Needed for native USB port only
+  }
 
   pinMode(g_i_led_pin, OUTPUT);
 
@@ -76,10 +81,10 @@ void loop() {
   while (serial_gps.available() > 0){
     gps.encode(serial_gps.read());
     if (gps.location.isUpdated()){
-      Serial.print("Latitude= ");
-      Serial.print(gps.location.lat(), 6);
-      Serial.print(" Longitude= ");
-      Serial.println(gps.location.lng(), 6);
+      // Serial.print("Latitude= ");
+      // Serial.print(gps.location.lat(), 6);
+      // Serial.print(" Longitude= ");
+      // Serial.println(gps.location.lng(), 6);
       g_b_valid_gps_signal = true;
     }
     else g_b_valid_gps_signal = false;
@@ -112,15 +117,58 @@ void loop() {
       printOLED_values(0, "Host: ", get_wifi_hostname());
       printOLED_values(10, "IP: ", get_wifi_IP_str());
       printOLED_values(20, "RSSI: ", String(get_wifi_RSSI()));
-      printOLED_end();
+      // printOLED_end();
 
       // Serial.println("############## WIFI ##############");
-      // Serial.println(get_wifi_hostname());
-      // Serial.println(get_wifi_IP_str());
-      // Serial.println(get_wifi_RSSI());
+      Serial.println(get_wifi_hostname());
+      Serial.println(get_wifi_IP_str());
+      Serial.println(get_wifi_RSSI());
       // Serial.println("############## WIFI ##############");
 
-      if (!g_b_valid_gps_signal) Serial.println("#### No GPS Signal .. ####");
+      if (!g_b_valid_gps_signal) {
+        Serial.println("#### No GPS Signal .. ####");
+
+        // printOLED_begin();
+        printOLED_str(30, "# No GPS Signal .. #");
+        printOLED_str(40, "");
+        printOLED_str(50, "");
+        printOLED_end();
+      }
+      else {
+        // Serial.setCursor(0,0);
+        Serial.print("Latitude  : ");
+        Serial.print(gps.location.lat(), 5);
+        Serial.print(char(176));                            // ° symbol
+        Serial.println(" N");
+        Serial.print("Longitude : ");
+        Serial.print(gps.location.lng(), 4);
+        Serial.print(char(176));                            // ° symbol
+        Serial.println(" E");
+        Serial.print("Satellites: ");
+        Serial.println(gps.satellites.value());
+        Serial.print("Elevation : ");
+        Serial.print(gps.altitude.meters());
+        Serial.println(" m");
+        Serial.print("Time UTC  : ");
+        Serial.print(gps.time.hour());                       // GPS time UTC
+        Serial.print(":");
+        Serial.print(gps.time.minute());                     // Minutes
+        Serial.print(":");
+        Serial.println(gps.time.second());                   // Seconds
+        Serial.print("Heading   : ");
+        Serial.print(gps.course.deg());
+        Serial.println(char(176));                            // ° symbol
+        // Serial.println(" °");
+        Serial.print("Speed     : ");
+        Serial.print(gps.speed.kmph());
+        Serial.println(" km/h");
+
+        printOLED_begin();
+        printOLED_values(30, "Lat.: ", String(gps.location.lat()));
+        printOLED_values(40, "Long.: ", String(gps.location.lng()));
+        printOLED_values(50, "Sat.: ", String(gps.satellites.value()));
+        printOLED_end();
+      }
     }
   }
 }
