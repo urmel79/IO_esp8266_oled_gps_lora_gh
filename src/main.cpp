@@ -10,35 +10,13 @@
 
 #include "function_oled.hpp"
 
-#if !defined(D5)
-  #define D5 (14)
-  #define D6 (12)
+#include "function_gps.hpp"
 
-  // if D8 ist connected to TxD during boot, there will be errors
-  // => better use D5+D6 for serial
-  #define D7 (13)
-  #define D8 (15)
-#endif
-
-// Install EspSoftwareSerial by Peter Lerup
-// Implementation of the Arduino software serial for ESP8266/ESP32.
-// Important: v5.0.4 is the latest version what compiles without errors
-// (current versions spill massive errors, maybe about interrupt handling?)
-#include<SoftwareSerial.h> //Included SoftwareSerial Library
-//Started SoftwareSerial at RX and TX pin of ESP8266/NodeMCU
-SoftwareSerial serial_gps(D5, D6); // RxD: GPIO13 (D5), TxD: GPIO15 (D6)
-#define BAUD_RATE 9600
-
-#include <TinyGPS++.h>
-// The TinyGPS++ object
-// Examples:
-// https://github.com/mkconer/ESP8266_GPS/blob/master/ESP8266_GPS_OLED_Youtube.ino
-// https://circuitdigest.com/microcontroller-projects/interfacing-gps-with-nodemcu-esp12
-TinyGPSPlus gps;
+TinyGPSPlus g_s_gps_values;
 
 bool g_b_wifi_connected = false;
 bool g_b_iicOLED_connected = false;
-bool g_b_valid_gps_signal = false;
+// bool g_b_valid_gps_signal = false;
 // unsigned long g_ul_delayTime = 2000; // ms
 
 //variables for blinking an LED with Millis
@@ -53,10 +31,7 @@ void setup() {
     ; // wait for serial port to connect. Needed for native USB port only
   }
 
-  serial_gps.begin(BAUD_RATE);
-  while (!serial_gps) {
-    ; // wait for serial port to connect. Needed for native USB port only
-  }
+  initSS_gps();
 
   pinMode(g_i_led_pin, OUTPUT);
 
@@ -70,36 +45,7 @@ void setup() {
 void loop() {
   function_ota_handle();  // call handler function for OTA
 
-  // // while there is data coming in, read it
-  // // and send to the hardware serial port:
-  // while (serial_gps.available() > 0) {
-	// 	Serial.write(serial_gps.read());
-	// 	yield();
-	// }
-
-  // This sketch displays information every time a new sentence is correctly encoded.
-  while (serial_gps.available() > 0){
-    gps.encode(serial_gps.read());
-    if (gps.location.isUpdated()){
-      // Serial.print("Latitude= ");
-      // Serial.print(gps.location.lat(), 6);
-      // Serial.print(" Longitude= ");
-      // Serial.println(gps.location.lng(), 6);
-      g_b_valid_gps_signal = true;
-    }
-    else g_b_valid_gps_signal = false;
-
-    // Yielding
-    // This is one of the most critical differences between the ESP8266 and a more classical
-    // Arduino microcontroller. The ESP8266 runs a lot of utility functions in the background –
-    // keeping WiFi connected, managing the TCP/IP stack, and performing other duties.
-    // Blocking these functions from running can cause the ESP8266 to crash and reset itself.
-    // To avoid these mysterious resets, avoid long, blocking loops in your sketch.
-    //
-    // The amazing creators of the ESP8266 Arduino libraries also implemented a yield() function,
-    // which calls on the background functions to allow them to do their things.
-    yield();
-  }
+  g_s_gps_values = read_gps();
 
   // loop to blink without delay
   unsigned long currentMillis = millis();
@@ -117,56 +63,49 @@ void loop() {
       printOLED_values(0, "Host: ", get_wifi_hostname());
       printOLED_values(10, "IP: ", get_wifi_IP_str());
       printOLED_values(20, "RSSI: ", String(get_wifi_RSSI()));
-      // printOLED_end();
 
-      // Serial.println("############## WIFI ##############");
       Serial.println(get_wifi_hostname());
       Serial.println(get_wifi_IP_str());
       Serial.println(get_wifi_RSSI());
-      // Serial.println("############## WIFI ##############");
 
-      if (!g_b_valid_gps_signal) {
-        Serial.println("#### No GPS Signal .. ####");
-
-        // printOLED_begin();
-        printOLED_str(30, "# No GPS Signal .. #");
-        printOLED_str(40, "");
-        printOLED_str(50, "");
-        printOLED_end();
-      }
-      else {
-        // Serial.setCursor(0,0);
+      if (g_s_gps_values.location.isValid()) {
         Serial.print("Latitude  : ");
-        Serial.print(gps.location.lat(), 5);
+        Serial.print(g_s_gps_values.location.lat(), 10);
         Serial.print(char(176));                            // ° symbol
         Serial.println(" N");
         Serial.print("Longitude : ");
-        Serial.print(gps.location.lng(), 4);
+        Serial.print(g_s_gps_values.location.lng(), 10);
         Serial.print(char(176));                            // ° symbol
         Serial.println(" E");
         Serial.print("Satellites: ");
-        Serial.println(gps.satellites.value());
+        Serial.println(g_s_gps_values.satellites.value());
         Serial.print("Elevation : ");
-        Serial.print(gps.altitude.meters());
+        Serial.print(g_s_gps_values.altitude.meters());
         Serial.println(" m");
         Serial.print("Time UTC  : ");
-        Serial.print(gps.time.hour());                       // GPS time UTC
+        Serial.print(g_s_gps_values.time.hour());           // GPS time UTC
         Serial.print(":");
-        Serial.print(gps.time.minute());                     // Minutes
+        Serial.print(g_s_gps_values.time.minute());         // Minutes
         Serial.print(":");
-        Serial.println(gps.time.second());                   // Seconds
+        Serial.println(g_s_gps_values.time.second());       // Seconds
         Serial.print("Heading   : ");
-        Serial.print(gps.course.deg());
-        Serial.println(char(176));                            // ° symbol
-        // Serial.println(" °");
+        Serial.print(g_s_gps_values.course.deg());
+        Serial.println(char(176));                          // ° symbol
         Serial.print("Speed     : ");
-        Serial.print(gps.speed.kmph());
+        Serial.print(g_s_gps_values.speed.kmph());
         Serial.println(" km/h");
 
-        // printOLED_begin();
-        printOLED_values(30, "Lat.: ", String(gps.location.lat()));
-        printOLED_values(40, "Long.: ", String(gps.location.lng()));
-        printOLED_values(50, "Sat.: ", String(gps.satellites.value()));
+        printOLED_values(30, "Lat.: ", String(g_s_gps_values.location.lat()));
+        printOLED_values(40, "Long.: ", String(g_s_gps_values.location.lng()));
+        printOLED_values(50, "Sat.: ", String(g_s_gps_values.satellites.value()));
+        printOLED_end();
+      }
+      else {
+        Serial.println("#### No GPS Signal .. ####");
+
+        printOLED_str(30, "# No GPS Signal .. #");
+        printOLED_str(40, "");
+        printOLED_str(50, "");
         printOLED_end();
       }
     }

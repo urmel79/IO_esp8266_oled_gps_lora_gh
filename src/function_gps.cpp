@@ -1,12 +1,14 @@
 #include "function_gps.hpp"
 
+// includes implicit <sys/types.h> (necessary for SoftwareSerial)
+// otherwise errors like 'ssize_t' does not name a type'
+#include <Arduino.h>
+
 // Install EspSoftwareSerial by Peter Lerup
 // Implementation of the Arduino software serial for ESP8266/ESP32.
 // Important: v5.0.4 is the latest version what compiles without errors
 // (current versions spill massive errors, maybe about interrupt handling?)
-#include<SoftwareSerial.h> //Included SoftwareSerial Library
-
-#include <TinyGPS++.h>
+#include <SoftwareSerial.h> //Included SoftwareSerial Library
 
 #define BAUD_RATE 9600
 
@@ -38,6 +40,56 @@ bool initSS_gps() {
   return status;
 }
 
-void read_gps() {
-  ;
+// struct gps_values read_gps() {
+TinyGPSPlus read_gps() {
+
+  TinyGPSPlus l_gps_values;
+
+  // // while there is data coming in, read it
+  // // and send to the hardware serial port:
+  // while (serial_gps.available() > 0) {
+  // 	Serial.write(serial_gps.read());
+  // 	yield();
+  // }
+
+  // This sketch displays information every time a new sentence is correctly encoded.
+  while (serial_gps.available() > 0) {
+
+    gps.encode(serial_gps.read());
+
+    if (gps.location.isValid()) {
+
+      // l_gps_values.location.lat = gps.location.lat();
+      // l_gps_values.location.lng = gps.location.lng();
+      // g_gps_values.date = gps.date;
+      // g_gps_values.time = gps.time;
+      // g_gps_values.speed = gps.speed;
+      // g_gps_values.course = gps.course;
+      // g_gps_values.altitude = gps.altitude;
+      // g_gps_values.satellites = gps.satellites;
+      // g_gps_values.hdop = gps.hdop;
+
+      // make a local (shallow) copy of gps structure, just like with memcpy.
+      // That means if you have e.g. a structure containing pointers, it's only the actual
+      // pointers that will be copied and not what they point to, so after the copy you
+      // will have two pointers pointing to the same memory.
+      // l_gps_values = gps;
+
+      return gps;
+    }
+
+    // Yielding
+    // This is one of the most critical differences between the ESP8266 and a more classical
+    // Arduino microcontroller. The ESP8266 runs a lot of utility functions in the background –
+    // keeping WiFi connected, managing the TCP/IP stack, and performing other duties.
+    // Blocking these functions from running can cause the ESP8266 to crash and reset itself.
+    // To avoid these mysterious resets, avoid long, blocking loops in your sketch.
+    //
+    // The amazing creators of the ESP8266 Arduino libraries also implemented a yield() function,
+    // which calls on the background functions to allow them to do their things.
+    yield();
+  }
+
+  return gps;
+  // return l_gps_values;
 }
