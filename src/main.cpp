@@ -12,6 +12,8 @@
 
 #include "function_gps.hpp"
 
+#include "function_mqtt.hpp"
+
 TinyGPSPlus g_s_gps_values;
 
 bool g_b_wifi_connected = false;
