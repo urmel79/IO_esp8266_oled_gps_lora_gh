@@ -6,11 +6,14 @@
 
 #include "config.hpp"
 
+void configureMqtt();
 void connectToMqtt();
+void connectMqttPubTasks();
 
 void onMqttConnect(bool sessionPresent);
 
 void onMqttDisconnect(AsyncMqttClientDisconnectReason reason);
+void deactivateMqtt_reconnectTimer();
 
 void onMqttSubscribe(uint16_t packetId, uint8_t qos);
 
@@ -22,7 +25,8 @@ bool stringStartsWith(const char *pre, const char *str);
 
 void onMqttPublish(uint16_t packetId);
 
-
+void mqtt_set_wifi_rssi_dBm(int rssi);
+void mqttPub_wifi_rssi();
 
 
 

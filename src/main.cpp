@@ -37,9 +37,13 @@ void setup() {
 
   pinMode(g_i_led_pin, OUTPUT);
 
-  g_b_wifi_connected = connectToWifi();
+  configureWifi();
 
-  if (g_b_wifi_connected) function_ota_setup(HOSTNAME);   // setup OTA functionality
+  configureMqtt(); // setup MQTT functionality
+
+  connectToWifi();
+
+  connectMqttPubTasks();
 
   g_b_iicOLED_connected = connectOLEDiic();
 }
@@ -62,21 +66,23 @@ void loop() {
     // updating the oled display non-blocking with Ticker does produce hard panic errors (esp8266 crashes)
     if (g_b_iicOLED_connected) {
       printOLED_begin();
-      printOLED_values(0, "Host: ", get_wifi_hostname());
-      printOLED_values(10, "IP: ", get_wifi_IP_str());
-      printOLED_values(20, "RSSI: ", String(get_wifi_RSSI()));
+      printOLED_values_str(0, "Host: ", get_wifi_hostname());
+      printOLED_values_str(10, "IP: ", get_wifi_IP_str());
+      printOLED_values_flt(20, "RSSI: ", get_wifi_RSSI(), 2, 0);
 
       Serial.println(get_wifi_hostname());
       Serial.println(get_wifi_IP_str());
       Serial.println(get_wifi_RSSI());
 
+      mqtt_set_wifi_rssi_dBm(get_wifi_RSSI());
+
       if (g_s_gps_values.location.isValid()) {
         Serial.print("Latitude  : ");
-        Serial.print(g_s_gps_values.location.lat(), 10);
+        Serial.print(g_s_gps_values.location.lat(), 9);
         Serial.print(char(176));                            // ° symbol
         Serial.println(" N");
         Serial.print("Longitude : ");
-        Serial.print(g_s_gps_values.location.lng(), 10);
+        Serial.print(g_s_gps_values.location.lng(), 9);
         Serial.print(char(176));                            // ° symbol
         Serial.println(" E");
         Serial.print("Satellites: ");
@@ -97,9 +103,9 @@ void loop() {
         Serial.print(g_s_gps_values.speed.kmph());
         Serial.println(" km/h");
 
-        printOLED_values(30, "Lat.: ", String(g_s_gps_values.location.lat()));
-        printOLED_values(40, "Long.: ", String(g_s_gps_values.location.lng()));
-        printOLED_values(50, "Sat.: ", String(g_s_gps_values.satellites.value()));
+        printOLED_values_flt(30, "Lat.: ", g_s_gps_values.location.lat(), 12, 9);
+        printOLED_values_flt(40, "Long.: ", g_s_gps_values.location.lng(), 12, 9);
+        printOLED_values_flt(50, "Sat.: ", g_s_gps_values.satellites.value(), 5, 0);
         printOLED_end();
       }
       else {

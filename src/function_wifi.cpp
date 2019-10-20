@@ -1,19 +1,26 @@
 #include "function_wifi.hpp"
 
+#include "function_mqtt.hpp"
+#include "function_ota.hpp"
+
 WiFiEventHandler wifiConnectHandler;
 WiFiEventHandler wifiDisconnectHandler;
 Ticker wifiReconnectTimer;
 
-bool connectToWifi() {
+void configureWifi() {
   wifiConnectHandler = WiFi.onStationModeGotIP(onWifiConnect);
   wifiDisconnectHandler = WiFi.onStationModeDisconnected(onWifiDisconnect);
   WiFi.softAPdisconnect(true); // deactivate wifi access point (soft AP)
+}
 
+void connectToWifi() {
   Serial.println("Connecting to Wi-Fi...");
   WiFi.mode(WIFI_STA);  // client mode
   WiFi.begin(WIFI_SSID, WIFI_PASSWORD);
+}
 
-  return true;
+bool get_wifi_isConnected() {
+  return WiFi.isConnected();
 }
 
 void onWifiConnect(const WiFiEventStationModeGotIP& event) {
@@ -29,12 +36,14 @@ void onWifiConnect(const WiFiEventStationModeGotIP& event) {
   Serial.print("Wi-Fi signal level: ");
   Serial.println(WiFi.RSSI());
 
-  // connectToMqtt();
+  function_ota_setup(HOSTNAME);   // setup OTA functionality
+
+  connectToMqtt();
 }
 
 void onWifiDisconnect(const WiFiEventStationModeDisconnected& event) {
   Serial.println("Disconnected from Wi-Fi.");
-  // mqttReconnectTimer.detach(); // ensure we don't reconnect to MQTT while reconnecting to Wi-Fi
+  deactivateMqtt_reconnectTimer();
   wifiReconnectTimer.once(2, connectToWifi);
 }
 

@@ -1,5 +1,7 @@
 #include "function_mqtt.hpp"
 
+#include "function_wifi.hpp"
+
 AsyncMqttClient mqttClient;
 Ticker mqttReconnectTimer;
 
@@ -7,10 +9,26 @@ Ticker mqtt_pub_wifi_quality;
 
 Ticker mqtt_pub_sensor_measurements;
 
+int g_i_rssi_dBm;
+
+void configureMqtt() {
+  mqttClient.onConnect(onMqttConnect);
+  mqttClient.onDisconnect(onMqttDisconnect);
+  mqttClient.onSubscribe(onMqttSubscribe);
+  mqttClient.onUnsubscribe(onMqttUnsubscribe);
+  mqttClient.onMessage(onMqttMessage);
+  mqttClient.onPublish(onMqttPublish);
+  mqttClient.setServer(MQTT_HOST, MQTT_PORT);
+}
+
 void connectToMqtt() {
   Serial.print("Connecting to MQTT host: ");
   Serial.println(String(MQTT_HOST));
   mqttClient.connect();
+}
+
+void connectMqttPubTasks() {
+  mqtt_pub_wifi_quality.attach(2, mqttPub_wifi_rssi);
 }
 
 void onMqttConnect(bool sessionPresent) {
@@ -35,9 +53,13 @@ void onMqttConnect(bool sessionPresent) {
 void onMqttDisconnect(AsyncMqttClientDisconnectReason reason) {
   Serial.println("Disconnected from MQTT.");
 
-  // if (WiFi.isConnected()) {
-  //   mqttReconnectTimer.once(2, connectToMqtt);
-  // }
+  if (get_wifi_isConnected()) {
+    mqttReconnectTimer.once(2, configureMqtt);
+  }
+}
+
+void deactivateMqtt_reconnectTimer() {
+  mqttReconnectTimer.detach(); // ensure we don't reconnect to MQTT while reconnecting to Wi-Fi
 }
 
 void onMqttSubscribe(uint16_t packetId, uint8_t qos) {
@@ -171,4 +193,27 @@ void onMqttPublish(uint16_t packetId) {
   Serial.println("Publish acknowledged.");
   Serial.print("  packetId: ");
   Serial.println(packetId);
+}
+
+void mqtt_set_wifi_rssi_dBm(int rssi) {
+  g_i_rssi_dBm = rssi;
+}
+
+void mqttPub_wifi_rssi() {
+  bool send_success;
+  // convert int to string
+  String str_wifi_rssi_dBm = String(g_i_rssi_dBm);
+
+  String topic_pub = String(MQTT_ROOT_TOPIC);
+  topic_pub += "/wifi/rssi";
+
+  if (mqttClient.connected()) {
+    send_success = mqttClient.publish(topic_pub.c_str(), 0, true, str_wifi_rssi_dBm.c_str());
+
+    if (send_success) {
+      Serial.print("MQTT: Wi-Fi signal level = ");
+      Serial.println(str_wifi_rssi_dBm);
+    }
+    else Serial.println("MQTT: Error sending message.");
+  }
 }
