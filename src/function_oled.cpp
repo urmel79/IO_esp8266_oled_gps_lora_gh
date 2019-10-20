@@ -36,7 +36,40 @@ void printOLED_str(int line, String str) {
   display.drawString(0, line, str);
 }
 
-void printOLED_values(int line, String identifier, String value) {
+void printOLED_values_str(int line, String identifier, String value) {
   String str_display = identifier+value;
   display.drawString(0, line, str_display);
 }
+
+void printOLED_values_flt(int line, String identifier, double value, uint flt_positions, uint precision) {
+  char str_value[21];     //result string 20 positions + \0 at the end
+
+  if (flt_positions < precision) precision = flt_positions + 2; // sanitize precision
+  if (flt_positions > 20) flt_positions = 20; // validate flt_positions (max 20 digits)
+  if (precision > 10) precision = 10; // validate precision (max 10 precision digits)
+  dtostrf( value, flt_positions, precision, str_value ); // convert float/double to string with desired precision
+
+  String str_display = identifier+str_value;
+  display.drawString(0, line, str_display);
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+//

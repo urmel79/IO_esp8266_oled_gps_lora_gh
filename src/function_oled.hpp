@@ -29,6 +29,7 @@ void printOLED_begin();
 void printOLED_end();
 
 void printOLED_str(int line, String str);
-void printOLED_values(int line, String identifier, String value);
+void printOLED_values_str(int line, String identifier, String value);
+void printOLED_values_flt(int line, String identifier, double value, uint flt_positions, uint precision);
 
 #endif // function_oled_hpp
