@@ -28,6 +28,9 @@ void onMqttPublish(uint16_t packetId);
 void mqtt_set_wifi_rssi_dBm(int rssi);
 void mqttPub_wifi_rssi();
 
+void mqtt_set_gps_valid(bool gps_valid);
+void mqtt_set_gps_json(String sensor, int time, String location, String icon, int satellites, double latitude, double longitude);
+void mqttPub_gps_json();
 
 
 

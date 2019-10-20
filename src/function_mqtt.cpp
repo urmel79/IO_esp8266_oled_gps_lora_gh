@@ -1,15 +1,27 @@
 #include "function_mqtt.hpp"
 
+#include <ArduinoJson.h>
+
 #include "function_wifi.hpp"
 
 AsyncMqttClient mqttClient;
 Ticker mqttReconnectTimer;
 
 Ticker mqtt_pub_wifi_quality;
+Ticker mqtt_pub_gps_json;
 
-Ticker mqtt_pub_sensor_measurements;
+// Ticker mqtt_pub_sensor_measurements;
 
 int g_i_rssi_dBm;
+
+bool g_b_gps_valid;
+String g_str_sensor;
+int g_i_time;
+String g_str_location;
+String g_str_icon;
+int g_i_satellites;
+double g_d_latitude;
+double g_d_longitude;
 
 void configureMqtt() {
   mqttClient.onConnect(onMqttConnect);
@@ -29,6 +41,7 @@ void connectToMqtt() {
 
 void connectMqttPubTasks() {
   mqtt_pub_wifi_quality.attach(2, mqttPub_wifi_rssi);
+  mqtt_pub_gps_json.attach(2, mqttPub_gps_json);
 }
 
 void onMqttConnect(bool sessionPresent) {
@@ -201,6 +214,7 @@ void mqtt_set_wifi_rssi_dBm(int rssi) {
 
 void mqttPub_wifi_rssi() {
   bool send_success;
+
   // convert int to string
   String str_wifi_rssi_dBm = String(g_i_rssi_dBm);
 
@@ -217,3 +231,85 @@ void mqttPub_wifi_rssi() {
     else Serial.println("MQTT: Error sending message.");
   }
 }
+
+void mqtt_set_gps_valid(bool gps_valid) {
+  g_b_gps_valid = gps_valid;
+}
+
+void mqtt_set_gps_json(String sensor, int time, String location, String icon, int satellites, double latitude, double longitude) {
+  g_str_sensor = sensor;
+  g_i_time = time;
+  g_str_location = location;
+  g_str_icon = icon;
+  g_i_satellites = satellites;
+  g_d_latitude = latitude;
+  g_d_longitude = longitude;
+}
+
+void mqttPub_gps_json() {
+  bool send_success;
+
+  // Allocate the JSON document
+  //
+  // Inside the brackets, 200 is the RAM allocated to this document.
+  // Don't forget to change this value to match your requirement.
+  // Use https://arduinojson.org/v6/assistant to compute the capacity.
+  // StaticJsonDocument<200> doc;
+
+  // StaticJsonObject allocates memory on the stack, it can be
+  // replaced by DynamicJsonDocument which allocates in the heap.
+  const size_t capacity = JSON_ARRAY_SIZE(2) + JSON_OBJECT_SIZE(5);
+  DynamicJsonDocument JsonDoc(capacity);
+
+  // Add values in the document
+  JsonDoc["sensor"] = g_str_sensor;
+  JsonDoc["time"] = g_i_time;
+  JsonDoc["location"] = g_str_location;
+  JsonDoc["icon"] = g_str_icon;
+  JsonDoc["satellites"] = g_i_satellites;
+
+  // Add an array.
+  JsonArray gps_loc = JsonDoc.createNestedArray("gps_loc");
+  // data.add(51.003886167);
+  // data.add(13.686812667);
+  gps_loc.add(g_d_latitude);
+  gps_loc.add(g_d_longitude);
+
+  // // Generate the minified JSON and send it to the Serial port.
+  // serializeJson(JsonDoc, Serial);
+  // Serial.println("");
+
+  String topic_pub = String(MQTT_ROOT_TOPIC);
+  topic_pub += "/lora/gps";
+  // String mqttJsonPayload;
+  char mqttJsonPayload[512];
+  // save a few CPU cycles by passing the size of the payload to publish()
+  size_t n = serializeJson(JsonDoc, mqttJsonPayload);
+
+  if (mqttClient.connected() && g_b_gps_valid) {
+    send_success = mqttClient.publish(topic_pub.c_str(), 0, true, mqttJsonPayload, n);
+
+    if (send_success) {
+      Serial.print("MQTT: JSON payload = ");
+      Serial.println(mqttJsonPayload);
+    }
+    else Serial.println("MQTT: Error sending message.");
+  }
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+//

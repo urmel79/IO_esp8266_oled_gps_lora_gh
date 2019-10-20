@@ -90,6 +90,8 @@ void loop() {
         Serial.print("Elevation : ");
         Serial.print(g_s_gps_values.altitude.meters());
         Serial.println(" m");
+        Serial.print("Time Raw  : ");
+        Serial.println(g_s_gps_values.time.value());        // raw time
         Serial.print("Time UTC  : ");
         Serial.print(g_s_gps_values.time.hour());           // GPS time UTC
         Serial.print(":");
@@ -107,9 +109,17 @@ void loop() {
         printOLED_values_flt(40, "Long.: ", g_s_gps_values.location.lng(), 12, 9);
         printOLED_values_flt(50, "Sat.: ", g_s_gps_values.satellites.value(), 5, 0);
         printOLED_end();
+
+        mqtt_set_gps_valid(true);
+        // mqtt_set_gps_json(String sensor, int time, String location, String icon, double latitude, double longitude);
+        mqtt_set_gps_json("lora_1_gps", g_s_gps_values.time.value(), "zu Hause", "fa-home",
+                          g_s_gps_values.satellites.value(),
+                          g_s_gps_values.location.lat(),
+                          g_s_gps_values.location.lng());
       }
       else {
         Serial.println("#### No GPS Signal .. ####");
+        mqtt_set_gps_valid(false);
 
         printOLED_str(30, "# No GPS Signal .. #");
         printOLED_str(40, "");
@@ -119,3 +129,10 @@ void loop() {
     }
   }
 }
+
+
+
+
+
+
+//
