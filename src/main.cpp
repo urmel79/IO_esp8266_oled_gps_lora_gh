@@ -110,10 +110,20 @@ void loop() {
         printOLED_values_flt(50, "Sat.: ", g_s_gps_values.satellites.value(), 5, 0);
         printOLED_end();
 
+        String l_str_time = String(g_s_gps_values.date.year()) + "-"
+                          + String(g_s_gps_values.date.month()) + "-"
+                          + String(g_s_gps_values.date.day()) + " "
+                          + String(g_s_gps_values.time.hour()) + ":"
+                          + String(g_s_gps_values.time.minute())  + ":"
+                          + String(g_s_gps_values.time.second());
+        // String l_str_time = String(g_s_gps_values.time.value());
+
         mqtt_set_gps_valid(true);
         // mqtt_set_gps_json(String sensor, int time, String location, String icon, double latitude, double longitude);
-        mqtt_set_gps_json("lora_1_gps", g_s_gps_values.time.value(), "zu Hause", "fa-home",
+        mqtt_set_gps_json("lora_1_gps", l_str_time, "mobil", "fa-bug", "Yellow", 
                           g_s_gps_values.satellites.value(),
+                          g_s_gps_values.altitude.meters(),
+                          get_wifi_RSSI(),
                           g_s_gps_values.location.lat(),
                           g_s_gps_values.location.lng());
       }

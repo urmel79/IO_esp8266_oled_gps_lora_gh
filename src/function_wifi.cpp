@@ -39,6 +39,7 @@ void onWifiConnect(const WiFiEventStationModeGotIP& event) {
   function_ota_setup(HOSTNAME);   // setup OTA functionality
 
   connectToMqtt();
+  connectMqttPubTasks();
 }
 
 void onWifiDisconnect(const WiFiEventStationModeDisconnected& event) {

@@ -16,10 +16,12 @@ int g_i_rssi_dBm;
 
 bool g_b_gps_valid;
 String g_str_sensor;
-int g_i_time;
+String g_str_time;
 String g_str_location;
 String g_str_icon;
+String g_str_iconColor;
 int g_i_satellites;
+double g_d_altitude;
 double g_d_latitude;
 double g_d_longitude;
 
@@ -236,12 +238,15 @@ void mqtt_set_gps_valid(bool gps_valid) {
   g_b_gps_valid = gps_valid;
 }
 
-void mqtt_set_gps_json(String sensor, int time, String location, String icon, int satellites, double latitude, double longitude) {
+void mqtt_set_gps_json(String sensor, String time, String location, String icon, String iconColor, int satellites, double altitude, int wifi_rssi, double latitude, double longitude) {
   g_str_sensor = sensor;
-  g_i_time = time;
+  g_str_time = time;
   g_str_location = location;
   g_str_icon = icon;
+  g_str_iconColor = iconColor;
   g_i_satellites = satellites;
+  g_d_altitude = altitude;
+  g_i_rssi_dBm = wifi_rssi;
   g_d_latitude = latitude;
   g_d_longitude = longitude;
 }
@@ -258,25 +263,35 @@ void mqttPub_gps_json() {
 
   // StaticJsonObject allocates memory on the stack, it can be
   // replaced by DynamicJsonDocument which allocates in the heap.
-  const size_t capacity = JSON_ARRAY_SIZE(2) + JSON_OBJECT_SIZE(5);
+  //
+  // Wichtig: muss bei Erweiterung des Json-Dokuments immer angepasst werden!
+  //          Es müssen 2 weitere Objektplätze reserviert werden, damit das
+  //          JsonDocument vollständig übertragen wird. Warum??
+  // Use https://arduinojson.org/v6/assistant to compute the capacity.
+  const size_t capacity = JSON_ARRAY_SIZE(2+1) + JSON_OBJECT_SIZE(9+2);
   DynamicJsonDocument JsonDoc(capacity);
 
+  JsonObject Json_rootObj = JsonDoc.to<JsonObject>();
+
   // Add values in the document
-  JsonDoc["sensor"] = g_str_sensor;
-  JsonDoc["time"] = g_i_time;
-  JsonDoc["location"] = g_str_location;
-  JsonDoc["icon"] = g_str_icon;
-  JsonDoc["satellites"] = g_i_satellites;
+  Json_rootObj["sensor"] = g_str_sensor;
+  Json_rootObj["time"] = g_str_time;
+  Json_rootObj["location"] = g_str_location;
+  Json_rootObj["icon"] = g_str_icon;
+  Json_rootObj["iconColor"] = g_str_iconColor;
+  Json_rootObj["satellites"] = g_i_satellites;
+  Json_rootObj["altitude"] = g_d_altitude;
+  Json_rootObj["wifi_rssi"] = g_i_rssi_dBm;
 
   // Add an array.
-  JsonArray gps_loc = JsonDoc.createNestedArray("gps_loc");
-  // data.add(51.003886167);
-  // data.add(13.686812667);
+  JsonArray gps_loc = Json_rootObj.createNestedArray("gps_loc");
+  // gps_loc.add(51.003886167);
+  // gps_loc.add(13.686812667);
   gps_loc.add(g_d_latitude);
   gps_loc.add(g_d_longitude);
 
   // // Generate the minified JSON and send it to the Serial port.
-  // serializeJson(JsonDoc, Serial);
+  // serializeJsonPretty(Json_rootObj, Serial);
   // Serial.println("");
 
   String topic_pub = String(MQTT_ROOT_TOPIC);
@@ -284,7 +299,7 @@ void mqttPub_gps_json() {
   // String mqttJsonPayload;
   char mqttJsonPayload[512];
   // save a few CPU cycles by passing the size of the payload to publish()
-  size_t n = serializeJson(JsonDoc, mqttJsonPayload);
+  size_t n = serializeJson(Json_rootObj, mqttJsonPayload);
 
   if (mqttClient.connected() && g_b_gps_valid) {
     send_success = mqttClient.publish(topic_pub.c_str(), 0, true, mqttJsonPayload, n);
