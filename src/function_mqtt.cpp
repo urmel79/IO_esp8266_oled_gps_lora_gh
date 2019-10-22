@@ -69,7 +69,7 @@ void onMqttDisconnect(AsyncMqttClientDisconnectReason reason) {
   Serial.println("Disconnected from MQTT.");
 
   if (get_wifi_isConnected()) {
-    mqttReconnectTimer.once(2, configureMqtt);
+    mqttReconnectTimer.once(2, connectToMqtt);
   }
 }
 
@@ -268,7 +268,7 @@ void mqttPub_gps_json() {
   //          Es müssen 2 weitere Objektplätze reserviert werden, damit das
   //          JsonDocument vollständig übertragen wird. Warum??
   // Use https://arduinojson.org/v6/assistant to compute the capacity.
-  const size_t capacity = JSON_ARRAY_SIZE(2+1) + JSON_OBJECT_SIZE(9+2);
+  const size_t capacity = JSON_ARRAY_SIZE(2+1) + JSON_OBJECT_SIZE(9+3);
   DynamicJsonDocument JsonDoc(capacity);
 
   JsonObject Json_rootObj = JsonDoc.to<JsonObject>();
