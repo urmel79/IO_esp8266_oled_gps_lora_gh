@@ -8,6 +8,8 @@
 // Implementation of the Arduino software serial for ESP8266/ESP32.
 // Important: v5.0.4 is the latest version what compiles without errors
 // (current versions spill massive errors, maybe about interrupt handling?)
+// Update: v5.3.4 does compile again without errors (@TODO: integration test pending)
+//          => does not compile in other projects => why? => so going back to v5.0.4
 #include <SoftwareSerial.h> //Included SoftwareSerial Library
 
 #define BAUD_RATE 9600
@@ -35,7 +37,7 @@ bool initSS_gps() {
   bool status;
 
   status = serial_gps.begin(BAUD_RATE);
-  if (!serial_gps) Serial.println("Something is wrong with the software serial line to GPS module.");
+  if (!status) Serial.println("Something is wrong with the software serial line to GPS module.");
 
   return status;
 }
