@@ -24,6 +24,8 @@ float function_lora_get_snr( void );
 int function_lora_get_msgID( void );
 int function_lora_get_msgCount( void );
 
+void function_lora_serial_out( void );
+
 
 
 

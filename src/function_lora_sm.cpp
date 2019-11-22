@@ -38,6 +38,10 @@ int g_i_msgCount = 0;       // count of outgoing messages
 int g_i_incomingMsgId = 0;  // count of incoming messages
 int g_i_rssi = 0;           // LoRa RSSI
 float g_f_snr = 0;          // LoRa signal to noise ratio
+String g_str_incoming_msg = "";
+byte g_by_incomingLength = 0;
+byte g_by_incomingRecipient = 0;
+byte g_by_incomingSender = 0;
 
 void function_lora_setup( void ) {
   // Rocket Scream Mini Ultra Pro with the RFM95W only:
@@ -154,25 +158,25 @@ void onReceive(int packetSize) {
 #endif
 
   // read packet header bytes:
-  byte l_by_recipient = LoRa.read();       // recipient address
-  byte l_by_sender = LoRa.read();          // sender address
-  g_i_incomingMsgId = LoRa.read();     // incoming msg ID
-  byte l_by_incomingLength = LoRa.read();  // incoming msg length
+  g_by_incomingRecipient = LoRa.read(); // recipient address
+  g_by_incomingSender = LoRa.read();    // sender address
+  g_i_incomingMsgId = LoRa.read();      // incoming msg ID
+  g_by_incomingLength = LoRa.read();    // incoming msg length
 
-  String message = "";
+  g_str_incoming_msg = "";              // clear old message string
 
-  while (LoRa.available()) {       // can't use readString() in callback, so
-    message += (char)LoRa.read();  // add bytes one by one
+  while (LoRa.available()) {                  // can't use readString() in callback, so
+    g_str_incoming_msg += (char)LoRa.read();  // add bytes one by one
   }
 
   // check message length for error
-  if (l_by_incomingLength != message.length()) {
+  if (g_by_incomingLength != g_str_incoming_msg.length()) {
     Serial.println("LoRa: error: message length does not match length");
     return; // skip rest of function
   }
 
   // if the recipient isn't this device or broadcast,
-  if (l_by_recipient != g_by_localAddress && l_by_recipient != g_by_broadcastAddress) {
+  if (g_by_incomingRecipient != g_by_localAddress && g_by_incomingRecipient != g_by_broadcastAddress) {
     Serial.println("LoRa: This message is not for me.");
     return; // skip rest of function
   }
@@ -180,17 +184,17 @@ void onReceive(int packetSize) {
   g_i_rssi = LoRa.packetRssi();
   g_f_snr = LoRa.packetSnr();
 
-  // if message is for this device, or broadcast, print details:
-  Serial.println("### LoRa start receiving ###");
-  Serial.println("Received from: 0x" + String(l_by_sender, HEX));
-  Serial.println("Sent to: 0x" + String(l_by_recipient, HEX));
-  Serial.println("Message ID: " + String(g_i_incomingMsgId));
-  Serial.println("Message ID (internal): " + String(g_i_msgCount));
-  Serial.println("Message length: " + String(l_by_incomingLength));
-  Serial.println("Message: " + message);
-  Serial.println("RSSI: " + String(g_i_rssi));
-  Serial.println("Snr: " + String(g_f_snr));
-  Serial.println("### LoRa end receiving ###");
+  // // if message is for this device, or broadcast, print details:
+  // Serial.println("### LoRa start receiving ###");
+  // Serial.println("Received from: 0x" + String(l_by_sender, HEX));
+  // Serial.println("Sent to: 0x" + String(l_by_recipient, HEX));
+  // Serial.println("Message ID: " + String(g_i_incomingMsgId));
+  // Serial.println("Message ID (internal): " + String(g_i_msgCount));
+  // Serial.println("Message length: " + String(l_by_incomingLength));
+  // Serial.println("Message: " + message);
+  // Serial.println("RSSI: " + String(g_i_rssi));
+  // Serial.println("Snr: " + String(g_f_snr));
+  // Serial.println("### LoRa end receiving ###");
 
 #if defined(LORA_RECEIVER)
   g_b_enable_send = true;  // enable sending (only once for acknowledge)
@@ -226,7 +230,19 @@ int function_lora_get_msgCount( void ){
   return g_i_msgCount;
 }
 
-
+void function_lora_serial_out( void ){
+  // serial output lora details
+  Serial.println("### LoRa start receiving ###");
+  Serial.println("Received from: 0x" + String(g_by_incomingSender, HEX));
+  Serial.println("Sent to: 0x" + String(g_by_incomingRecipient, HEX));
+  Serial.println("Message ID: " + String(g_i_incomingMsgId));
+  Serial.println("Message ID (internal): " + String(g_i_msgCount));
+  Serial.println("Message length: " + String(g_by_incomingLength));
+  Serial.println("Message: " + g_str_incoming_msg);
+  Serial.println("RSSI: " + String(g_i_rssi));
+  Serial.println("Snr: " + String(g_f_snr));
+  Serial.println("### LoRa end receiving ###");
+}
 
 
 

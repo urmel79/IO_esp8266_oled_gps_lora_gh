@@ -79,7 +79,7 @@ void loop() {
       printOLED_values_str(0, "Host: ", get_wifi_hostname());
 
 #if defined(LORA_OLED)
-      String l_str_msgIDs = "MsgID: " + String(function_lora_get_msgID()) + ", int: " + String(function_lora_get_msgCount()-1);
+      String l_str_msgIDs = "MsgID: " + String(function_lora_get_msgID()) + ", int: " + String(function_lora_get_msgCount());
       printOLED_str(10, l_str_msgIDs);
       String l_str_rssi_snr = "RSSI: " + String(function_lora_get_rssi()) + ", SNR: " + String(function_lora_get_snr());
       printOLED_str(20, l_str_rssi_snr);
@@ -87,6 +87,8 @@ void loop() {
       printOLED_values_str(10, "IP: ", get_wifi_IP_str());
       printOLED_values_flt(20, "RSSI: ", get_wifi_RSSI(), 2, 0);
 #endif
+
+      function_lora_serial_out();
 
       Serial.println(get_wifi_hostname());
       Serial.println(get_wifi_IP_str());
