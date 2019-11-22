@@ -15,6 +15,9 @@
 #define BAUD_RATE 9600
 
 #if !defined(D5)
+  #define D3 (0)
+  #define D4 (2)
+
   #define D5 (14)
   #define D6 (12)
 
@@ -25,7 +28,8 @@
 #endif
 
 // Started SoftwareSerial at RX and TX pin of ESP8266/NodeMCU
-SoftwareSerial serial_gps(D5, D6); // RxD: GPIO13 (D5), TxD: GPIO15 (D6)
+// SoftwareSerial serial_gps(D5, D6); // RxD: GPIO13 (D5), TxD: GPIO15 (D6)
+SoftwareSerial serial_gps(D3, D4); // RxD: GPIO0 (D3), TxD: GPIO2 (D4)
 
 // The TinyGPS++ object
 // Examples:
@@ -47,6 +51,7 @@ TinyGPSPlus read_gps() {
 
   TinyGPSPlus l_gps_values;
 
+  // // Only for debugging the gps:
   // // while there is data coming in, read it
   // // and send to the hardware serial port:
   // while (serial_gps.available() > 0) {

@@ -1,6 +1,7 @@
 #ifndef function_gps_hpp
 #define function_gps_hpp
 
+// install path: ~/.platformio/lib/TinyGPSPlus_ID1655/
 #include <TinyGPS++.h>
 
 // struct struct_gps_values {
