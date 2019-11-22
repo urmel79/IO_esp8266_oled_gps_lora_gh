@@ -27,9 +27,6 @@
   byte g_by_broadcastAddress = 0xFF;    // broadcast address to send to
 #endif
 
-// #define RFM95_CLIENT_ADDRESS 1
-// #define RFM95_SERVER_ADDRESS 2
-
 #define LED_PIN    2  // internal Wifi LED of NodeMCU (negative logic)
 // Important: LED_BUILTIN conflicts with LoRa module => sending does NOT work (why?)
 // #define LED_PIN    LED_BUILTIN  // build-in LED of NodeMCU (negative logic)
@@ -180,10 +177,6 @@ void onReceive(int packetSize) {
     return; // skip rest of function
   }
 
-  // Serial.print("LoRa: node received message: '");
-  // Serial.print(message);
-  // Serial.println("'");
-
   g_i_rssi = LoRa.packetRssi();
   g_f_snr = LoRa.packetSnr();
 
@@ -198,9 +191,6 @@ void onReceive(int packetSize) {
   Serial.println("RSSI: " + String(g_i_rssi));
   Serial.println("Snr: " + String(g_f_snr));
   Serial.println("### LoRa end receiving ###");
-
-  // Serial.println("LoRa: RSSI: " + String(LoRa.packetRssi()));
-  // Serial.println("LoRa: SNR: " + String(LoRa.packetSnr()));
 
 #if defined(LORA_RECEIVER)
   g_b_enable_send = true;  // enable sending (only once for acknowledge)

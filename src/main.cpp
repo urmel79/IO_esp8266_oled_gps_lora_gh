@@ -73,9 +73,6 @@ void loop() {
     // set the LED with the ledState of the variable:
     // digitalWrite(g_i_led_pin,  g_b_ledState);
 
-    // function_lora_send_continuosly();
-    // function_lora_sendtoWait();
-
     // updating the oled display non-blocking with Ticker does produce hard panic errors (esp8266 crashes)
     if (g_b_iicOLED_connected) {
       printOLED_begin();
