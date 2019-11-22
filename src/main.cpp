@@ -14,6 +14,9 @@
 
 #include "function_mqtt.hpp"
 
+// #include "function_lora_rh.hpp"
+#include "function_lora_sm.hpp"
+
 TinyGPSPlus g_s_gps_values;
 
 bool g_b_wifi_connected = false;
@@ -22,7 +25,10 @@ bool g_b_iicOLED_connected = false;
 // unsigned long g_ul_delayTime = 2000; // ms
 
 //variables for blinking an LED with Millis
-const int g_i_led_pin = 2; // ESP8266 Pin to which onboard LED is connected
+// D3 = GPIO0 = external LED
+// D4 = GPIO2 = internal Wifi LED
+//int pin_led = BUILTIN_LED;
+// const int g_i_led_pin = 2; // ESP8266 Pin to which onboard LED is connected
 unsigned long g_ul_previousMillis = 0;  // will store last time LED was updated
 const unsigned long g_ul_delayTime = 2000;  // interval at which to blink (milliseconds)
 bool g_b_ledState = false;  // ledState used to set the LED
@@ -35,7 +41,7 @@ void setup() {
 
   initSS_gps();
 
-  pinMode(g_i_led_pin, OUTPUT);
+  // pinMode(g_i_led_pin, OUTPUT);
 
   configureWifi();
 
@@ -46,10 +52,14 @@ void setup() {
   connectMqttPubTasks();
 
   g_b_iicOLED_connected = connectOLEDiic();
+
+  function_lora_setup();
 }
 
 void loop() {
   function_ota_handle();  // call handler function for OTA
+
+  function_lora_send_handler();
 
   g_s_gps_values = read_gps();
 
@@ -61,14 +71,25 @@ void loop() {
     // if the LED is off turn it on and vice-versa:
     g_b_ledState = not(g_b_ledState);
     // set the LED with the ledState of the variable:
-    digitalWrite(g_i_led_pin,  g_b_ledState);
+    // digitalWrite(g_i_led_pin,  g_b_ledState);
+
+    // function_lora_send_continuosly();
+    // function_lora_sendtoWait();
 
     // updating the oled display non-blocking with Ticker does produce hard panic errors (esp8266 crashes)
     if (g_b_iicOLED_connected) {
       printOLED_begin();
       printOLED_values_str(0, "Host: ", get_wifi_hostname());
+
+#if defined(LORA_OLED)
+      String l_str_msgIDs = "MsgID: " + String(function_lora_get_msgID()) + ", int: " + String(function_lora_get_msgCount()-1);
+      printOLED_str(10, l_str_msgIDs);
+      String l_str_rssi_snr = "RSSI: " + String(function_lora_get_rssi()) + ", SNR: " + String(function_lora_get_snr());
+      printOLED_str(20, l_str_rssi_snr);
+#else
       printOLED_values_str(10, "IP: ", get_wifi_IP_str());
       printOLED_values_flt(20, "RSSI: ", get_wifi_RSSI(), 2, 0);
+#endif
 
       Serial.println(get_wifi_hostname());
       Serial.println(get_wifi_IP_str());
@@ -120,7 +141,7 @@ void loop() {
 
         mqtt_set_gps_valid(true);
         // mqtt_set_gps_json(String sensor, int time, String location, String icon, double latitude, double longitude);
-        mqtt_set_gps_json("lora_1_gps", l_str_time, "mobile bug", "fa-bug", "Yellow", 
+        mqtt_set_gps_json("lora_1_gps", l_str_time, "mobile bug", "fa-bug", "Yellow",
                           g_s_gps_values.satellites.value(),
                           g_s_gps_values.altitude.meters(),
                           get_wifi_RSSI(),
