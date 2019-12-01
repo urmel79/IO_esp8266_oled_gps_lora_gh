@@ -115,10 +115,12 @@ void LoRa_sendMessage( String message ) {
 void function_lora_send_handler( void ){
   // sender: repeat every 2000 milliseconds
   // receiver: repeat every 200 milliseconds
-  if (runEvery(RFM_TX_INTERVAL) && g_b_enable_send) {
+  // if (runEvery(RFM_TX_INTERVAL) && g_b_enable_send) {
 #if defined(LORA_SENDER)
+  if (runEvery(RFM_TX_INTERVAL)) {
     String message = "HeLoRa World! I'm a Node! ";
 #elif defined(LORA_RECEIVER)
+  if (g_b_enable_send) {
     String message = "LoRa ACK: message received :) ";
 #endif
     message += millis();
