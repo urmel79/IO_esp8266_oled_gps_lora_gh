@@ -15,7 +15,7 @@ Alternatively, a LiPo power bank can also be used for both test modules, making 
 <!-- Als provisorische und outdoor-taugliche Gehäuse dienen im Moment wasserdichte Frischhaltedosen. -->
 At the moment, watertight food storage boxes are used as provisional and outdoor-suitable housings.
 
-## Visual impression
+## Visual impressions
 
 Here you can see one of two test modules build on breadboard:
 
@@ -27,21 +27,17 @@ In this picture you can see the other test module on top of the provisional and 
 
 ## Parts list
 
-Following parts I have used in this project:
+Following parts I have used in this project (every component you will need twice of course):
 
-- breadboard half+ (400 holes)
+- breadboard full+ (830 holes)
 - wire jumpers
 - LiPo battery pack
-- USB cable with mini USB plug
-- breadboard power supply (with Mini-USB-**Input**)
-- Wemos D1 Mini pro (ESP8266)
-- Neopixel RGB LED ring, diameter 50 mm (with 12 seperate controllable RGB LEDs by WS2812B chip)
-- DFPlayer mini MP3 player module
-- microSD card (16 GB)
-- passive speaker (2 W, 8 Ohm)
-- PIR module (motion sensor based on HC-SR501)
-- resistor 1 kOhm (for protecting RxD input of DFPlayer)
-- capacitor 1000 µF (protecting the Neopixel LED module)
+- USB cable with micro USB plug
+- NodeMCU v2 (ESP8266)
+- OLED I2C display, 128 x 64 Pixel, 1.3 Zoll (SSH1106 chip)
+- GPS module u-blox Neo-6M (GY-GPS6MV2 chip)
+- LoRa transceiver Adafruit RFM9x LoRa Radio (RFM95W chip, 868 MHz)
+- LoRa antenna (868 MHz), 3 dBi omnidirectional, SMA
 
 ## Breadboard layout and schematics
 
