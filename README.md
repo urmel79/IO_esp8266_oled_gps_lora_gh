@@ -17,11 +17,11 @@ At the moment, watertight food storage boxes are used as provisional and outdoor
 
 ## Visual impression
 
-Here you can see the test module on breadboard:
+Here you can see one of two test module on breadboard:
 
 ![Breadboard Layout](./doc/images/Testboard.jpeg)
 
-In this picture you can see the test module on top of the provisional and outdoor-suitable housing (watertight food storage box):
+In this picture you can see the other test module on top of the provisional and outdoor-suitable housing (watertight food storage box):
 
 ![Breadboard Layout](./doc/images/Testboard_case.jpeg)
 
