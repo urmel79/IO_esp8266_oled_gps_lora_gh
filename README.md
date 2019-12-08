@@ -54,7 +54,7 @@ The schematics looks like this:
 
 ## Todo and known issues
 
-[issue 2019-12-07] Packet message counters flip over sporadically.
+[issue 2019-12-07] Packet message counters flip over sporadically (this may be due to crashes of the mcu).
 
 
 
