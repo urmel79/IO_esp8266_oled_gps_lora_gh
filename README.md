@@ -1,7 +1,7 @@
 # LoRa testing bench with GPS tracking
 
 <!-- Ziel dieses Projektes ist es, eine Testumgebung auf Basis von ESP8266 für LoRa als LPWAN-Langstreckenfunk aufzubauen. -->
-The aim of this project is to build a test environment based on ESP8266 for LoRa as LWPAN^[Low Power Wide Area Network] long-range radio.
+The aim of this project is to build a test environment based on ESP8266 for [LoRa](https://en.wikipedia.org/wiki/LoRa) as [LPWAN](https://en.wikipedia.org/wiki/LPWAN) long-range radio.
 
 <!-- Dazu wurden zwei identische Testmodule mit jeweils einem LoRa-Transceiver, einem GPS-Modul sowie einem OLED-Display zur Aktualdatenanzeige ausgestattet. -->
 For this purpose, two identical test modules were each equipped with a LoRa transceiver, a GPS module and an OLED display for displaying the actual data.
