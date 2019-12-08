@@ -1,12 +1,25 @@
 # LoRa testing bench with GPS tracking
 
-Ziel dieses Projektes ist es, eine Testumgebung auf Basis von ESP8266 für LoRa als LWPAN-Langstreckenfunk aufzubauen. Dazu wurden zwei identische Testmodule mit jeweils einem LoRa-Transceiver, einem GPS-Modul sowie einem OLED-Display zur Aktualdatenanzeige ausgestattet. Beide Testmodule wurden zunächst auf Breadboards prototypisch aufgebaut. Die Spannungsversorgung erfolgt über den microUSB-Port des ESP8266 (NodeMCU v2) wahlweise angeschlossen an den USB-Port des Projektierungsrechners (gleichzeitig Debugging über serielle Schnittstelle). Alternativ kann auch jeweils eine LiPo-Powerbank verwendet werden, wodurch das Testmodul für anstehende Reichweitentests mobil einsetzbar ist. Als provisorische und outdoor-taugliche Gehäuse dienen wasserdichte Frischhaltedosen.
+<!-- Ziel dieses Projektes ist es, eine Testumgebung auf Basis von ESP8266 für LoRa als LPWAN-Langstreckenfunk aufzubauen. -->
+The aim of this project is to build a test environment based on ESP8266 for LoRa as LWPAN^[Low Power Wide Area Network] long-range radio.
+
+<!-- Dazu wurden zwei identische Testmodule mit jeweils einem LoRa-Transceiver, einem GPS-Modul sowie einem OLED-Display zur Aktualdatenanzeige ausgestattet. -->
+For this purpose, two identical test modules were each equipped with a LoRa transceiver, a GPS module and an OLED display for displaying the actual data.
+
+<!-- Beide Testmodule wurden zunächst auf Breadboards prototypisch aufgebaut. Die Spannungsversorgung erfolgt über den microUSB-Port des ESP8266 (NodeMCU v2) und wahlweise angeschlossen an den USB-Port des Projektierungsrechners. Damit kann gleichzeitig ein Debugging über die serielle Schnittstelle und den Serial Monitor erfolgen. -->
+Both test modules were initially prototypically built on breadboards. Power is supplied via the microUSB port of the ESP8266 (NodeMCU v2) and optionally connected to the USB port of the configuration computer. This allows debugging via the serial interface and the serial monitor at the same time.
+
+<!-- Alternativ kann auch für beide Testmodule eine LiPo-Powerbank verwendet werden, wodurch sie für anstehende Reichweitentests mobil einsetzbar ist. -->
+Alternatively, a LiPo power bank can also be used for both test modules, making them mobile for upcoming range tests.
+
+<!-- Als provisorische und outdoor-taugliche Gehäuse dienen im Moment wasserdichte Frischhaltedosen. -->
+At the moment, watertight food storage boxes are used as provisional and outdoor-suitable housings.
 
 ## Visual impression
 
-(Image Testmodule follows)
+(Image test module on breadboard follows)
 
-(Image Testmodule mit Gehäuse follows)
+(Image test module with provisional case follows)
 
 ## Parts list
 
