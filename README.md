@@ -17,9 +17,13 @@ At the moment, watertight food storage boxes are used as provisional and outdoor
 
 ## Visual impression
 
-(Image test module on breadboard follows)
+Here you can see the test module on breadboard:
 
-(Image test module with provisional case follows)
+![Breadboard Layout](./doc/images/Testboard.jpeg)
+
+In this picture you can see the test module on top of the provisional and outdoor-suitable housing (watertight food storage box):
+
+![Breadboard Layout](./doc/images/Testboard_case.jpeg)
 
 ## Parts list
 
@@ -54,7 +58,7 @@ The schematics looks like this:
 
 ## Todo and known issues
 
-[issue 2019-12-07] Packet message counters flip over sporadicly.
+[issue 2019-12-07] Packet message counters flip over sporadically.
 
 
 
