@@ -23,7 +23,7 @@ Here you can see one of two test modules build on breadboard:
 
 In this picture you can see the other test module on top of the provisional and outdoor-suitable housing (watertight food storage box):
 
-![Breadboard Layout](./doc/images/Testboard_case.jpeg)
+![Breadboard Layout and case](./doc/images/Testboard_case.jpeg)
 
 ## Parts list
 
