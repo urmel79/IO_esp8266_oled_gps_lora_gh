@@ -54,7 +54,7 @@ The schematics looks like this:
 
 ## License
 
-This project is licensed under the terms of "GNU General Public License". For details see [LICENSE](LICENSE).
+This project is licensed under the terms of "GNU General Public License v3.0". For details see [LICENSE](LICENSE).
 
 ## Todo and known issues
 
