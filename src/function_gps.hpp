@@ -24,7 +24,7 @@
 
 // typedef TinyGPSPlus struct_gps_values;
 
-bool initSS_gps();
+void initSS_gps();
 
 // struct_gps_values read_gps();
 

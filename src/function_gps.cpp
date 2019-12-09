@@ -10,6 +10,7 @@
 // (current versions spill massive errors, maybe about interrupt handling?)
 // Update: v5.3.4 does compile again without errors (@TODO: integration test pending)
 //          => does not compile in other projects => why? => so going back to v5.0.4
+// Update to EspSoftwareSerial v6.4.0 (latest): API of begin() function has changed and no return value any more
 #include <SoftwareSerial.h> //Included SoftwareSerial Library
 
 #define BAUD_RATE 9600
@@ -28,8 +29,10 @@
 #endif
 
 // Started SoftwareSerial at RX and TX pin of ESP8266/NodeMCU
-// SoftwareSerial serial_gps(D5, D6); // RxD: GPIO13 (D5), TxD: GPIO15 (D6)
-SoftwareSerial serial_gps(D3, D4); // RxD: GPIO0 (D3), TxD: GPIO2 (D4)
+// Some arduino boards only have one hardware serial port, so a software serial port is needed instead.
+// comment out the above definition and uncomment these lines
+// SoftwareSerial serial_gps(D3, D4); // RxD: GPIO0 (D3), TxD: GPIO2 (D4)
+SoftwareSerial serial_gps;
 
 // The TinyGPS++ object
 // Examples:
@@ -37,13 +40,10 @@ SoftwareSerial serial_gps(D3, D4); // RxD: GPIO0 (D3), TxD: GPIO2 (D4)
 // https://circuitdigest.com/microcontroller-projects/interfacing-gps-with-nodemcu-esp12
 TinyGPSPlus gps;
 
-bool initSS_gps() {
-  bool status;
+void initSS_gps() {
+  // RxD: GPIO0 (D3), TxD: GPIO2 (D4)
+  serial_gps.begin(BAUD_RATE, SWSERIAL_8N1, D3, D4, false, 95, 11);
 
-  status = serial_gps.begin(BAUD_RATE);
-  if (!status) Serial.println("Something is wrong with the software serial line to GPS module.");
-
-  return status;
 }
 
 // struct gps_values read_gps() {
