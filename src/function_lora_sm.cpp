@@ -11,17 +11,21 @@
 #define RFM95_RST 16 // RST pin is connected to NodeMCU GPIO16
 #define RFM95_INT 10 // G0 pin is connected to NodeMCU GPIO10
 
-// #define RF95_FREQ 868.0
-#define RF95_FREQ       868E6
-#define RFM95_TX_POWER  23
+#define RF95_FREQ       868E6 // frequency 868 MHz, channel 0
+// #define RF95_FREQ       868.0E6 // frequency 868 MHz, channel 0
+// #define RF95_FREQ       868.1E6 // frequency 868 MHz, channel 1
+#define RFM95_TX_POWER  17      // transmitting power [dB]; max. 23 dB
+#define RFM95_SF        7       // spreading factor
 
 #if defined(LORA_SENDER)
-  #define RFM_TX_INTERVAL 2000
+  #define RFM_TX_INTERVAL 5000
+  #define RFM_TX_TIMEOUT_CNT 3
+  int g_i_rfm_tx_timeout_cnt_curr = 0;
   byte g_by_localAddress = 0xAA;        // address of this device
   byte g_by_destinationAddress = 0xBB;  // destination to send to
   byte g_by_broadcastAddress = 0xFF;    // broadcast address to send to
 #elif defined(LORA_RECEIVER)
-  #define RFM_TX_INTERVAL 200
+  #define RFM_TX_INTERVAL 500
   byte g_by_localAddress = 0xBB;        // address of this device
   byte g_by_destinationAddress = 0xAA;  // destination to send to
   byte g_by_broadcastAddress = 0xFF;    // broadcast address to send to
@@ -34,8 +38,8 @@
 unsigned long g_ul_previousMillis_lora = 0;  // will store last time cycle was run
 
 bool g_b_enable_send = false;
-int g_i_msgCount = 0;       // count of outgoing messages
-int g_i_incomingMsgId = 0;  // count of incoming messages
+uint16_t g_i_msgCount = 0;       // count of outgoing messages
+uint16_t g_i_incomingMsgId = 0;  // count of incoming messages
 int g_i_rssi = 0;           // LoRa RSSI
 float g_f_snr = 0;          // LoRa signal to noise ratio
 String g_str_incoming_msg = "";
@@ -76,16 +80,23 @@ void function_lora_setup( void ) {
   Serial.println("LoRa: initialisation of server succeeded");
 #endif
 
+  Serial.print("LoRa: set spreading factor to: ");
+  Serial.println(RFM95_SF);
+  LoRa.setSpreadingFactor(RFM95_SF);
+
   Serial.print("LoRa: set tx power to: ");
   Serial.print(RFM95_TX_POWER);
   Serial.println(" dB");
   LoRa.setTxPower(RFM95_TX_POWER, PA_OUTPUT_PA_BOOST_PIN);
 
+  Serial.println("LoRa: enable CRC");
+  LoRa.enableCrc();
+
   LoRa.onReceive(onReceive);
   LoRa_rxMode();
 
 #if defined(LORA_SENDER)
-  g_b_enable_send = true; // enable sending forever
+  g_b_enable_send = true; // enable sending initially
 #endif
 }
 
@@ -104,7 +115,13 @@ void LoRa_sendMessage( String message ) {
   LoRa.beginPacket();                   // start packet
   LoRa.write(g_by_destinationAddress);  // add destination address
   LoRa.write(g_by_localAddress);        // add sender address
-  LoRa.write(g_i_msgCount);             // add message ID
+  // LoRa.write(g_i_msgCount);             // add message ID
+
+  // function LoRaClass::write(uint8_t byte) can only write 8bit uint
+  // solution: write high byte first and then low byte of 16bit uint
+  LoRa.write((uint8_t)(g_i_msgCount >> 8 ));  // add message ID (high byte)
+  LoRa.write((uint8_t)g_i_msgCount );         // add message ID (low byte)
+
   LoRa.write(message.length());         // add payload length
   LoRa.print(message);                  // add payload
   LoRa.endPacket();                     // finish packet and send it
@@ -118,30 +135,48 @@ void function_lora_send_handler( void ){
   // if (runEvery(RFM_TX_INTERVAL) && g_b_enable_send) {
 #if defined(LORA_SENDER)
   if (runEvery(RFM_TX_INTERVAL)) {
-    String message = "HeLoRa World! I'm a Node! ";
-#elif defined(LORA_RECEIVER)
-  if (g_b_enable_send) {
-    String message = "LoRa ACK: message received :) ";
-#endif
-    message += millis();
-    message += " ms";
-    // send message
-    LoRa_sendMessage(message);
+    // activate sending after timeout is reached for a next try;
+    // maybe someone s hearing me this time?
+    if (!g_b_enable_send) {
+      g_i_rfm_tx_timeout_cnt_curr++;
 
-    Serial.print("LoRa: sent message '");
-    Serial.print(message);
-    Serial.println("'");
+      if (g_i_rfm_tx_timeout_cnt_curr >= RFM_TX_TIMEOUT_CNT) {
+        Serial.println("LoRa: activate sending after timeout is reached for a next try ### ");
+        g_b_enable_send = true;
+      }
+    }
+    else {
+      // reset timeout counter
+      g_i_rfm_tx_timeout_cnt_curr = 0;
+      String message = "HeLoRa World! I'm a Node! ";
+#elif defined(LORA_RECEIVER)
+  if (runEvery(RFM_TX_INTERVAL)) {
+    if (g_b_enable_send) {
+      String message = "LoRa ACK: message received :) ";
+#endif
+      message += millis();
+      message += " ms";
+      // send message
+      LoRa_sendMessage(message);
+
+      Serial.print("LoRa: sent message '");
+      Serial.print(message);
+      Serial.println("'");
 
 #if defined(LORA_SENDER)
-    digitalWrite(LED_PIN, LOW); // negative logic: LED on
+      digitalWrite(LED_PIN, LOW); // negative logic: LED on
 #elif defined(LORA_RECEIVER)
-    digitalWrite(LED_PIN, HIGH); // negative logic: LED off
-    g_b_enable_send = false;    // disable sending for receiver
+      digitalWrite(LED_PIN, HIGH); // negative logic: LED off
 #endif
 
-    // set rx mode
-    LoRa_rxMode();
+      g_b_enable_send = false;    // disable sending
+
+      // set rx mode
+      LoRa_rxMode();
+    }
+// #if defined(LORA_SENDER)
   }
+// #endif
 }
 
 // Note:  while sending, LoRa radio is not listening for incoming messages.
@@ -162,7 +197,13 @@ void onReceive(int packetSize) {
   // read packet header bytes:
   g_by_incomingRecipient = LoRa.read(); // recipient address
   g_by_incomingSender = LoRa.read();    // sender address
-  g_i_incomingMsgId = LoRa.read();      // incoming msg ID
+  // g_i_incomingMsgId = (int)LoRa.read(); // incoming msg ID
+
+  // function LoRaClass::write(uint8_t byte) can only write 8bit uint
+  // solution: read high byte first and then low byte of 16bit uint
+  g_i_incomingMsgId = LoRa.read();
+  g_i_incomingMsgId = ( g_i_incomingMsgId << 8 ) + LoRa.read();
+
   g_by_incomingLength = LoRa.read();    // incoming msg length
 
   g_str_incoming_msg = "";              // clear old message string
@@ -198,7 +239,9 @@ void onReceive(int packetSize) {
   // Serial.println("Snr: " + String(g_f_snr));
   // Serial.println("### LoRa end receiving ###");
 
-#if defined(LORA_RECEIVER)
+#if defined(LORA_SENDER)
+  g_b_enable_send = true;  // enable sending again
+#elif defined(LORA_RECEIVER)
   g_b_enable_send = true;  // enable sending (only once for acknowledge)
 #endif
 }
