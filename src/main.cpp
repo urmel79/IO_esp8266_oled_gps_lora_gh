@@ -34,7 +34,8 @@ const unsigned long g_ul_delayTime = 2000;  // interval at which to blink (milli
 bool g_b_ledState = false;  // ledState used to set the LED
 
 void setup() {
-  Serial.begin(9600);
+  // Serial.begin(9600);
+  Serial.begin(57600);
   while (!Serial) {
     ; // wait for serial port to connect. Needed for native USB port only
   }
@@ -57,7 +58,9 @@ void setup() {
 }
 
 void loop() {
-  function_ota_handle();  // call handler function for OTA
+  if (get_wifi_isConnected()) {
+    function_ota_handle();  // call handler function for OTA
+  }
 
   function_lora_send_handler();
 
