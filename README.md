@@ -37,7 +37,7 @@ Following parts I have used in this project (every component you will need twice
 - OLED I2C display, 128 x 64 Pixel, 1.3 Zoll (SSH1106 chip)
 - GPS module u-blox Neo-6M (GY-GPS6MV2 chip)
 - LoRa transceiver Adafruit RFM9x LoRa Radio (RFM95W chip, 868 MHz)
-- LoRa antenna (868 MHz), 3 dBi omnidirectional, SMA
+- LoRa antenna (868 MHz), 3 dBi omnidirectional, SMA plug
 
 ## Breadboard layout and schematics
 
