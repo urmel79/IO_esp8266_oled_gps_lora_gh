@@ -142,8 +142,8 @@ void loop() {
         // String l_str_time = String(g_s_gps_values.time.value());
 
         mqtt_set_gps_valid(true);
-        // mqtt_set_gps_json(String sensor, int time, String location, String icon, double latitude, double longitude);
-        mqtt_set_gps_json("lora_1_gps", l_str_time, "mobile bug", "fa-bug", "Yellow",
+        // mqtt_set_gps_json(String sensor, String time, String location, String icon, String iconColor, int satellites, double altitude, int wifi_rssi, double latitude, double longitude);
+        mqtt_set_gps_json(MQTT_SENSOR_NODE, l_str_time, "mobile bug", "fa-bug", GPS_COLOR,
                           g_s_gps_values.satellites.value(),
                           g_s_gps_values.altitude.meters(),
                           get_wifi_RSSI(),

@@ -32,6 +32,9 @@
 #elif MQTT_RASPI_EPAPER
   #define MQTT_HOST "RaspiB3plus_ePaper"
   #define MQTT_PORT 1883
+#elif MQTT_RASPI_LORAGW
+  #define MQTT_HOST "RaspiB3plusLoRaGateway"
+  #define MQTT_PORT 1883
 #endif
 
 // define mqtt root topics
@@ -39,8 +42,12 @@
   #define MQTT_ROOT_TOPIC "d1_box"
 #elif NODE_MCU_LORA_1
   #define MQTT_ROOT_TOPIC "lora_1"
+  #define MQTT_SENSOR_NODE "lora_1_gps"
+  #define GPS_COLOR "Yellow"
 #elif NODE_MCU_LORA_2
   #define MQTT_ROOT_TOPIC "lora_2"
+  #define MQTT_SENSOR_NODE "lora_2_gps"
+  #define GPS_COLOR "Blue"
 #elif NODE_MCU_V2
   #define MQTT_ROOT_TOPIC "node_mcu"
 #elif DEAUTHER_OLED

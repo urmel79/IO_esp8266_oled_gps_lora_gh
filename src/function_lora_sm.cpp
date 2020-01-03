@@ -18,14 +18,14 @@
 #define RFM95_SF        7       // spreading factor
 
 #if defined(LORA_SENDER)
-  #define RFM_TX_INTERVAL 5000
-  #define RFM_TX_TIMEOUT_CNT 3
+  #define RFM_TX_INTERVAL 2000
+  #define RFM_TX_TIMEOUT_CNT 5
   int g_i_rfm_tx_timeout_cnt_curr = 0;
   byte g_by_localAddress = 0xAA;        // address of this device
   byte g_by_destinationAddress = 0xBB;  // destination to send to
   byte g_by_broadcastAddress = 0xFF;    // broadcast address to send to
 #elif defined(LORA_RECEIVER)
-  #define RFM_TX_INTERVAL 500
+  #define RFM_TX_INTERVAL 300
   byte g_by_localAddress = 0xBB;        // address of this device
   byte g_by_destinationAddress = 0xAA;  // destination to send to
   byte g_by_broadcastAddress = 0xFF;    // broadcast address to send to
