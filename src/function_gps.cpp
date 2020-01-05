@@ -13,7 +13,39 @@
 // Update to EspSoftwareSerial v6.4.0 (latest): API of begin() function has changed and no return value any more
 #include <SoftwareSerial.h> //Included SoftwareSerial Library
 
-#define BAUD_RATE 9600
+#define GPS_BAUD_RATE 9600
+
+// Install RunningAverage by Rob Tillaart
+// The library stores the last N individual values in a circular buffer to calculate the running average.
+// https://github.com/RobTillaart/Arduino/tree/master/libraries/RunningAverage
+// #include "RunningAverage.h"
+// use rewritten RunningAverage library (revert back  from float to double),
+// because for smoothing GPS values I need much higher precision ...
+#include "function_runningAverage_double.hpp"
+
+#define GPS_AVG_FILTER_SIZE 60
+
+RunningAverage gps_RunningAVG_lat(GPS_AVG_FILTER_SIZE);  // RunningAverage object for gps latitude
+RunningAverage gps_RunningAVG_lng(GPS_AVG_FILTER_SIZE);  // RunningAverage object for gps longitude
+
+struct_gps_RunningAVG_Median g_avg;
+
+// #####################
+// @TODO:
+//        comparison between RunningAverage and RunningMedian => not so susceptible to outliers?
+//        => library has to be rewritten first (revert back  from float to double)
+// #####################
+// RunningMedian by Rob Tillaart
+// The library stores the last N individual values in a buffer to select the median. It filters outliers.
+// https://github.com/RobTillaart/Arduino/tree/master/libraries/RunningMedian
+#include "RunningMedian.h"
+
+// #define GPS_AVG_FILTER_SIZE 100
+
+RunningMedian gps_RunningMedian_lat(GPS_AVG_FILTER_SIZE);  // RunningMedian object for gps latitude
+RunningMedian gps_RunningMedian_lng(GPS_AVG_FILTER_SIZE);  // RunningMedian object for gps longitude
+// RunningMedian gps_RunningMedian_lat = RunningMedian(GPS_AVG_FILTER_SIZE);   // RunningMedian object for gps latitude
+// RunningMedian gps_RunningMedian_lng = RunningMedian(GPS_AVG_FILTER_SIZE);   // RunningMedian object for gps longitude
 
 #if !defined(D5)
   #define D3 (0)
@@ -42,14 +74,19 @@ TinyGPSPlus gps;
 
 void initSS_gps() {
   // RxD: GPIO0 (D3), TxD: GPIO2 (D4)
-  serial_gps.begin(BAUD_RATE, SWSERIAL_8N1, D3, D4, false, 95, 11);
+  serial_gps.begin(GPS_BAUD_RATE, SWSERIAL_8N1, D3, D4, false, 95, 11);
 
+  gps_RunningAVG_lat.clear(); // explicitly start with a clean RunningAverage object
+  gps_RunningAVG_lng.clear(); // explicitly start with a clean RunningAverage object
+
+  gps_RunningMedian_lat.clear(); // explicitly start with a clean RunningMedian object
+  gps_RunningMedian_lng.clear(); // explicitly start with a clean RunningMedian object
 }
 
-// struct gps_values read_gps() {
+// is called in every loop cycle => polling the serial line
 TinyGPSPlus read_gps() {
 
-  TinyGPSPlus l_gps_values;
+  // TinyGPSPlus l_gps_values;
 
   // // Only for debugging the gps:
   // // while there is data coming in, read it
@@ -82,6 +119,15 @@ TinyGPSPlus read_gps() {
       // will have two pointers pointing to the same memory.
       // l_gps_values = gps;
 
+      // gps_RunningAVG_lat.addValue(gps.location.lat());
+      // gps_RunningAVG_lng.addValue(gps.location.lng());
+
+      // gps_RunningAVG_lat.addValue(gps.location.lat());
+      // gps_RunningAVG_lng.addValue(gps.location.lng());
+      //
+      // gps_RunningMedian_lat.add(gps.location.lat());
+      // gps_RunningMedian_lng.add(gps.location.lng());
+
       return gps;
     }
 
@@ -100,3 +146,41 @@ TinyGPSPlus read_gps() {
   return gps;
   // return l_gps_values;
 }
+
+// is called every 2 seconds in main loop
+void gps_RunningAVG_Median_addValues() {
+  gps_RunningAVG_lat.addValue(gps.location.lat());
+  gps_RunningAVG_lng.addValue(gps.location.lng());
+
+  gps_RunningMedian_lat.add(gps.location.lat());
+  gps_RunningMedian_lng.add(gps.location.lng());
+}
+
+// is called every 2 seconds in main loop
+struct_gps_RunningAVG_Median get_gps_RunningAVG_Median() {
+  // struct_gps_RunningAVG_Median l_avg;
+
+  g_avg.gps_RunningAVG_lat = gps_RunningAVG_lat.getAverage();
+  g_avg.gps_RunningAVG_lng = gps_RunningAVG_lng.getAverage();
+
+  g_avg.gps_RunningMedian_lat = gps_RunningMedian_lat.getMedian();
+  g_avg.gps_RunningMedian_lng = gps_RunningMedian_lng.getMedian();
+
+  g_avg.gps_RunningAVG_lat_size = gps_RunningAVG_lat.getSize();
+  g_avg.gps_RunningAVG_lng_size = gps_RunningAVG_lng.getSize();
+  g_avg.gps_RunningAVG_lat_cnt = gps_RunningAVG_lat.getCount();
+  g_avg.gps_RunningAVG_lng_cnt = gps_RunningAVG_lng.getCount();
+
+  return g_avg;
+}
+
+
+
+
+
+
+
+
+
+
+//

@@ -18,6 +18,7 @@
 #include "function_lora_sm.hpp"
 
 TinyGPSPlus g_s_gps_values;
+struct_gps_RunningAVG_Median g_s_gps_avg;
 
 bool g_b_wifi_connected = false;
 bool g_b_iicOLED_connected = false;
@@ -99,6 +100,10 @@ void loop() {
 
       mqtt_set_wifi_rssi_dBm(get_wifi_RSSI());
 
+      // smoothing GPS positions: calculate running (floating) average and median
+      gps_RunningAVG_Median_addValues();
+      g_s_gps_avg = get_gps_RunningAVG_Median();
+
       if (g_s_gps_values.location.isValid()) {
         Serial.print("Latitude  : ");
         Serial.print(g_s_gps_values.location.lat(), 9);
@@ -108,6 +113,24 @@ void loop() {
         Serial.print(g_s_gps_values.location.lng(), 9);
         Serial.print(char(176));                            // ° symbol
         Serial.println(" E");
+        Serial.print("Lat (AVG) : ");
+        Serial.print(g_s_gps_avg.gps_RunningMedian_lat, 9);
+        Serial.print(char(176));                            // ° symbol
+        Serial.println(" N");
+        Serial.print("Lng (AVG) : ");
+        Serial.print(g_s_gps_avg.gps_RunningMedian_lng, 9);
+        Serial.print(char(176));                            // ° symbol
+        Serial.println(" E");
+
+        Serial.print("Lat (AVG) Buffer size: ");
+        Serial.print(g_s_gps_avg.gps_RunningAVG_lat_size);
+        Serial.print(", Buffer count: ");
+        Serial.println(g_s_gps_avg.gps_RunningAVG_lat_cnt);
+        Serial.print("Lng (AVG) Buffer size: ");
+        Serial.print(g_s_gps_avg.gps_RunningAVG_lng_size);
+        Serial.print(", Buffer count: ");
+        Serial.println(g_s_gps_avg.gps_RunningAVG_lng_cnt);
+
         Serial.print("Satellites: ");
         Serial.println(g_s_gps_values.satellites.value());
         Serial.print("Elevation : ");
@@ -148,7 +171,11 @@ void loop() {
                           g_s_gps_values.altitude.meters(),
                           get_wifi_RSSI(),
                           g_s_gps_values.location.lat(),
-                          g_s_gps_values.location.lng());
+                          g_s_gps_values.location.lng(),
+                          g_s_gps_avg.gps_RunningAVG_lat,
+                          g_s_gps_avg.gps_RunningAVG_lng,
+                          g_s_gps_avg.gps_RunningMedian_lat,
+                          g_s_gps_avg.gps_RunningMedian_lng);
       }
       else {
         Serial.println("#### No GPS Signal .. ####");

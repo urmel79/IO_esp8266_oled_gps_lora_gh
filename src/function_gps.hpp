@@ -4,30 +4,23 @@
 // install path: ~/.platformio/lib/TinyGPSPlus_ID1655/
 #include <TinyGPS++.h>
 
-// struct struct_gps_values {
-//   struct TinyGPSLocation location;
-//   struct TinyGPSDate date;
-//   struct TinyGPSTime time;
-//   struct TinyGPSSpeed speed;
-//   struct TinyGPSCourse course;
-//   struct TinyGPSAltitude altitude;
-//   struct TinyGPSInteger satellites;
-//   struct TinyGPSHDOP hdop;
-// };
+struct struct_gps_RunningAVG_Median {
+  float gps_RunningAVG_lat;
+  float gps_RunningAVG_lng;
+  float gps_RunningMedian_lat;
+  float gps_RunningMedian_lng;
 
-// struct struct_gps_values {
-//   struct TinyGPSPlus s_gps;
-//   bool valid = false;
-// };
-
-// struct struct_gps_values : public TinyGPSPlus{};
-
-// typedef TinyGPSPlus struct_gps_values;
+  uint8_t gps_RunningAVG_lat_size;
+  uint8_t gps_RunningAVG_lng_size;
+  uint8_t gps_RunningAVG_lat_cnt;
+  uint8_t gps_RunningAVG_lng_cnt;
+};
 
 void initSS_gps();
 
-// struct_gps_values read_gps();
-
 TinyGPSPlus read_gps();
+
+void gps_RunningAVG_Median_addValues();
+struct_gps_RunningAVG_Median get_gps_RunningAVG_Median();
 
 #endif // function_gps_hpp

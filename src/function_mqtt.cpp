@@ -24,6 +24,10 @@ int g_i_satellites;
 double g_d_altitude;
 double g_d_latitude;
 double g_d_longitude;
+float g_f_lat_avg;
+float g_f_lng_avg;
+float g_f_lat_median;
+float g_f_lng_median;
 
 void configureMqtt() {
   mqttClient.onConnect(onMqttConnect);
@@ -238,7 +242,12 @@ void mqtt_set_gps_valid(bool gps_valid) {
   g_b_gps_valid = gps_valid;
 }
 
-void mqtt_set_gps_json(String sensor, String time, String location, String icon, String iconColor, int satellites, double altitude, int wifi_rssi, double latitude, double longitude) {
+// void mqtt_set_gps_json(String sensor, String time, String location, String icon, String iconColor, int satellites, double altitude, int wifi_rssi, double latitude, double longitude) {
+void mqtt_set_gps_json( String sensor, String time, String location, String icon,
+                        String iconColor, int satellites, double altitude,
+                        int wifi_rssi, double latitude, double longitude,
+                        float lat_avg, float lng_avg,
+                        float lat_median, float lng_median ) {
   g_str_sensor = sensor;
   g_str_time = time;
   g_str_location = location;
@@ -249,6 +258,10 @@ void mqtt_set_gps_json(String sensor, String time, String location, String icon,
   g_i_rssi_dBm = wifi_rssi;
   g_d_latitude = latitude;
   g_d_longitude = longitude;
+  g_f_lat_avg = lat_avg;
+  g_f_lng_avg = lng_avg;
+  g_f_lat_median = lat_median;
+  g_f_lng_median = lng_median;
 }
 
 void mqttPub_gps_json() {
@@ -268,7 +281,7 @@ void mqttPub_gps_json() {
   //          Es müssen 2 weitere Objektplätze reserviert werden, damit das
   //          JsonDocument vollständig übertragen wird. Warum??
   // Use https://arduinojson.org/v6/assistant to compute the capacity.
-  const size_t capacity = JSON_ARRAY_SIZE(2+1) + JSON_OBJECT_SIZE(9+3);
+  const size_t capacity = 3*JSON_ARRAY_SIZE(2+3) + JSON_OBJECT_SIZE(12+3);
   DynamicJsonDocument JsonDoc(capacity);
 
   JsonObject Json_rootObj = JsonDoc.to<JsonObject>();
@@ -283,12 +296,47 @@ void mqttPub_gps_json() {
   Json_rootObj["altitude"] = g_d_altitude;
   Json_rootObj["wifi_rssi"] = g_i_rssi_dBm;
 
-  // Add an array.
+// #####################
+// @TODO: dtostrf-Aufrufe in Funktion verpacken!
+// #####################
+  // Add an location array.
   JsonArray gps_loc = Json_rootObj.createNestedArray("gps_loc");
   // gps_loc.add(51.003886167);
   // gps_loc.add(13.686812667);
-  gps_loc.add(g_d_latitude);
-  gps_loc.add(g_d_longitude);
+  // gps_loc.add("51.003955553");
+  // gps_loc.add("13.686385553");
+  // gps_loc.add(g_d_latitude);
+  // gps_loc.add(g_d_longitude);
+  char str_value_1[13];     //result string 12 positions + \0 at the end
+  dtostrf( g_d_latitude, 12, 9, str_value_1 ); // convert float/double to string with desired precision
+  gps_loc.add(str_value_1);
+  dtostrf( g_d_longitude, 12, 9, str_value_1 ); // convert float/double to string with desired precision
+  gps_loc.add(str_value_1);
+
+  // Add an location array (avg).
+  JsonArray gps_loc_avg = Json_rootObj.createNestedArray("gps_loc_avg");
+  // gps_loc_avg.add("51.003966663");
+  // gps_loc_avg.add("13.686386663");
+  // gps_loc_avg.add(g_f_lat_avg);
+  // gps_loc_avg.add(g_f_lng_avg);
+  char str_value_2[13];     //result string 12 positions + \0 at the end
+  dtostrf( g_f_lat_avg, 12, 9, str_value_2 ); // convert float/double to string with desired precision
+  gps_loc_avg.add(str_value_2);
+  dtostrf( g_f_lng_avg, 12, 9, str_value_2 ); // convert float/double to string with desired precision
+  gps_loc_avg.add(str_value_2);
+
+  // Add an location array (median).
+  JsonArray gps_loc_median = Json_rootObj.createNestedArray("gps_loc_median");
+  // gps_loc_avg.add("51.003966663");
+  // gps_loc_avg.add("13.686386663");
+  // gps_loc_avg.add(g_f_lat_avg);
+  // gps_loc_avg.add(g_f_lng_avg);
+  char str_value_3[13];     //result string 12 positions + \0 at the end
+  dtostrf( g_f_lat_median, 12, 9, str_value_3 ); // convert float/double to string with desired precision
+  gps_loc_median.add(str_value_3);
+  dtostrf( g_f_lng_median, 12, 9, str_value_3 ); // convert float/double to string with desired precision
+  gps_loc_median.add(str_value_3);
+
 
   // // Generate the minified JSON and send it to the Serial port.
   // serializeJsonPretty(Json_rootObj, Serial);

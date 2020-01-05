@@ -29,8 +29,15 @@ void mqtt_set_wifi_rssi_dBm(int rssi);
 void mqttPub_wifi_rssi();
 
 void mqtt_set_gps_valid(bool gps_valid);
-void mqtt_set_gps_json(String sensor, String time, String location, String icon, String iconColor, int satellites, double altitude, int wifi_rssi, double latitude, double longitude);
+void mqtt_set_gps_json( String sensor, String time, String location, String icon,
+                        String iconColor, int satellites, double altitude,
+                        int wifi_rssi, double latitude, double longitude,
+                        float lat_avg, float lng_avg,
+                        float lat_median, float lng_median );
 void mqttPub_gps_json();
+
+
+
 
 
 
