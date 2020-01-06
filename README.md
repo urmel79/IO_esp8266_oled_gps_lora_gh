@@ -56,9 +56,9 @@ The schematics looks like this:
 
 This project is licensed under the terms of "GNU General Public License v3.0". For details see [LICENSE](LICENSE).
 
-## Todo and known issues
+<!-- ## Todo and known issues
 
-[issue 2019-12-07] Packet message counters flip over sporadically (this may be due to crashes of the mcu).
+[issue 2019-12-07] Packet message counters flip over sporadically (this may be due to crashes of the mcu). -->
 
 
 
