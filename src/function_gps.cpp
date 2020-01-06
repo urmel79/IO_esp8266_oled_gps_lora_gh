@@ -38,7 +38,10 @@ struct_gps_RunningAVG_Median g_avg;
 // RunningMedian by Rob Tillaart
 // The library stores the last N individual values in a buffer to select the median. It filters outliers.
 // https://github.com/RobTillaart/Arduino/tree/master/libraries/RunningMedian
-#include "RunningMedian.h"
+// #include "RunningMedian.h"
+// use rewritten RunningMedian library (revert back  from float to double),
+// because for smoothing GPS values I need much higher precision ...
+#include "function_runningMedian_double.hpp"
 
 // #define GPS_AVG_FILTER_SIZE 100
 
