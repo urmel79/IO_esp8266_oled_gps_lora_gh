@@ -40,19 +40,19 @@ In this picture you can see the other test module on top of the provisional and 
 
 ![Breadboard Layout and case](./doc/images/Testboard_case.jpeg)
 
-## Parts list
+## Bill of materials (BOM)
 
 Following parts I have used in this project (every component you will need twice of course):
 
-- breadboard full+ (830 holes)
-- wire jumpers
-- LiPo battery pack
-- USB cable with micro USB plug
-- NodeMCU v2 (ESP8266)
+- **NodeMCU v2 (ESP8266)**
 - OLED I2C display, 128 x 64 Pixel, 1.3 Zoll (SSH1106 chip)
 - GPS module u-blox Neo-6M (GY-GPS6MV2 chip)
 - LoRa transceiver Adafruit RFM9x LoRa Radio (RFM95W chip, 868 MHz)
 - LoRa antenna (868 MHz), 3 dBi omnidirectional, SMA plug
+- USB cable with micro USB plug
+- breadboard full+ (830 holes)
+- wire jumpers
+- LiPo battery pack
 
 ## Breadboard layout and schematics
 
