@@ -24,6 +24,12 @@ Here you can see the Node-RED Flow for displaying the GPS coordinates on the Ope
 
 There is my Node-RED Flow ready to import it to your own Node-RED installation (maybe you have to additionally install some node widgets e.g. the *'node-red-contrib-web-worldmap'* package) [lora_1_map.json](./node-red/lora_1_map.json).
 
+## SQLite database layout
+
+Here is a screenshot of *phpLiteAdmin* to show my SQLite database layout to store the GPS coordinates:
+
+![SQLite database layout](./node-red/phpLiteAdmin_db_lora_1_gps.png)
+
 ## Visual impressions of my test setup
 
 Here you can see one of two test modules build on breadboard:
