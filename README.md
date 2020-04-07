@@ -26,7 +26,7 @@ There is my Node-RED Flow ready to import it to your own Node-RED installation (
 
 ## SQLite database layout
 
-Here is a screenshot of *phpLiteAdmin* to show my SQLite database layout to store the GPS coordinates:
+Here is a screenshot of *phpLiteAdmin* to show my SQLite database layout for storing the GPS coordinates:
 
 ![SQLite database layout](./node-red/phpLiteAdmin_db_lora_1_gps.png)
 
