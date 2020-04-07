@@ -27,6 +27,7 @@
 
 RunningAverage gps_RunningAVG_lat(GPS_AVG_FILTER_SIZE);  // RunningAverage object for gps latitude
 RunningAverage gps_RunningAVG_lng(GPS_AVG_FILTER_SIZE);  // RunningAverage object for gps longitude
+RunningAverage gps_RunningAVG_alt(GPS_AVG_FILTER_SIZE);  // RunningAverage object for gps altitude
 
 bool g_b_init_RunningAverage_values = false;
 
@@ -53,6 +54,7 @@ struct_gps_RunningAVG_Median g_avg;
 
 RunningMedian gps_RunningMedian_lat(GPS_MED_FILTER_SIZE);  // RunningMedian object for gps latitude
 RunningMedian gps_RunningMedian_lng(GPS_MED_FILTER_SIZE);  // RunningMedian object for gps longitude
+RunningMedian gps_RunningMedian_alt(GPS_MED_FILTER_SIZE);  // RunningMedian object for gps altitude
 
 // #if !defined(D5)
 //   #define D3 (0)
@@ -84,9 +86,11 @@ void initSS_gps() {
 
   gps_RunningAVG_lat.clear(); // explicitly start with a clean RunningAverage object
   gps_RunningAVG_lng.clear(); // explicitly start with a clean RunningAverage object
+  gps_RunningAVG_alt.clear(); // explicitly start with a clean RunningAverage object
 
   gps_RunningMedian_lat.clear(); // explicitly start with a clean RunningMedian object
   gps_RunningMedian_lng.clear(); // explicitly start with a clean RunningMedian object
+  gps_RunningMedian_alt.clear(); // explicitly start with a clean RunningMedian object
 
   // initialize the RunningAverage arrays with appropriate starting values (e. g. first raw value)
   g_b_init_RunningAverage_values = true;
@@ -165,6 +169,7 @@ void gps_RunningAVG_Median_addValues() {
     // number should preferably be between 1 and size
     gps_RunningAVG_lat.fillValue(gps.location.lat(), GPS_AVG_FILTER_SIZE); // GPS_AVG_FILTER_SIZE
     gps_RunningAVG_lng.fillValue(gps.location.lng(), GPS_AVG_FILTER_SIZE); // GPS_AVG_FILTER_SIZE
+    gps_RunningAVG_alt.fillValue(gps.altitude.meters(), GPS_AVG_FILTER_SIZE); // GPS_AVG_FILTER_SIZE
 
     // gps_RunningAVG_lat.fillValue(51.003935333, GPS_AVG_FILTER_SIZE); // GPS_AVG_FILTER_SIZE
     // gps_RunningAVG_lng.fillValue(13.686355833, GPS_AVG_FILTER_SIZE); // GPS_AVG_FILTER_SIZE
@@ -174,10 +179,12 @@ void gps_RunningAVG_Median_addValues() {
   else {
     gps_RunningAVG_lat.addValue(gps.location.lat());
     gps_RunningAVG_lng.addValue(gps.location.lng());
+    gps_RunningAVG_alt.addValue(gps.altitude.meters());
   }
 
   gps_RunningMedian_lat.add(gps.location.lat());
   gps_RunningMedian_lng.add(gps.location.lng());
+  gps_RunningMedian_alt.add(gps.altitude.meters());
 }
 
 // is called every 2 seconds in main loop
@@ -186,14 +193,19 @@ struct_gps_RunningAVG_Median get_gps_RunningAVG_Median() {
 
   g_avg.gps_RunningAVG_lat = gps_RunningAVG_lat.getAverage();
   g_avg.gps_RunningAVG_lng = gps_RunningAVG_lng.getAverage();
+  g_avg.gps_RunningAVG_alt = gps_RunningAVG_alt.getAverage();
 
   g_avg.gps_RunningMedian_lat = gps_RunningMedian_lat.getMedian();
   g_avg.gps_RunningMedian_lng = gps_RunningMedian_lng.getMedian();
+  g_avg.gps_RunningMedian_alt = gps_RunningMedian_alt.getMedian();
 
   g_avg.gps_RunningAVG_lat_size = gps_RunningAVG_lat.getSize();
   g_avg.gps_RunningAVG_lng_size = gps_RunningAVG_lng.getSize();
+  g_avg.gps_RunningAVG_alt_size = gps_RunningAVG_alt.getSize();
+
   g_avg.gps_RunningAVG_lat_cnt = gps_RunningAVG_lat.getCount();
   g_avg.gps_RunningAVG_lng_cnt = gps_RunningAVG_lng.getCount();
+  g_avg.gps_RunningAVG_alt_cnt = gps_RunningAVG_alt.getCount();
 
   return g_avg;
 }

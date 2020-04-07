@@ -105,6 +105,7 @@ void loop() {
       g_s_gps_avg = get_gps_RunningAVG_Median();
 
       if (g_s_gps_values.location.isValid()) {
+      // if (true) { // only for testing purpose!
         Serial.print("Latitude  : ");
         Serial.print(g_s_gps_values.location.lat(), 9);
         Serial.print(char(176));                            // ° symbol
@@ -114,13 +115,16 @@ void loop() {
         Serial.print(char(176));                            // ° symbol
         Serial.println(" E");
         Serial.print("Lat (AVG) : ");
-        Serial.print(g_s_gps_avg.gps_RunningMedian_lat, 9);
+        Serial.print(g_s_gps_avg.gps_RunningAVG_lat, 9);
         Serial.print(char(176));                            // ° symbol
         Serial.println(" N");
         Serial.print("Lng (AVG) : ");
-        Serial.print(g_s_gps_avg.gps_RunningMedian_lng, 9);
+        Serial.print(g_s_gps_avg.gps_RunningAVG_lng, 9);
         Serial.print(char(176));                            // ° symbol
         Serial.println(" E");
+        Serial.print("Elevation : ");
+        Serial.print(g_s_gps_avg.gps_RunningAVG_alt);
+        Serial.println(" m");
 
         Serial.print("Lat (AVG) Buffer size: ");
         Serial.print(g_s_gps_avg.gps_RunningAVG_lat_size);
@@ -130,12 +134,13 @@ void loop() {
         Serial.print(g_s_gps_avg.gps_RunningAVG_lng_size);
         Serial.print(", Buffer count: ");
         Serial.println(g_s_gps_avg.gps_RunningAVG_lng_cnt);
+        Serial.print("Alt (AVG) Buffer size: ");
+        Serial.print(g_s_gps_avg.gps_RunningAVG_alt_size);
+        Serial.print(", Buffer count: ");
+        Serial.println(g_s_gps_avg.gps_RunningAVG_alt_cnt);
 
         Serial.print("Satellites: ");
         Serial.println(g_s_gps_values.satellites.value());
-        Serial.print("Elevation : ");
-        Serial.print(g_s_gps_values.altitude.meters());
-        Serial.println(" m");
         Serial.print("Time Raw  : ");
         Serial.println(g_s_gps_values.time.value());        // raw time
         Serial.print("Time UTC  : ");
@@ -174,8 +179,10 @@ void loop() {
                           g_s_gps_values.location.lng(),
                           g_s_gps_avg.gps_RunningAVG_lat,
                           g_s_gps_avg.gps_RunningAVG_lng,
+                          g_s_gps_avg.gps_RunningAVG_alt,
                           g_s_gps_avg.gps_RunningMedian_lat,
-                          g_s_gps_avg.gps_RunningMedian_lng);
+                          g_s_gps_avg.gps_RunningMedian_lng,
+                          g_s_gps_avg.gps_RunningMedian_alt);
       }
       else {
         Serial.println("#### No GPS Signal .. ####");

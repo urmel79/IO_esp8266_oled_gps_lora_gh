@@ -26,8 +26,10 @@ double g_d_latitude;
 double g_d_longitude;
 float g_f_lat_avg;
 float g_f_lng_avg;
+float g_f_alt_avg;
 float g_f_lat_median;
 float g_f_lng_median;
+float g_f_alt_median;
 
 void configureMqtt() {
   mqttClient.onConnect(onMqttConnect);
@@ -246,8 +248,8 @@ void mqtt_set_gps_valid(bool gps_valid) {
 void mqtt_set_gps_json( String sensor, String time, String location, String icon,
                         String iconColor, int satellites, double altitude,
                         int wifi_rssi, double latitude, double longitude,
-                        float lat_avg, float lng_avg,
-                        float lat_median, float lng_median ) {
+                        float lat_avg, float lng_avg, float alt_avg,
+                        float lat_median, float lng_median, float alt_median ) {
   g_str_sensor = sensor;
   g_str_time = time;
   g_str_location = location;
@@ -260,8 +262,10 @@ void mqtt_set_gps_json( String sensor, String time, String location, String icon
   g_d_longitude = longitude;
   g_f_lat_avg = lat_avg;
   g_f_lng_avg = lng_avg;
+  g_f_alt_avg = alt_avg;
   g_f_lat_median = lat_median;
   g_f_lng_median = lng_median;
+  g_f_alt_median = alt_median;
 }
 
 void mqttPub_gps_json() {
@@ -279,10 +283,10 @@ void mqttPub_gps_json() {
   // replaced by DynamicJsonDocument which allocates in the heap.
   //
   // Wichtig: muss bei Erweiterung des Json-Dokuments immer angepasst werden!
-  //          Es müssen 2 weitere Objektplätze reserviert werden, damit das
+  //          Es müssen 3 weitere Objektplätze reserviert werden, damit das
   //          JsonDocument vollständig übertragen wird. Warum??
   // Use https://arduinojson.org/v6/assistant to compute the capacity.
-  const size_t capacity = 3*JSON_ARRAY_SIZE(2+3) + JSON_OBJECT_SIZE(12+3);
+  const size_t capacity = 3*JSON_ARRAY_SIZE(3+3) + JSON_OBJECT_SIZE(10+3);
   DynamicJsonDocument JsonDoc(capacity);
 
   JsonObject Json_rootObj = JsonDoc.to<JsonObject>();
@@ -294,13 +298,10 @@ void mqttPub_gps_json() {
   Json_rootObj["icon"] = g_str_icon;
   Json_rootObj["iconColor"] = g_str_iconColor;
   Json_rootObj["satellites"] = g_i_satellites;
-  Json_rootObj["altitude"] = g_d_altitude;
+  // Json_rootObj["altitude"] = g_d_altitude;
   Json_rootObj["wifi_rssi"] = g_i_rssi_dBm;
 
-// #####################
-// @TODO: dtostrf-Aufrufe in Funktion verpacken!
-// #####################
-  // Add an location array.
+  // Add an location array (raw values).
   JsonArray gps_loc = Json_rootObj.createNestedArray("gps_loc");
   // gps_loc.add(51.003886167);
   // gps_loc.add(13.686812667);
@@ -318,6 +319,8 @@ void mqttPub_gps_json() {
   gps_loc.add(l_res);
   l_res = convertDouble2String(g_d_longitude, 12, 9); // convert double to string with desired precision 9
   gps_loc.add(l_res);
+  l_res = convertDouble2String(g_d_altitude, 12, 1); // convert double to string with desired precision 1
+  gps_loc.add(l_res);
 
   // Add an location array (avg).
   JsonArray gps_loc_avg = Json_rootObj.createNestedArray("gps_loc_avg");
@@ -331,9 +334,15 @@ void mqttPub_gps_json() {
   // dtostrf( g_f_lng_avg, 12, 9, str_value_2 ); // convert float/double to string with desired precision
   // gps_loc_avg.add(str_value_2);
 
+  // g_f_lat_avg = 51.00396666377;
+  // g_f_lng_avg = 13.68638666377;
+  // g_f_alt_avg = 278.457;
+
   l_res = convertDouble2String(g_f_lat_avg, 12, 9); // convert double to string with desired precision 9
   gps_loc_avg.add(l_res);
   l_res = convertDouble2String(g_f_lng_avg, 12, 9); // convert double to string with desired precision 9
+  gps_loc_avg.add(l_res);
+  l_res = convertDouble2String(g_f_alt_avg, 12, 1); // convert double to string with desired precision 1
   gps_loc_avg.add(l_res);
 
   // Add an location array (median).
@@ -351,6 +360,8 @@ void mqttPub_gps_json() {
   l_res = convertDouble2String(g_f_lat_median, 12, 9); // convert double to string with desired precision 9
   gps_loc_median.add(l_res);
   l_res = convertDouble2String(g_f_lng_median, 12, 9); // convert double to string with desired precision 9
+  gps_loc_median.add(l_res);
+  l_res = convertDouble2String(g_f_alt_median, 12, 1); // convert double to string with desired precision 1
   gps_loc_median.add(l_res);
 
   // // Generate the minified JSON and send it to the Serial port.
@@ -376,7 +387,7 @@ void mqttPub_gps_json() {
 }
 
 String convertDouble2String(double value, uint flt_positions, uint precision) {
-  char str_value[21];     //result string 20 positions + \0 at the end
+  char str_value[21];     //result string 20 positions + '\0' at the end
 
   if (flt_positions < precision) precision = flt_positions + 2; // sanitize precision
   if (flt_positions > 20) flt_positions = 20; // validate flt_positions (max 20 digits)

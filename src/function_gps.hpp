@@ -15,13 +15,18 @@
 struct struct_gps_RunningAVG_Median {
   float gps_RunningAVG_lat;
   float gps_RunningAVG_lng;
+  float gps_RunningAVG_alt;
+
   float gps_RunningMedian_lat;
   float gps_RunningMedian_lng;
+  float gps_RunningMedian_alt;
 
   uint8_t gps_RunningAVG_lat_size;
   uint8_t gps_RunningAVG_lng_size;
+  uint8_t gps_RunningAVG_alt_size;
   uint8_t gps_RunningAVG_lat_cnt;
   uint8_t gps_RunningAVG_lng_cnt;
+  uint8_t gps_RunningAVG_alt_cnt;
 };
 
 void initSS_gps();
