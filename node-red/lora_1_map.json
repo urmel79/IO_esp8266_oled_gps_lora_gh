@@ -1,0 +1,781 @@
+[
+    {
+        "id": "66da549e.84621c",
+        "type": "tab",
+        "label": "lora_1_map",
+        "disabled": false,
+        "info": ""
+    },
+    {
+        "id": "5dde0628.6e3c18",
+        "type": "mqtt in",
+        "z": "66da549e.84621c",
+        "name": "",
+        "topic": "lora_1/wifi/rssi",
+        "qos": "0",
+        "datatype": "auto",
+        "broker": "5b8071a6.2b57b8",
+        "x": 110,
+        "y": 60,
+        "wires": [
+            [
+                "ff107427.a88b38"
+            ]
+        ]
+    },
+    {
+        "id": "ff107427.a88b38",
+        "type": "debug",
+        "z": "66da549e.84621c",
+        "name": "",
+        "active": false,
+        "tosidebar": true,
+        "console": false,
+        "tostatus": false,
+        "complete": "false",
+        "x": 340,
+        "y": 60,
+        "wires": []
+    },
+    {
+        "id": "75094fe5.50b0b8",
+        "type": "debug",
+        "z": "66da549e.84621c",
+        "name": "",
+        "active": false,
+        "tosidebar": true,
+        "console": false,
+        "tostatus": false,
+        "complete": "payload",
+        "targetType": "msg",
+        "x": 570,
+        "y": 200,
+        "wires": []
+    },
+    {
+        "id": "4cb8eb8e.4ebbe4",
+        "type": "mqtt in",
+        "z": "66da549e.84621c",
+        "name": "",
+        "topic": "lora_1/lora/gps",
+        "qos": "0",
+        "datatype": "auto",
+        "broker": "5b8071a6.2b57b8",
+        "x": 121,
+        "y": 223,
+        "wires": [
+            [
+                "c96110ed.a40db"
+            ]
+        ]
+    },
+    {
+        "id": "c96110ed.a40db",
+        "type": "json",
+        "z": "66da549e.84621c",
+        "name": "",
+        "property": "payload",
+        "action": "",
+        "pretty": false,
+        "x": 350,
+        "y": 223,
+        "wires": [
+            [
+                "75094fe5.50b0b8",
+                "43fb379e.b1a098",
+                "f94c78ed.898318",
+                "7b49c0c7.59e53",
+                "612ca58d.beb814"
+            ]
+        ]
+    },
+    {
+        "id": "43fb379e.b1a098",
+        "type": "function",
+        "z": "66da549e.84621c",
+        "name": "convert json output to worldmap",
+        "func": "var newMsg = {};\nvar datetime_local = new Date().toLocaleString('de-DE', { hour12:false });\nvar datetime_gps = new Date(msg.payload.time).toLocaleString('de-DE', { hour12:false });\n\nnewMsg.payload = {\n    name: msg.payload.sensor+\" (\"+msg.payload.location+\")\",\n    lat: parseFloat(msg.payload.gps_loc[0]),\n    lon: parseFloat(msg.payload.gps_loc[1]),\n    \"altitude [m]\": msg.payload.altitude,\n    satellites: msg.payload.satellites,\n    popped: false,\n    label: \"GPS raw\",\n    icon: msg.payload.icon,\n    color: msg.payload.iconColor, // color of trace\n    iconColor: msg.payload.iconColor,\n    //radius: 10,\n    //radiusColor: \"Green\",\n    \"wifi rssi [dBm]\": msg.payload.wifi_rssi,\n    \"gps_time (UTC)\": datetime_gps,\n    \"local_time (DE)\": datetime_local,\n    \"layer\": \"gps_raw\",\n    \"draggable\": true\n};\n\nreturn newMsg;\n",
+        "outputs": 1,
+        "noerr": 0,
+        "x": 630,
+        "y": 280,
+        "wires": [
+            [
+                "f22536ce.6c1f48",
+                "116778c5.ff3097",
+                "d0b387cb.7fb1d8"
+            ]
+        ]
+    },
+    {
+        "id": "f22536ce.6c1f48",
+        "type": "debug",
+        "z": "66da549e.84621c",
+        "name": "",
+        "active": false,
+        "tosidebar": true,
+        "console": false,
+        "tostatus": false,
+        "complete": "false",
+        "x": 910,
+        "y": 140,
+        "wires": []
+    },
+    {
+        "id": "dde9bcd7.5a12c8",
+        "type": "function",
+        "z": "66da549e.84621c",
+        "name": "convert date",
+        "func": "var now = new Date().toLocaleString('de-DE', { hour12:false });\nreturn {payload: now};\n",
+        "outputs": 1,
+        "noerr": 0,
+        "x": 350,
+        "y": 1400,
+        "wires": [
+            [
+                "44e38d4c.6c8cb4"
+            ]
+        ]
+    },
+    {
+        "id": "44e38d4c.6c8cb4",
+        "type": "debug",
+        "z": "66da549e.84621c",
+        "name": "",
+        "active": true,
+        "tosidebar": true,
+        "console": false,
+        "tostatus": false,
+        "complete": "false",
+        "x": 552,
+        "y": 1400,
+        "wires": []
+    },
+    {
+        "id": "f08eb460.631748",
+        "type": "inject",
+        "z": "66da549e.84621c",
+        "name": "",
+        "topic": "",
+        "payload": "",
+        "payloadType": "date",
+        "repeat": "",
+        "crontab": "",
+        "once": false,
+        "onceDelay": 0.1,
+        "x": 152,
+        "y": 1400,
+        "wires": [
+            [
+                "dde9bcd7.5a12c8"
+            ]
+        ]
+    },
+    {
+        "id": "e1e17fae.c9ba",
+        "type": "function",
+        "z": "66da549e.84621c",
+        "name": "heavily customised Circle on a layer",
+        "func": "msg.payload = {};\nmsg.payload.command = {};\n\nmsg.payload.command =  {\n    \"name\": \"circle\",\n    \"lat\": 51.00385,\n    \"lon\": 13.68661,\n    \"radius\": 1000,\n    \"layer\": \"drawing\",\n    \"iconColor\": '#464646',\n    \"stroke\": false,\n    \"fillOpacity\": 0.8,\n    \"clickable\": true\n};\n\nmsg.payload.command.layer = \"drawing\";\n\nreturn msg;",
+        "outputs": 1,
+        "noerr": 0,
+        "x": 582,
+        "y": 1220,
+        "wires": [
+            []
+        ]
+    },
+    {
+        "id": "c1aa0464.ba9138",
+        "type": "inject",
+        "z": "66da549e.84621c",
+        "name": "",
+        "topic": "",
+        "payload": "",
+        "payloadType": "date",
+        "repeat": "",
+        "crontab": "",
+        "once": false,
+        "onceDelay": 0.1,
+        "x": 232,
+        "y": 1220,
+        "wires": [
+            [
+                "e1e17fae.c9ba"
+            ]
+        ]
+    },
+    {
+        "id": "97f4064a.e94d78",
+        "type": "function",
+        "z": "66da549e.84621c",
+        "name": "Bristol Channel",
+        "func": "msg.payload = { \n    \"name\":\"Bristol Channel\",\n    \"lat\":51.5, \n    \"lon\":-2.9, \n    \"radius\":[30000,70000], \n    \"tilt\":45, \n    \"popped\": true \n};\n\nreturn msg;",
+        "outputs": 1,
+        "noerr": 0,
+        "x": 522,
+        "y": 1300,
+        "wires": [
+            []
+        ]
+    },
+    {
+        "id": "821ad52c.7a2318",
+        "type": "inject",
+        "z": "66da549e.84621c",
+        "name": "",
+        "topic": "",
+        "payload": "",
+        "payloadType": "date",
+        "repeat": "",
+        "crontab": "",
+        "once": false,
+        "onceDelay": 0.1,
+        "x": 212,
+        "y": 1300,
+        "wires": [
+            [
+                "97f4064a.e94d78"
+            ]
+        ]
+    },
+    {
+        "id": "c6b4aeac.801748",
+        "type": "mqtt in",
+        "z": "66da549e.84621c",
+        "name": "",
+        "topic": "lora_2/wifi/rssi",
+        "qos": "0",
+        "datatype": "auto",
+        "broker": "5b8071a6.2b57b8",
+        "x": 110,
+        "y": 140,
+        "wires": [
+            [
+                "da65e558.44e948"
+            ]
+        ]
+    },
+    {
+        "id": "da65e558.44e948",
+        "type": "debug",
+        "z": "66da549e.84621c",
+        "name": "",
+        "active": false,
+        "tosidebar": true,
+        "console": false,
+        "tostatus": false,
+        "complete": "false",
+        "x": 340,
+        "y": 140,
+        "wires": []
+    },
+    {
+        "id": "41f7810a.004ed",
+        "type": "debug",
+        "z": "66da549e.84621c",
+        "name": "",
+        "active": false,
+        "tosidebar": true,
+        "console": false,
+        "tostatus": false,
+        "complete": "payload",
+        "targetType": "msg",
+        "x": 570,
+        "y": 360,
+        "wires": []
+    },
+    {
+        "id": "3bbc91bd.85448e",
+        "type": "mqtt in",
+        "z": "66da549e.84621c",
+        "name": "",
+        "topic": "lora_2/lora/gps",
+        "qos": "0",
+        "datatype": "auto",
+        "broker": "5b8071a6.2b57b8",
+        "x": 121,
+        "y": 360,
+        "wires": [
+            [
+                "7de0d4c5.a0b7dc"
+            ]
+        ]
+    },
+    {
+        "id": "7de0d4c5.a0b7dc",
+        "type": "json",
+        "z": "66da549e.84621c",
+        "name": "",
+        "property": "payload",
+        "action": "",
+        "pretty": false,
+        "x": 350,
+        "y": 360,
+        "wires": [
+            [
+                "41f7810a.004ed",
+                "6745fa43.f57a74"
+            ]
+        ]
+    },
+    {
+        "id": "6745fa43.f57a74",
+        "type": "function",
+        "z": "66da549e.84621c",
+        "name": "convert json output to worldmap",
+        "func": "var newMsg = {};\nvar datetime_local = new Date().toLocaleString('de-DE', { hour12:false });\nvar datetime_gps = new Date(msg.payload.time).toLocaleString('de-DE', { hour12:false });\n\nnewMsg.payload = {\n    name: msg.payload.sensor+\" (\"+msg.payload.location+\")\",\n    lat: msg.payload.gps_loc[0],\n    lon: msg.payload.gps_loc[1],\n    \"altitude [m]\": msg.payload.altitude,\n    satellites: msg.payload.satellites,\n    popped: true,\n    icon: msg.payload.icon,\n    //iconColor: \"Yellow\",\n    iconColor: msg.payload.iconColor,\n    radius: 10,\n    radiusColor: \"Blue\",\n    \"wifi rssi [dBm]\": msg.payload.wifi_rssi,\n    \"gps_time (UTC)\": datetime_gps,\n    \"local_time (DE)\": datetime_local,\n};\n\nreturn newMsg;",
+        "outputs": 1,
+        "noerr": 0,
+        "x": 630,
+        "y": 420,
+        "wires": [
+            [
+                "116778c5.ff3097",
+                "727db952.c9de48"
+            ]
+        ]
+    },
+    {
+        "id": "c2697adf.1d3598",
+        "type": "sqlite",
+        "z": "66da549e.84621c",
+        "mydb": "60997cc6.72a844",
+        "sqlquery": "msg.topic",
+        "sql": "",
+        "name": "lora_gps.sqlite3",
+        "x": 1403,
+        "y": 280,
+        "wires": [
+            [
+                "3d49b588.388b32"
+            ]
+        ]
+    },
+    {
+        "id": "3cb5ce50.d790aa",
+        "type": "debug",
+        "z": "66da549e.84621c",
+        "name": "",
+        "active": true,
+        "tosidebar": true,
+        "console": false,
+        "tostatus": false,
+        "complete": "true",
+        "targetType": "full",
+        "x": 1373,
+        "y": 240,
+        "wires": []
+    },
+    {
+        "id": "8db6e8e.c5a4098",
+        "type": "function",
+        "z": "66da549e.84621c",
+        "name": "INSERT gps in DB",
+        "func": "var node_name = {payload: msg.payload.name};\nvar latitude = {payload: msg.payload.lat};\nvar longitude = {payload: msg.payload.lon};\nvar altitude = {payload: msg.payload[\"altitude [m]\"]};\nvar satellites = {payload: msg.payload.satellites};\nvar icon = {payload: msg.payload.icon};\nvar iconColor = {payload: msg.payload.iconColor};\nvar wifi_rssi = {payload: msg.payload[\"wifi rssi [dBm]\"]};\nvar time_UTC = {payload: msg.payload[\"time (UTC)\"]};\nvar time_local = {payload: msg.payload[\"time (local)\"]};\n\nvar sql_query = {\n    \"payload\" : \"\",\n    \"topic\" : \"INSERT INTO lora_2_gps (\" +\n    \"node_name, latitude, longitude, altitude, satellites, icon, iconColor, wifi_rssi, time_UTC, time_local) \" +\n    \"VALUES (\" +\n    \"'\" + node_name.payload + \"', \" +\n    latitude.payload + \", \" +\n    longitude.payload + \", \" +\n    altitude.payload + \", \" +\n    satellites.payload + \", \" +\n    \"'\" + icon.payload + \"', \" +\n    \"'\" + iconColor.payload + \"', \" +\n    wifi_rssi.payload + \", \" +\n    \"'\" + time_UTC.payload + \"', \" +\n    \"'\" + time_local.payload + \"')\"\n};\n\nreturn sql_query;",
+        "outputs": 1,
+        "noerr": 0,
+        "x": 1110,
+        "y": 420,
+        "wires": [
+            [
+                "b49bdb09.ba31b",
+                "621a4ecb.0f4428"
+            ]
+        ]
+    },
+    {
+        "id": "b49bdb09.ba31b",
+        "type": "sqlite",
+        "z": "66da549e.84621c",
+        "mydb": "60997cc6.72a844",
+        "sqlquery": "msg.topic",
+        "sql": "",
+        "name": "lora_gps.sqlite3",
+        "x": 1400,
+        "y": 420,
+        "wires": [
+            []
+        ]
+    },
+    {
+        "id": "621a4ecb.0f4428",
+        "type": "debug",
+        "z": "66da549e.84621c",
+        "name": "",
+        "active": false,
+        "tosidebar": true,
+        "console": false,
+        "tostatus": false,
+        "complete": "false",
+        "x": 1390,
+        "y": 380,
+        "wires": []
+    },
+    {
+        "id": "285e8aac.de850e",
+        "type": "comment",
+        "z": "66da549e.84621c",
+        "name": "display floating averages for GPS coordinates in map",
+        "info": "",
+        "x": 1230,
+        "y": 540,
+        "wires": []
+    },
+    {
+        "id": "727db952.c9de48",
+        "type": "worldmap-tracks",
+        "z": "66da549e.84621c",
+        "name": "gps_track_lora_2",
+        "depth": "100",
+        "layer": "combined",
+        "x": 870,
+        "y": 500,
+        "wires": [
+            [
+                "116778c5.ff3097"
+            ]
+        ]
+    },
+    {
+        "id": "d0b387cb.7fb1d8",
+        "type": "worldmap-tracks",
+        "z": "66da549e.84621c",
+        "name": "gps_track_lora_1",
+        "depth": "1000",
+        "layer": "combined",
+        "x": 870,
+        "y": 200,
+        "wires": [
+            [
+                "116778c5.ff3097"
+            ]
+        ]
+    },
+    {
+        "id": "f94c78ed.898318",
+        "type": "function",
+        "z": "66da549e.84621c",
+        "name": "location average",
+        "func": "var newMsg = {};\n\nnewMsg.payload = {\n    name: msg.payload.sensor+\" (\"+msg.payload.location+\" AVG)\",\n    lat: parseFloat(msg.payload.gps_loc_avg[0]),\n    lon: parseFloat(msg.payload.gps_loc_avg[1]),\n    popped: false,\n    label: \"GPS average\",\n    color: \"Darkred\", // color of trace\n    icon: msg.payload.icon,\n    iconColor: \"Darkred\",\n    \"layer\": \"gps_average\",\n    \"draggable\": true\n};\n\nreturn newMsg;",
+        "outputs": 1,
+        "noerr": 0,
+        "x": 600,
+        "y": 540,
+        "wires": [
+            [
+                "4e1547de.f3d038",
+                "116778c5.ff3097",
+                "b9d70f1b.07fd08"
+            ]
+        ]
+    },
+    {
+        "id": "4e1547de.f3d038",
+        "type": "debug",
+        "z": "66da549e.84621c",
+        "name": "",
+        "active": false,
+        "tosidebar": true,
+        "console": false,
+        "tostatus": false,
+        "complete": "false",
+        "x": 850,
+        "y": 580,
+        "wires": []
+    },
+    {
+        "id": "b9d70f1b.07fd08",
+        "type": "worldmap-tracks",
+        "z": "66da549e.84621c",
+        "name": "gps_track_lora_1_avg",
+        "depth": "500",
+        "layer": "combined",
+        "x": 880,
+        "y": 540,
+        "wires": [
+            [
+                "116778c5.ff3097"
+            ]
+        ]
+    },
+    {
+        "id": "7b49c0c7.59e53",
+        "type": "function",
+        "z": "66da549e.84621c",
+        "name": "location median",
+        "func": "var newMsg = {};\n\nnewMsg.payload = {\n    name: msg.payload.sensor+\" (\"+msg.payload.location+\" Median)\",\n    lat: parseFloat(msg.payload.gps_loc_median[0]),\n    lon: parseFloat(msg.payload.gps_loc_median[1]),\n    popped: false,\n    label: \"GPS median\",\n    color: \"Blue\", // color of trace\n    icon: msg.payload.icon,\n    iconColor: \"Blue\",\n    \"layer\": \"gps_median\",\n    \"draggable\": true\n};\n\nreturn newMsg;",
+        "outputs": 1,
+        "noerr": 0,
+        "x": 600,
+        "y": 620,
+        "wires": [
+            [
+                "2d267d05.46108a",
+                "ee1a161.95633e8",
+                "116778c5.ff3097"
+            ]
+        ]
+    },
+    {
+        "id": "2d267d05.46108a",
+        "type": "debug",
+        "z": "66da549e.84621c",
+        "name": "",
+        "active": false,
+        "tosidebar": true,
+        "console": false,
+        "tostatus": false,
+        "complete": "false",
+        "x": 850,
+        "y": 660,
+        "wires": []
+    },
+    {
+        "id": "ee1a161.95633e8",
+        "type": "worldmap-tracks",
+        "z": "66da549e.84621c",
+        "name": "gps_track_lora_1_median",
+        "depth": "500",
+        "layer": "combined",
+        "x": 890,
+        "y": 620,
+        "wires": [
+            [
+                "116778c5.ff3097"
+            ]
+        ]
+    },
+    {
+        "id": "61cc23c4.f21734",
+        "type": "ui_button",
+        "z": "66da549e.84621c",
+        "name": "",
+        "group": "3418e09c.5650f8",
+        "order": 1,
+        "width": 5,
+        "height": 1,
+        "passthru": false,
+        "label": "Delete Layers and Tracks",
+        "tooltip": "",
+        "color": "",
+        "bgcolor": "",
+        "icon": "domain",
+        "payload": "1",
+        "payloadType": "str",
+        "topic": "",
+        "x": 150,
+        "y": 800,
+        "wires": [
+            [
+                "a1c476e2.cd524",
+                "211582bd.42307e",
+                "d468b116.f723b"
+            ]
+        ]
+    },
+    {
+        "id": "a1c476e2.cd524",
+        "type": "function",
+        "z": "66da549e.84621c",
+        "name": "Remove layer \"gps_raw\"",
+        "func": "msg.payload = {command:{clear:\"gps_raw\"}};\nreturn msg;",
+        "outputs": 1,
+        "noerr": 0,
+        "x": 410,
+        "y": 760,
+        "wires": [
+            [
+                "116778c5.ff3097",
+                "d0b387cb.7fb1d8"
+            ]
+        ]
+    },
+    {
+        "id": "211582bd.42307e",
+        "type": "function",
+        "z": "66da549e.84621c",
+        "name": "Remove layer \"gps_average\"",
+        "func": "msg.payload = {command:{clear:\"gps_average\"}};\nreturn msg;",
+        "outputs": 1,
+        "noerr": 0,
+        "x": 420,
+        "y": 800,
+        "wires": [
+            [
+                "116778c5.ff3097",
+                "b9d70f1b.07fd08"
+            ]
+        ]
+    },
+    {
+        "id": "d468b116.f723b",
+        "type": "function",
+        "z": "66da549e.84621c",
+        "name": "Remove layer \"gps_median\"",
+        "func": "msg.payload = {command:{clear:\"gps_median\"}};\nreturn msg;",
+        "outputs": 1,
+        "noerr": 0,
+        "x": 420,
+        "y": 840,
+        "wires": [
+            [
+                "116778c5.ff3097",
+                "ee1a161.95633e8"
+            ]
+        ]
+    },
+    {
+        "id": "116778c5.ff3097",
+        "type": "ui_worldmap",
+        "z": "66da549e.84621c",
+        "group": "3418e09c.5650f8",
+        "order": 3,
+        "width": 25,
+        "height": 12,
+        "name": "Show all in OpenStreetMap",
+        "lat": "51.0037",
+        "lon": "13.6868",
+        "zoom": "18",
+        "layer": "OSM",
+        "cluster": "",
+        "maxage": "",
+        "usermenu": "show",
+        "layers": "show",
+        "panit": "false",
+        "panlock": "false",
+        "zoomlock": "false",
+        "hiderightclick": "false",
+        "coords": "deg",
+        "showgrid": "true",
+        "path": "/worldmap",
+        "x": 1100,
+        "y": 340,
+        "wires": []
+    },
+    {
+        "id": "cfeafbe8.d24788",
+        "type": "function",
+        "z": "66da549e.84621c",
+        "name": "INSERT_avg gps in DB",
+        "func": "var datetime_gps = new Date(msg.payload.time).toLocaleString('de-DE', { hour12:false });\nvar datetime_local = new Date().toLocaleString('de-DE', { hour12:false });\n\nvar node_name = {payload: msg.payload.sensor+\" (\"+msg.payload.location+\" AVG)\"};\nvar latitude_avg = {payload: parseFloat(msg.payload.gps_loc_avg[0])};\nvar longitude_avg = {payload: parseFloat(msg.payload.gps_loc_avg[1])};\nvar altitude = {payload: msg.payload.altitude};\nvar satellites = {payload: msg.payload.satellites};\nvar icon = {payload: msg.payload.icon};\nvar iconColor = {payload: msg.payload.iconColor};\nvar wifi_rssi = {payload: msg.payload.wifi_rssi};\nvar time_UTC = {payload: datetime_gps};\nvar time_local = {payload: datetime_local};\n\nvar sql_query = {\n    \"payload\" : \"\",\n    \"topic\" : \"INSERT INTO lora_1_gps (\" +\n    \"node_name, latitude_avg, longitude_avg, altitude, satellites, icon, iconColor, wifi_rssi, time_UTC, time_local) \" +\n    \"VALUES (\" +\n    \"'\" + node_name.payload + \"', \" +\n    latitude_avg.payload + \", \" +\n    longitude_avg.payload + \", \" +\n    altitude.payload + \", \" +\n    satellites.payload + \", \" +\n    \"'\" + icon.payload + \"', \" +\n    \"'\" + iconColor.payload + \"', \" +\n    wifi_rssi.payload + \", \" +\n    \"'\" + time_UTC.payload + \"', \" +\n    \"'\" + time_local.payload + \"')\"\n};\n\nreturn sql_query;",
+        "outputs": 1,
+        "noerr": 0,
+        "x": 1130,
+        "y": 280,
+        "wires": [
+            [
+                "3cb5ce50.d790aa",
+                "c2697adf.1d3598"
+            ]
+        ]
+    },
+    {
+        "id": "3d49b588.388b32",
+        "type": "debug",
+        "z": "66da549e.84621c",
+        "name": "",
+        "active": false,
+        "tosidebar": true,
+        "console": false,
+        "tostatus": false,
+        "complete": "true",
+        "targetType": "full",
+        "x": 1570,
+        "y": 280,
+        "wires": []
+    },
+    {
+        "id": "612ca58d.beb814",
+        "type": "delay",
+        "z": "66da549e.84621c",
+        "name": "Time limiter 1 msg / 1 min",
+        "pauseType": "rate",
+        "timeout": "5",
+        "timeoutUnits": "seconds",
+        "rate": "1",
+        "nbRateUnits": "59",
+        "rateUnits": "second",
+        "randomFirst": "1",
+        "randomLast": "5",
+        "randomUnits": "seconds",
+        "drop": true,
+        "x": 1130,
+        "y": 240,
+        "wires": [
+            [
+                "cfeafbe8.d24788"
+            ]
+        ]
+    },
+    {
+        "id": "e9e35546.242248",
+        "type": "comment",
+        "z": "66da549e.84621c",
+        "name": "display floating medians for GPS coordinates in map",
+        "info": "",
+        "x": 1230,
+        "y": 620,
+        "wires": []
+    },
+    {
+        "id": "994e10a9.914f3",
+        "type": "comment",
+        "z": "66da549e.84621c",
+        "name": "write floating average to DB 1/min",
+        "info": "",
+        "x": 1150,
+        "y": 200,
+        "wires": []
+    },
+    {
+        "id": "5b8071a6.2b57b8",
+        "type": "mqtt-broker",
+        "z": "",
+        "name": "",
+        "broker": "localhost",
+        "port": "1883",
+        "clientid": "",
+        "usetls": false,
+        "compatmode": true,
+        "keepalive": "60",
+        "cleansession": true,
+        "birthTopic": "",
+        "birthQos": "0",
+        "birthPayload": "",
+        "closeTopic": "",
+        "closeQos": "0",
+        "closePayload": "",
+        "willTopic": "",
+        "willQos": "0",
+        "willPayload": ""
+    },
+    {
+        "id": "60997cc6.72a844",
+        "type": "sqlitedb",
+        "z": "",
+        "db": "/home/bk/jupyter-notebook/Python/sqlite_dbs/lora_gps.sqlite3",
+        "mode": "RWC"
+    },
+    {
+        "id": "3418e09c.5650f8",
+        "type": "ui_group",
+        "z": "",
+        "name": "Worldmap",
+        "tab": "f2539d2c.cf3548",
+        "order": 1,
+        "disp": true,
+        "width": "25",
+        "collapse": true
+    },
+    {
+        "id": "f2539d2c.cf3548",
+        "type": "ui_tab",
+        "z": "",
+        "name": "GPS Tracker",
+        "icon": "map",
+        "order": 1,
+        "disabled": false,
+        "hidden": false
+    }
+]
