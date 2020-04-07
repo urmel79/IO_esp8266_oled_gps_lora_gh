@@ -18,6 +18,9 @@
 #if defined(WEMOS_D1_MINI_PRO) || defined(NODE_MCU_LORA_1) || defined(NODE_MCU_LORA_2)
   const int sdaPin = D2;
   const int sclPin = D1;
+#elif defined(NODE_MCU_LORA_2_ESP32)
+  const int sdaPin = 21;
+  const int sclPin = 22;
 #elif defined(DEAUTHER_OLED)
   const int sdaPin = D1;
   const int sclPin = D2;

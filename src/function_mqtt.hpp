@@ -36,7 +36,7 @@ void mqtt_set_gps_json( String sensor, String time, String location, String icon
                         float lat_median, float lng_median );
 void mqttPub_gps_json();
 
-
+String convertDouble2String(double value, uint flt_positions, uint precision);
 
 
 

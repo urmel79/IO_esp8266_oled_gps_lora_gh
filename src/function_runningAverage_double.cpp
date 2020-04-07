@@ -181,7 +181,7 @@ double RunningAverage::getStandardError() const //++
 // number should preferably be between 1 and size
 void RunningAverage::fillValue(const double value, const uint8_t number)
 {
-  clear(); // TODO conditional?  if (clr) clear();
+  // clear(); // TODO conditional?  if (clr) clear();
 
   for (uint8_t i = 0; i < number; i++)
   {

@@ -1,5 +1,13 @@
 #include "function_ota.hpp"
 
+// 'ESP32' and 'ESP8266' are defined within PlatformIO
+#ifdef ESP32
+  #warning "ESP8266 was defined: doing ESP8266 stuff"
+  #include "rom/ets_sys.h"
+  // #include <ets_sys_bk.hpp>
+  #define ETS_GPIO_INUM       12
+#endif
+
 void function_ota_setup( const char *chr_hostname ) {
   // Port defaults to 8266
   ArduinoOTA.setPort(8266);
@@ -8,7 +16,7 @@ void function_ota_setup( const char *chr_hostname ) {
   ArduinoOTA.setHostname(chr_hostname);
 
   // No authentication by default
-  ArduinoOTA.setPassword("esp8266");
+  ArduinoOTA.setPassword(OTA_PASSWORD);
 
   // Password can be set with it's md5 value as well
   // MD5(admin) = 21232f297a57a5a743894a0e4a801fc3
@@ -19,7 +27,8 @@ void function_ota_setup( const char *chr_hostname ) {
     // ota updates and lead to sporadic crashes!
     // [fix (workaround)] disable external interrupts temporarily
     // reference https://www.mikrocontroller.net/topic/460256#5573848
-    ETS_GPIO_INTR_DISABLE();
+    // ETS_GPIO_INTR_DISABLE();
+    ets_isr_mask((1<<ETS_GPIO_INUM)); // disable interrupts by external GPIOs
 
     String type;
     if (ArduinoOTA.getCommand() == U_FLASH) {
@@ -34,7 +43,8 @@ void function_ota_setup( const char *chr_hostname ) {
 
   ArduinoOTA.onEnd([]() {
     // enable external interrupts again
-    ETS_GPIO_INTR_ENABLE();
+    // ETS_GPIO_INTR_ENABLE();
+    ets_isr_unmask((1<<ETS_GPIO_INUM)); // enable interrupts by external GPIOs
 
     Serial.println("\nEnd");
   });
@@ -42,7 +52,8 @@ void function_ota_setup( const char *chr_hostname ) {
   ArduinoOTA.onProgress([](unsigned int progress, unsigned int total) {
     // disable external interrupts (they cause sporadic crashes!)
     // reference https://www.mikrocontroller.net/topic/460256#5573848
-    ETS_GPIO_INTR_DISABLE();
+    // ETS_GPIO_INTR_DISABLE();
+    ets_isr_mask((1<<ETS_GPIO_INUM)); // disable interrupts by external GPIOs
 
     Serial.printf("Progress: %u%%\r", (progress / (total / 100)));
   });

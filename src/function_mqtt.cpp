@@ -266,6 +266,7 @@ void mqtt_set_gps_json( String sensor, String time, String location, String icon
 
 void mqttPub_gps_json() {
   bool send_success;
+  String l_res;
 
   // Allocate the JSON document
   //
@@ -307,11 +308,16 @@ void mqttPub_gps_json() {
   // gps_loc.add("13.686385553");
   // gps_loc.add(g_d_latitude);
   // gps_loc.add(g_d_longitude);
-  char str_value_1[13];     //result string 12 positions + \0 at the end
-  dtostrf( g_d_latitude, 12, 9, str_value_1 ); // convert float/double to string with desired precision
-  gps_loc.add(str_value_1);
-  dtostrf( g_d_longitude, 12, 9, str_value_1 ); // convert float/double to string with desired precision
-  gps_loc.add(str_value_1);
+  // char str_value_1[13];     //result string 12 positions + \0 at the end
+  // dtostrf( g_d_latitude, 12, 9, str_value_1 ); // convert float/double to string with desired precision
+  // gps_loc.add(str_value_1);
+  // dtostrf( g_d_longitude, 12, 9, str_value_1 ); // convert float/double to string with desired precision
+  // gps_loc.add(str_value_1);
+
+  l_res = convertDouble2String(g_d_latitude, 12, 9); // convert double to string with desired precision 9
+  gps_loc.add(l_res);
+  l_res = convertDouble2String(g_d_longitude, 12, 9); // convert double to string with desired precision 9
+  gps_loc.add(l_res);
 
   // Add an location array (avg).
   JsonArray gps_loc_avg = Json_rootObj.createNestedArray("gps_loc_avg");
@@ -319,11 +325,16 @@ void mqttPub_gps_json() {
   // gps_loc_avg.add("13.686386663");
   // gps_loc_avg.add(g_f_lat_avg);
   // gps_loc_avg.add(g_f_lng_avg);
-  char str_value_2[13];     //result string 12 positions + \0 at the end
-  dtostrf( g_f_lat_avg, 12, 9, str_value_2 ); // convert float/double to string with desired precision
-  gps_loc_avg.add(str_value_2);
-  dtostrf( g_f_lng_avg, 12, 9, str_value_2 ); // convert float/double to string with desired precision
-  gps_loc_avg.add(str_value_2);
+  // char str_value_2[13];     //result string 12 positions + \0 at the end
+  // dtostrf( g_f_lat_avg, 12, 9, str_value_2 ); // convert float/double to string with desired precision
+  // gps_loc_avg.add(str_value_2);
+  // dtostrf( g_f_lng_avg, 12, 9, str_value_2 ); // convert float/double to string with desired precision
+  // gps_loc_avg.add(str_value_2);
+
+  l_res = convertDouble2String(g_f_lat_avg, 12, 9); // convert double to string with desired precision 9
+  gps_loc_avg.add(l_res);
+  l_res = convertDouble2String(g_f_lng_avg, 12, 9); // convert double to string with desired precision 9
+  gps_loc_avg.add(l_res);
 
   // Add an location array (median).
   JsonArray gps_loc_median = Json_rootObj.createNestedArray("gps_loc_median");
@@ -331,12 +342,16 @@ void mqttPub_gps_json() {
   // gps_loc_avg.add("13.686386663");
   // gps_loc_avg.add(g_f_lat_avg);
   // gps_loc_avg.add(g_f_lng_avg);
-  char str_value_3[13];     //result string 12 positions + \0 at the end
-  dtostrf( g_f_lat_median, 12, 9, str_value_3 ); // convert float/double to string with desired precision
-  gps_loc_median.add(str_value_3);
-  dtostrf( g_f_lng_median, 12, 9, str_value_3 ); // convert float/double to string with desired precision
-  gps_loc_median.add(str_value_3);
+  // char str_value_3[13];     //result string 12 positions + \0 at the end
+  // dtostrf( g_f_lat_median, 12, 9, str_value_3 ); // convert float/double to string with desired precision
+  // gps_loc_median.add(str_value_3);
+  // dtostrf( g_f_lng_median, 12, 9, str_value_3 ); // convert float/double to string with desired precision
+  // gps_loc_median.add(str_value_3);
 
+  l_res = convertDouble2String(g_f_lat_median, 12, 9); // convert double to string with desired precision 9
+  gps_loc_median.add(l_res);
+  l_res = convertDouble2String(g_f_lng_median, 12, 9); // convert double to string with desired precision 9
+  gps_loc_median.add(l_res);
 
   // // Generate the minified JSON and send it to the Serial port.
   // serializeJsonPretty(Json_rootObj, Serial);
@@ -360,7 +375,16 @@ void mqttPub_gps_json() {
   }
 }
 
+String convertDouble2String(double value, uint flt_positions, uint precision) {
+  char str_value[21];     //result string 20 positions + \0 at the end
 
+  if (flt_positions < precision) precision = flt_positions + 2; // sanitize precision
+  if (flt_positions > 20) flt_positions = 20; // validate flt_positions (max 20 digits)
+  if (precision > 10) precision = 10; // validate precision (max 10 precision digits)
+  dtostrf( value, flt_positions, precision, str_value ); // convert float/double to string with desired precision
+
+  return str_value;
+}
 
 
 

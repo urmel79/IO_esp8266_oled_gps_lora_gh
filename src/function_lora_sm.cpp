@@ -6,17 +6,6 @@
 // https://github.com/sandeepmistry/arduino-LoRa
 #include <LoRa.h>
 
-//Radio pinout setup
-#define RFM95_CS  15 // CS pin is connected to NodeMCU GPIO15
-#define RFM95_RST 16 // RST pin is connected to NodeMCU GPIO16
-#define RFM95_INT 10 // G0 pin is connected to NodeMCU GPIO10
-
-#define RF95_FREQ       868E6 // frequency 868 MHz, channel 0
-// #define RF95_FREQ       868.0E6 // frequency 868 MHz, channel 0
-// #define RF95_FREQ       868.1E6 // frequency 868 MHz, channel 1
-#define RFM95_TX_POWER  17      // transmitting power [dB]; max. 23 dB
-#define RFM95_SF        7       // spreading factor
-
 #if defined(LORA_SENDER)
   #define RFM_TX_INTERVAL 2000
   #define RFM_TX_TIMEOUT_CNT 5
@@ -30,10 +19,6 @@
   byte g_by_destinationAddress = 0xAA;  // destination to send to
   byte g_by_broadcastAddress = 0xFF;    // broadcast address to send to
 #endif
-
-#define LED_PIN    2  // internal Wifi LED of NodeMCU (negative logic)
-// Important: LED_BUILTIN conflicts with LoRa module => sending does NOT work (why?)
-// #define LED_PIN    LED_BUILTIN  // build-in LED of NodeMCU (negative logic)
 
 unsigned long g_ul_previousMillis_lora = 0;  // will store last time cycle was run
 

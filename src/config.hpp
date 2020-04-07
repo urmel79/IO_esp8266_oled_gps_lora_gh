@@ -8,20 +8,25 @@
 #ifdef WEMOS_D1_MINI_PRO
   #define HOSTNAME "Wemos_D1_mini_pro"
   #define BOX_HAS_CCS811  // CO2-Sensor
-  #define BOX 'esp8266_d1_box'
+  // #define BOX 'esp8266_d1_box'
 #elif NODE_MCU_LORA_1
   #define HOSTNAME "NodeMCU_LoRa_1"
   // #define BOX_HAS_PIR     // PIR Bewegungsmelder
   // #define BOX_HAS_CCS811  // CO2-Sensor
-  #define BOX 'esp8266_node_mcu_lora_1'
+  // #define BOX 'esp8266_node_mcu_lora_1'
 #elif NODE_MCU_LORA_2
   #define HOSTNAME "NodeMCU_LoRa_2"
   // #define BOX_HAS_PIR     // PIR Bewegungsmelder
   // #define BOX_HAS_CCS811  // CO2-Sensor
-  #define BOX 'esp8266_node_mcu_lora_2'
+  // #define BOX 'esp8266_node_mcu_lora_2'
+#elif NODE_MCU_LORA_2_ESP32
+  #define HOSTNAME "NodeMCU_LoRa_2_ESP32"
+  // #define BOX_HAS_PIR     // PIR Bewegungsmelder
+  // #define BOX_HAS_CCS811  // CO2-Sensor
+  // #define BOX 'esp32_node_mcu_lora_2'
 #elif DEAUTHER_OLED
   #define HOSTNAME "Deauther_oled"
-  #define BOX 'esp8266_deauther_oled'
+  // #define BOX 'esp8266_deauther_oled'
 #endif
 
 // choose mqtt broker (done by build_flags in platformio.ini)
@@ -44,7 +49,7 @@
   #define MQTT_ROOT_TOPIC "lora_1"
   #define MQTT_SENSOR_NODE "lora_1_gps"
   #define GPS_COLOR "Yellow"
-#elif NODE_MCU_LORA_2
+#elif NODE_MCU_LORA_2 || NODE_MCU_LORA_2_ESP32
   #define MQTT_ROOT_TOPIC "lora_2"
   #define MQTT_SENSOR_NODE "lora_2_gps"
   #define GPS_COLOR "Blue"
@@ -58,7 +63,7 @@
 #ifdef NODE_MCU_LORA_1
   #define LORA_SENDER
   #define LORA_OLED
-#elif NODE_MCU_LORA_2
+#elif NODE_MCU_LORA_2 || NODE_MCU_LORA_2_ESP32
   #define LORA_RECEIVER
   #define LORA_OLED
 #endif

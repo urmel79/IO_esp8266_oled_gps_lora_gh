@@ -28,6 +28,8 @@
 RunningAverage gps_RunningAVG_lat(GPS_AVG_FILTER_SIZE);  // RunningAverage object for gps latitude
 RunningAverage gps_RunningAVG_lng(GPS_AVG_FILTER_SIZE);  // RunningAverage object for gps longitude
 
+bool g_b_init_RunningAverage_values = false;
+
 struct_gps_RunningAVG_Median g_avg;
 
 // #####################
@@ -43,25 +45,27 @@ struct_gps_RunningAVG_Median g_avg;
 // because for smoothing GPS values I need much higher precision ...
 #include "function_runningMedian_double.hpp"
 
-// #define GPS_AVG_FILTER_SIZE 100
-
-RunningMedian gps_RunningMedian_lat(GPS_AVG_FILTER_SIZE);  // RunningMedian object for gps latitude
-RunningMedian gps_RunningMedian_lng(GPS_AVG_FILTER_SIZE);  // RunningMedian object for gps longitude
-// RunningMedian gps_RunningMedian_lat = RunningMedian(GPS_AVG_FILTER_SIZE);   // RunningMedian object for gps latitude
-// RunningMedian gps_RunningMedian_lng = RunningMedian(GPS_AVG_FILTER_SIZE);   // RunningMedian object for gps longitude
-
-#if !defined(D5)
-  #define D3 (0)
-  #define D4 (2)
-
-  #define D5 (14)
-  #define D6 (12)
-
-  // if D8 ist connected to TxD during boot, there will be errors
-  // => better use D5+D6 for serial
-  #define D7 (13)
-  #define D8 (15)
+#if defined(GPS_AVG_FILTER_SIZE) && ( GPS_AVG_FILTER_SIZE % 2 == 0 )
+  #define GPS_MED_FILTER_SIZE GPS_AVG_FILTER_SIZE
+#else
+  #define GPS_MED_FILTER_SIZE GPS_AVG_FILTER_SIZE+1
 #endif
+
+RunningMedian gps_RunningMedian_lat(GPS_MED_FILTER_SIZE);  // RunningMedian object for gps latitude
+RunningMedian gps_RunningMedian_lng(GPS_MED_FILTER_SIZE);  // RunningMedian object for gps longitude
+
+// #if !defined(D5)
+//   #define D3 (0)
+//   #define D4 (2)
+//
+//   #define D5 (14)
+//   #define D6 (12)
+//
+//   // if D8 ist connected to TxD during boot, there will be errors
+//   // => better use D5+D6 for serial
+//   #define D7 (13)
+//   #define D8 (15)
+// #endif
 
 // Started SoftwareSerial at RX and TX pin of ESP8266/NodeMCU
 // Some arduino boards only have one hardware serial port, so a software serial port is needed instead.
@@ -76,14 +80,16 @@ SoftwareSerial serial_gps;
 TinyGPSPlus gps;
 
 void initSS_gps() {
-  // RxD: GPIO0 (D3), TxD: GPIO2 (D4)
-  serial_gps.begin(GPS_BAUD_RATE, SWSERIAL_8N1, D3, D4, false, 95, 11);
+  serial_gps.begin(GPS_BAUD_RATE, SWSERIAL_8N1, RxD_Pin, TxD_Pin, false, 95, 11);
 
   gps_RunningAVG_lat.clear(); // explicitly start with a clean RunningAverage object
   gps_RunningAVG_lng.clear(); // explicitly start with a clean RunningAverage object
 
   gps_RunningMedian_lat.clear(); // explicitly start with a clean RunningMedian object
   gps_RunningMedian_lng.clear(); // explicitly start with a clean RunningMedian object
+
+  // initialize the RunningAverage arrays with appropriate starting values (e. g. first raw value)
+  g_b_init_RunningAverage_values = true;
 }
 
 // is called in every loop cycle => polling the serial line
@@ -101,6 +107,7 @@ TinyGPSPlus read_gps() {
 
   // This sketch displays information every time a new sentence is correctly encoded.
   while (serial_gps.available() > 0) {
+  // while (1) {
 
     gps.encode(serial_gps.read());
 
@@ -152,8 +159,22 @@ TinyGPSPlus read_gps() {
 
 // is called every 2 seconds in main loop
 void gps_RunningAVG_Median_addValues() {
-  gps_RunningAVG_lat.addValue(gps.location.lat());
-  gps_RunningAVG_lng.addValue(gps.location.lng());
+  if ( g_b_init_RunningAverage_values ) {
+    // fill the average with a value
+    // the param number determines how often value is added (weight)
+    // number should preferably be between 1 and size
+    gps_RunningAVG_lat.fillValue(gps.location.lat(), GPS_AVG_FILTER_SIZE); // GPS_AVG_FILTER_SIZE
+    gps_RunningAVG_lng.fillValue(gps.location.lng(), GPS_AVG_FILTER_SIZE); // GPS_AVG_FILTER_SIZE
+
+    // gps_RunningAVG_lat.fillValue(51.003935333, GPS_AVG_FILTER_SIZE); // GPS_AVG_FILTER_SIZE
+    // gps_RunningAVG_lng.fillValue(13.686355833, GPS_AVG_FILTER_SIZE); // GPS_AVG_FILTER_SIZE
+
+    g_b_init_RunningAverage_values = false;
+  }
+  else {
+    gps_RunningAVG_lat.addValue(gps.location.lat());
+    gps_RunningAVG_lng.addValue(gps.location.lng());
+  }
 
   gps_RunningMedian_lat.add(gps.location.lat());
   gps_RunningMedian_lng.add(gps.location.lng());
