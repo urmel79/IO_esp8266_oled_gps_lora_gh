@@ -25,9 +25,9 @@ Here you can see the Node-RED Flow for displaying the GPS coordinates on the Ope
 
 ![Node-RED Flow LoRa 1 GPS](./node-red/node-red_flow_lora_1_map.png)
 
-There is my Node-RED Flow ready to import it to your own Node-RED installation (maybe you have to additionally install some node widgets e.g. the 'node-red-contrib-web-worldmap' package) [lora_1_map.json](./node-red/lora_1_map.json).
+There is my Node-RED Flow ready to import it to your own Node-RED installation (maybe you have to additionally install some node widgets e.g. the *'node-red-contrib-web-worldmap'* package) [lora_1_map.json](./node-red/lora_1_map.json).
 
-## Visual impressions
+## Visual impressions of my test setup
 
 Here you can see one of two test modules build on breadboard:
 
