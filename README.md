@@ -15,6 +15,18 @@ Alternatively, a LiPo power bank can also be used for both test modules, making 
 <!-- Als provisorische und outdoor-taugliche Gehäuse dienen im Moment wasserdichte Frischhaltedosen. -->
 At the moment, watertight food storage boxes are used as provisional and outdoor-suitable housings.
 
+GPS coordinates are transferred via MQTT to a Raspberry-based Node-RED-Server. On this server there is a dedicated flow what cares for 
+- the displaying on the OpenStreetMap widget and
+- the storage of the GPS coordinates (smoothed by floating average) in a SQLite database.
+
+## Node-RED Flow
+
+Here you can see the Node-RED Flow for displaying the GPS coordinates on the OpenStreetMap and for storaging in a SQLite database:
+
+![Node-RED Flow LoRa 1 GPS](./doc/images/node-red_flow_lora_1_map.jpeg)
+
+There is my Node-RED Flow ready to import it to your own Node-RED installation (maybe you have to additionally install some node widgets e.g. the 'node-red-contrib-web-worldmap' package) [lora_1_map.json](lora_1_map.json).
+
 ## Visual impressions
 
 Here you can see one of two test modules build on breadboard:
