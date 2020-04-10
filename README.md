@@ -66,7 +66,7 @@ The schematics looks like this:
 
 ## Software libraries and documentation
 
-Go to the source code: I have it supplied with many comments for explanation.
+Go to the source code: I have supplied it with many comments for explanation.
 
 ## License
 
