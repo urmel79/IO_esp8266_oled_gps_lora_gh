@@ -46,11 +46,11 @@ There is my Node-RED Flow ready to import it to your own Node-RED installation (
 
 ## Display GPS tracks on OSM worldmap
 
-This is a screenshot of the OSM worldmap and the gps tracks recorded over some time:
+The experimental breadboard setup (including the gps sensor) is located on the outside windowsill of my office with a view to the southeast. This is a screenshot of the OSM worldmap and the gps tracks recorded over some time:
 
 ![OSM worldmap with LoRa 1](./node-red/node-red_osm_map_lora_2_c.png)
 
-The experimental setup (including the gps sensor) is located on the windowsill of my office with a view to the southeast. The colors of the gps tracks have the following meaning:
+The colors of the gps tracks have the following meaning:
 
 - blue: *raw* positioning data from gps sensor
 - red: smoothed data by *running average*
