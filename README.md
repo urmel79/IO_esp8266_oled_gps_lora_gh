@@ -2,14 +2,20 @@
 
 ## Table of contents
 
-1. [Overview](#overview)
-2. [Node-RED Flow](#node-red-flow)
-3. [SQLite database layout](#sqlite-database-layout)
-4. [Visual impressions of my test setup](#visual-impressions-of-my-test-setup)
-5. [Bill of materials (BOM)](#bill-of-materials-bom)
-6. [Breadboard layout and schematics](#breadboard-layout-and-schematics)
-7. [Software libraries and documentation](#software-libraries-and-documentation)
-8. [License](#license)
+<!--
+@HINT:
+autogenerate the TOC with command line tools like 'gh-md-toc' (https://github.com/ekalinin/github-markdown-toc) with following syntax:
+$ cat README.md | ../tools/github-markdown-toc/gh-md-toc -
+-->
+
+* [Overview](#overview)
+* [Node-RED Flow](#node-red-flow)
+* [SQLite database layout](#sqlite-database-layout)
+* [Visual impressions of my test setup](#visual-impressions-of-my-test-setup)
+* [Bill of materials (BOM)](#bill-of-materials-bom)
+* [Breadboard layout and schematics](#breadboard-layout-and-schematics)
+* [Software libraries and documentation](#software-libraries-and-documentation)
+* [License](#license)
 
 ## Overview
 
