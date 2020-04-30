@@ -18,7 +18,7 @@ GPS coordinates are transferred via MQTT to a Raspberry-based Node-RED-Server. O
 
 ## Node-RED Flow
 
-Here you can see the Node-RED Flow for displaying the GPS coordinates on the OpenStreetMap and for storaging in a SQLite database:
+Here you can see the Node-RED Flow for displaying the GPS coordinates on the OpenStreetMap and for storaging in an SQLite database for 2 ESP nodes:
 
 ![Node-RED Flow LoRa 1u2 GPS](./node-red/node-red_flow_lora_1u2_map.png)
 
