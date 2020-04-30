@@ -20,7 +20,7 @@ GPS coordinates are transferred via MQTT to a Raspberry-based Node-RED-Server. O
 
 Here you can see the Node-RED Flow for displaying the GPS coordinates on the OpenStreetMap and for storaging in a SQLite database:
 
-![Node-RED Flow LoRa 1 GPS](./node-red/node-red_flow_lora_1_map.png)
+![Node-RED Flow LoRa 1u2 GPS](./node-red/node-red_flow_lora_1u2_map.png)
 
 There is my Node-RED Flow ready to import it to your own Node-RED installation (maybe you have to additionally install some node widgets e.g. the *'node-red-contrib-web-worldmap'* package) [lora_1_map.json](./node-red/lora_1_map.json).
 
