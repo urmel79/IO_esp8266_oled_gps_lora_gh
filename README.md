@@ -10,6 +10,7 @@ $ cat README.md | ../tools/github-markdown-toc/gh-md-toc -
 
 * [Overview](#overview)
 * [Node-RED Flow](#node-red-flow)
+* [Display GPS tracks on OSM worldmap](#display-gps-tracks-on-osm-worldmap)
 * [SQLite database layout](#sqlite-database-layout)
 * [Visual impressions of my test setup](#visual-impressions-of-my-test-setup)
 * [Bill of materials (BOM)](#bill-of-materials-bom)
@@ -42,6 +43,18 @@ Here you can see the Node-RED Flow for displaying the GPS coordinates on the Ope
 ![Node-RED Flow LoRa 1u2 GPS](./node-red/node-red_flow_lora_1u2_map.png)
 
 There is my Node-RED Flow ready to import it to your own Node-RED installation (maybe you have to additionally install some node widgets e.g. the *'node-red-contrib-web-worldmap'* package) [lora_1u2_map.json](./node-red/lora_1u2_map.json).
+
+## Display GPS tracks on OSM worldmap
+
+This is a screenshot of the OSM worldmap and the gps tracks recorded over some time:
+
+![OSM worldmap with LoRa 1](./node-red/node-red_osm_map_lora_2_c.png)
+
+The experimental setup (including the gps sensor) is located on the windowsill of my office with a view to the southeast. The colors of the gps tracks have the following meaning:
+
+- blue: *raw* positioning data from gps sensors
+- red: smoothed data by *running average*
+- green: smoothed data by *running average*
 
 ## SQLite database layout
 
