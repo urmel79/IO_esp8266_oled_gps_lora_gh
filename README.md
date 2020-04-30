@@ -10,7 +10,7 @@ $ cat README.md | ../tools/github-markdown-toc/gh-md-toc -
 
 * [Introduction](#introduction)
 * [LoRa topologies](#lora-topologies)
-* [LoRa or LoRaWAN? - The difference is 1 GPIO pin](#lora-or-lorawan----the-difference-is-1-gpio-pin)
+* [LoRa or LoRaWAN? - The difference is 1 GPIO pin](#lora-or-lorawan---the-difference-is-1-gpio-pin)
 * [Node-RED Flow](#node-red-flow)
 * [Display GPS tracks on OSM worldmap](#display-gps-tracks-on-osm-worldmap)
 * [SQLite database layout](#sqlite-database-layout)
