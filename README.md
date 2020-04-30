@@ -52,9 +52,9 @@ This is a screenshot of the OSM worldmap and the gps tracks recorded over some t
 
 The experimental setup (including the gps sensor) is located on the windowsill of my office with a view to the southeast. The colors of the gps tracks have the following meaning:
 
-- blue: *raw* positioning data from gps sensors
+- blue: *raw* positioning data from gps sensor
 - red: smoothed data by *running average*
-- green: smoothed data by *running average*
+- green: smoothed data by *running median*
 
 ## SQLite database layout
 
