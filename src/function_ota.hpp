@@ -9,6 +9,8 @@
   #define OTA_PASSWORD "esp32"
 #endif
 
+#define OTA_ESP_PORT 8266
+
 void function_ota_setup( const char *chr_hostname );
 
 void function_ota_handle( void );

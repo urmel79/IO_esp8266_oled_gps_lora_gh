@@ -14,9 +14,9 @@
   #define LED_PIN   2   // internal Wifi LED of NodeMCU (negative logic)
 #elif defined(NODE_MCU_LORA_2_ESP32)
   //Radio pinout setup
-  #define RFM95_CS  5   // CS pin is connected to NodeMCU GPIO15
-  #define RFM95_RST 4   // RST pin is connected to NodeMCU GPIO16
-  #define RFM95_INT 15  // C0 pin is connected to NodeMCU GPIO10
+  #define RFM95_CS  5   // CS pin is connected to NodeMCU ESP-32S GPIO5
+  #define RFM95_RST 4   // RST pin is connected to NodeMCU ESP-32S GPIO4
+  #define RFM95_INT 15  // C0 pin is connected to NodeMCU ESP-32S GPIO15
 
   #define LED_PIN   2   // GPIO2 pin of builtin LED at NodeMCU ESP-32S (negative logic)
   // #define LED_PIN   33  // most ESP32 Boards don't have builtin LEDs, so an external LED is connected to GPIO33 (with 220 Ohm pullup resistor)

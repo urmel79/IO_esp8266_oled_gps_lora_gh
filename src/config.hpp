@@ -10,17 +10,17 @@
   #define BOX_HAS_CCS811  // CO2-Sensor
   // #define BOX 'esp8266_d1_box'
 #elif NODE_MCU_LORA_1
-  #define HOSTNAME "NodeMCU_LoRa_1"
+  #define HOSTNAME "LoRaNode_1"
   // #define BOX_HAS_PIR     // PIR Bewegungsmelder
   // #define BOX_HAS_CCS811  // CO2-Sensor
   // #define BOX 'esp8266_node_mcu_lora_1'
 #elif NODE_MCU_LORA_2
-  #define HOSTNAME "NodeMCU_LoRa_2"
+  #define HOSTNAME "LoRaNode_2"
   // #define BOX_HAS_PIR     // PIR Bewegungsmelder
   // #define BOX_HAS_CCS811  // CO2-Sensor
   // #define BOX 'esp8266_node_mcu_lora_2'
 #elif NODE_MCU_LORA_2_ESP32
-  #define HOSTNAME "NodeMCU_LoRa_2_ESP32"
+  #define HOSTNAME "LoRaNode_2_ESP32"
   // #define BOX_HAS_PIR     // PIR Bewegungsmelder
   // #define BOX_HAS_CCS811  // CO2-Sensor
   // #define BOX 'esp32_node_mcu_lora_2'
@@ -49,9 +49,13 @@
   #define MQTT_ROOT_TOPIC "lora_1"
   #define MQTT_SENSOR_NODE "lora_1_gps"
   #define GPS_COLOR "Yellow"
-#elif NODE_MCU_LORA_2 || NODE_MCU_LORA_2_ESP32
+#elif NODE_MCU_LORA_2
   #define MQTT_ROOT_TOPIC "lora_2"
   #define MQTT_SENSOR_NODE "lora_2_gps"
+  #define GPS_COLOR "Blue"
+#elif NODE_MCU_LORA_2_ESP32
+  #define MQTT_ROOT_TOPIC "lora_2_esp32"
+  #define MQTT_SENSOR_NODE "lora_2_gps_esp32"
   #define GPS_COLOR "Blue"
 #elif NODE_MCU_V2
   #define MQTT_ROOT_TOPIC "node_mcu"

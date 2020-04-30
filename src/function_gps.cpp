@@ -210,9 +210,16 @@ struct_gps_RunningAVG_Median get_gps_RunningAVG_Median() {
   return g_avg;
 }
 
+// Rx interrupts are conflicting with OTA updates => disable serial Rx!
+void function_gps_disable_Rx( void ) {
+  // Disable interrupts on the rx pin
+  serial_gps.enableRx(false);
+}
 
-
-
+void function_gps_enable_Rx( void ) {
+  // Enable interrupts on the rx pin after wifi reconnect
+  serial_gps.enableRx(true);
+}
 
 
 

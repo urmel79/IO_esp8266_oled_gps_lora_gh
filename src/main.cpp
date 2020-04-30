@@ -35,8 +35,7 @@ const unsigned long g_ul_delayTime = 2000;  // interval at which to blink (milli
 bool g_b_ledState = false;  // ledState used to set the LED
 
 void setup() {
-  // Serial.begin(9600);
-  Serial.begin(57600);
+  Serial.begin(115200);
   while (!Serial) {
     ; // wait for serial port to connect. Needed for native USB port only
   }
@@ -170,7 +169,7 @@ void loop() {
         // String l_str_time = String(g_s_gps_values.time.value());
 
         mqtt_set_gps_valid(true);
-        // mqtt_set_gps_json(String sensor, String time, String location, String icon, String iconColor, int satellites, double altitude, int wifi_rssi, double latitude, double longitude);
+
         mqtt_set_gps_json(MQTT_SENSOR_NODE, l_str_time, "mobile bug", "fa-bug", GPS_COLOR,
                           g_s_gps_values.satellites.value(),
                           g_s_gps_values.altitude.meters(),

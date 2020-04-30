@@ -56,19 +56,6 @@ void onMqttConnect(bool sessionPresent) {
   Serial.println("Connected to MQTT.");
   Serial.print("Session present: ");
   Serial.println(sessionPresent);
-
-//   String topic_sub = String(MQTT_ROOT_TOPIC);
-//   topic_sub += "/lighting/command";
-// //   Serial.println(String(MQTT_ROOT_TOPIC));
-//   // packetIdSub = mqttClient.subscribe(topic_sub.c_str(), 2);
-//   mqttClient.subscribe(topic_sub.c_str(), 2);
-//
-//   Serial.print("Subscribing at QoS 0, topic: ");
-//   Serial.println(String(topic_sub));
-//
-//   // get current sealevel pressure (NN)
-//   // packetIdSub = mqttClient.subscribe("openweather/press_nn", 0);
-//   mqttClient.subscribe("openweather/press_nn", 0);
 }
 
 void onMqttDisconnect(AsyncMqttClientDisconnectReason reason) {
@@ -81,6 +68,10 @@ void onMqttDisconnect(AsyncMqttClientDisconnectReason reason) {
 
 void deactivateMqtt_reconnectTimer() {
   mqttReconnectTimer.detach(); // ensure we don't reconnect to MQTT while reconnecting to Wi-Fi
+
+  // also publishing data over MQTT does not make any sense at the moment ...
+  mqtt_pub_wifi_quality.detach();
+  mqtt_pub_gps_json.detach();
 }
 
 void onMqttSubscribe(uint16_t packetId, uint8_t qos) {
@@ -115,92 +106,6 @@ void onMqttMessage(char* topic, char* payload, AsyncMqttClientMessageProperties 
   Serial.println(index);
   Serial.print("  total: ");
   Serial.println(total);
-
-//   // If a message is received on the topic room/lamp, you check if the message is either on or off. Turns the lamp GPIO according to the message
-//   String topic_sub = String(MQTT_ROOT_TOPIC);
-//   topic_sub += "/lighting/command";
-//
-//   //if(!strcmp(topic, topic_sub.c_str())) {
-//   if(String(topic) == topic_sub) {
-//     Serial.print("Changing Room lamp to ");
-//     if(stringStartsWith("on", payload)) {
-// #if defined(DEAUTHER_OLED)
-//   #if !defined(BOX_HAS_PIR)
-//       digitalWrite(g_ci_lamp_gpio, LOW); // negative logic on internal Wifi LED
-//   #endif
-// #elif defined(WEMOS_D1_MINI_PRO)
-//   #if !defined(BOX_HAS_PIR)
-//       digitalWrite(g_ci_lamp_gpio, LOW); // negative logic on internal Wifi LED
-//   #endif
-//
-//       // RCSwitch on:
-//       // The first parameter represents the setting of the first 5 DIP switches.
-//       // In this example it's ON-ON-OFF-OFF-ON.
-//       //
-//       // The second parameter represents the setting of the last 5 DIP switches (channel).
-//       // In this example the last 5 DIP switches are OFF-ON-OFF-ON-OFF.
-//       // channels A: 10000, B: 01000, C: 00100
-//       mySwitch.switchOn("10101", "10000");  // Steckdose A
-// #elif defined(NODE_MCU_V2)
-//   #if !defined(BOX_HAS_PIR)
-//       digitalWrite(g_ci_lamp_gpio, HIGH);
-//   #endif
-//
-//       // RCSwitch on:
-//       // The first parameter represents the setting of the first 5 DIP switches.
-//       // In this example it's ON-ON-OFF-OFF-ON.
-//       //
-//       // The second parameter represents the setting of the last 5 DIP switches (channel).
-//       // In this example the last 5 DIP switches are OFF-ON-OFF-ON-OFF.
-//       // channels A: 10000, B: 01000, C: 00100
-//       mySwitch.switchOn("10101", "00100");  // Steckdose C
-// #endif
-//       Serial.println("LED On");
-//       g_b_lamp_status = true;
-//
-//       String topic_pub_led_status = String(MQTT_ROOT_TOPIC) + "/lighting/status";
-//       mqttClient.publish(topic_pub_led_status.c_str(), 2, true, "on"); // publish lamp status to set the switch in gui properly
-//     }
-//     else if(stringStartsWith("off", payload)) {
-// #if defined(DEAUTHER_OLED)
-//   #if !defined(BOX_HAS_PIR)
-//       digitalWrite(g_ci_lamp_gpio, HIGH); // negative logic on internal Wifi LED
-//   #endif
-// #elif defined(WEMOS_D1_MINI_PRO)
-//   #if !defined(BOX_HAS_PIR)
-//       digitalWrite(g_ci_lamp_gpio, HIGH); // negative logic on internal Wifi LED
-//   #endif
-//
-//       // RCSwitch off
-//       mySwitch.switchOff("10101", "10000");  // Steckdose A
-// #elif defined(NODE_MCU_V2)
-//   #if !defined(BOX_HAS_PIR)
-//       digitalWrite(g_ci_lamp_gpio, LOW);
-//   #endif
-//
-//       // RCSwitch off
-//       mySwitch.switchOff("10101", "00100");  // Steckdose C
-// #endif
-//       Serial.println("LED Off");
-//       g_b_lamp_status = false;
-//
-//       String topic_pub_led_status = String(MQTT_ROOT_TOPIC) + "/lighting/status";
-//       mqttClient.publish(topic_pub_led_status.c_str(), 2, true, "off"); // publish lamp status to set the switch in gui properly
-//     }
-//   }
-//   else if(String(topic) == "openweather/press_nn") {
-// //     Serial.print("##### press_nn: ");
-// //     Serial.println(payload);
-//
-//     // @TODO: ziemlicher Misthack!! => wenn Druck nur 3-stellig => wird evtl. wieder durch Zeichensalat verseucht ...
-//     String payload_cut = String(payload);
-//     payload_cut.remove(4); // Remove from from index=4 through the end of the string
-//
-// //     Serial.print("##### Cleaned press_nn: ");
-// //     Serial.println(payload_cut.toInt());
-//
-//     g_i_sealevel_pressure_nn = payload_cut.toInt();
-//   }
 }
 
 // payload is really dirty at the end, so string has to start with search pattern
@@ -244,7 +149,6 @@ void mqtt_set_gps_valid(bool gps_valid) {
   g_b_gps_valid = gps_valid;
 }
 
-// void mqtt_set_gps_json(String sensor, String time, String location, String icon, String iconColor, int satellites, double altitude, int wifi_rssi, double latitude, double longitude) {
 void mqtt_set_gps_json( String sensor, String time, String location, String icon,
                         String iconColor, int satellites, double altitude,
                         int wifi_rssi, double latitude, double longitude,
@@ -303,17 +207,6 @@ void mqttPub_gps_json() {
 
   // Add an location array (raw values).
   JsonArray gps_loc = Json_rootObj.createNestedArray("gps_loc");
-  // gps_loc.add(51.003886167);
-  // gps_loc.add(13.686812667);
-  // gps_loc.add("51.003955553");
-  // gps_loc.add("13.686385553");
-  // gps_loc.add(g_d_latitude);
-  // gps_loc.add(g_d_longitude);
-  // char str_value_1[13];     //result string 12 positions + \0 at the end
-  // dtostrf( g_d_latitude, 12, 9, str_value_1 ); // convert float/double to string with desired precision
-  // gps_loc.add(str_value_1);
-  // dtostrf( g_d_longitude, 12, 9, str_value_1 ); // convert float/double to string with desired precision
-  // gps_loc.add(str_value_1);
 
   l_res = convertDouble2String(g_d_latitude, 12, 9); // convert double to string with desired precision 9
   gps_loc.add(l_res);
@@ -324,19 +217,6 @@ void mqttPub_gps_json() {
 
   // Add an location array (avg).
   JsonArray gps_loc_avg = Json_rootObj.createNestedArray("gps_loc_avg");
-  // gps_loc_avg.add("51.003966663");
-  // gps_loc_avg.add("13.686386663");
-  // gps_loc_avg.add(g_f_lat_avg);
-  // gps_loc_avg.add(g_f_lng_avg);
-  // char str_value_2[13];     //result string 12 positions + \0 at the end
-  // dtostrf( g_f_lat_avg, 12, 9, str_value_2 ); // convert float/double to string with desired precision
-  // gps_loc_avg.add(str_value_2);
-  // dtostrf( g_f_lng_avg, 12, 9, str_value_2 ); // convert float/double to string with desired precision
-  // gps_loc_avg.add(str_value_2);
-
-  // g_f_lat_avg = 51.00396666377;
-  // g_f_lng_avg = 13.68638666377;
-  // g_f_alt_avg = 278.457;
 
   l_res = convertDouble2String(g_f_lat_avg, 12, 9); // convert double to string with desired precision 9
   gps_loc_avg.add(l_res);
@@ -347,15 +227,6 @@ void mqttPub_gps_json() {
 
   // Add an location array (median).
   JsonArray gps_loc_median = Json_rootObj.createNestedArray("gps_loc_median");
-  // gps_loc_avg.add("51.003966663");
-  // gps_loc_avg.add("13.686386663");
-  // gps_loc_avg.add(g_f_lat_avg);
-  // gps_loc_avg.add(g_f_lng_avg);
-  // char str_value_3[13];     //result string 12 positions + \0 at the end
-  // dtostrf( g_f_lat_median, 12, 9, str_value_3 ); // convert float/double to string with desired precision
-  // gps_loc_median.add(str_value_3);
-  // dtostrf( g_f_lng_median, 12, 9, str_value_3 ); // convert float/double to string with desired precision
-  // gps_loc_median.add(str_value_3);
 
   l_res = convertDouble2String(g_f_lat_median, 12, 9); // convert double to string with desired precision 9
   gps_loc_median.add(l_res);

@@ -31,6 +31,10 @@ struct struct_gps_RunningAVG_Median {
 
 void initSS_gps();
 
+// Rx interrupts are conflicting with OTA updates => disable/enable serial Rx!
+void function_gps_disable_Rx( void );
+void function_gps_enable_Rx( void );
+
 TinyGPSPlus read_gps();
 
 void gps_RunningAVG_Median_addValues();

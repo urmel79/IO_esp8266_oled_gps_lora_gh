@@ -1,16 +1,10 @@
 #include "function_ota.hpp"
 
-// 'ESP32' and 'ESP8266' are defined within PlatformIO
-#ifdef ESP32
-  #warning "ESP8266 was defined: doing ESP8266 stuff"
-  #include "rom/ets_sys.h"
-  // #include <ets_sys_bk.hpp>
-  #define ETS_GPIO_INUM       12
-#endif
+#include "function_gps.hpp"
 
 void function_ota_setup( const char *chr_hostname ) {
   // Port defaults to 8266
-  ArduinoOTA.setPort(8266);
+  ArduinoOTA.setPort(OTA_ESP_PORT);
 
   // Hostname defaults to esp8266-[ChipID]
   ArduinoOTA.setHostname(chr_hostname);
@@ -24,11 +18,17 @@ void function_ota_setup( const char *chr_hostname ) {
 
   ArduinoOTA.onStart([]() {
     // [bug] external interrupts conflict with wifi connection attempts and
-    // ota updates and lead to sporadic crashes!
-    // [fix (workaround)] disable external interrupts temporarily
+    // OTA updates and lead to sporadic crashes!
+    // [fix (workaround)] disable all(!) external interrupts temporarily
     // reference https://www.mikrocontroller.net/topic/460256#5573848
     // ETS_GPIO_INTR_DISABLE();
-    ets_isr_mask((1<<ETS_GPIO_INUM)); // disable interrupts by external GPIOs
+    // ets_isr_mask((1<<ETS_GPIO_INUM)); // disable interrupts by external GPIOs
+    // ESP_INTR_DISABLE(1<<ETS_GPIO_INUM);
+
+    // [fix (better)] take care of the cause of the problem: disable the sources of interrupts
+    // here: serial communication to the gps sensor causes interrupts, when receiving new data
+    // Rx interrupts are conflicting with OTA updates => disable serial Rx!
+    function_gps_disable_Rx();
 
     String type;
     if (ArduinoOTA.getCommand() == U_FLASH) {
@@ -42,9 +42,10 @@ void function_ota_setup( const char *chr_hostname ) {
   });
 
   ArduinoOTA.onEnd([]() {
-    // enable external interrupts again
+    // enable external interrupts again => unnecessary, because mcu reboots ...
     // ETS_GPIO_INTR_ENABLE();
-    ets_isr_unmask((1<<ETS_GPIO_INUM)); // enable interrupts by external GPIOs
+    // ets_isr_unmask((1<<ETS_GPIO_INUM)); // enable interrupts by external GPIOs
+    // ESP_INTR_ENABLE(1<<ETS_GPIO_INUM);
 
     Serial.println("\nEnd");
   });
@@ -53,7 +54,11 @@ void function_ota_setup( const char *chr_hostname ) {
     // disable external interrupts (they cause sporadic crashes!)
     // reference https://www.mikrocontroller.net/topic/460256#5573848
     // ETS_GPIO_INTR_DISABLE();
-    ets_isr_mask((1<<ETS_GPIO_INUM)); // disable interrupts by external GPIOs
+    // ets_isr_mask((1<<ETS_GPIO_INUM)); // disable interrupts by external GPIOs
+    // ESP_INTR_DISABLE(1<<ETS_GPIO_INUM);
+
+    // Rx interrupts are conflicting with OTA updates => disable serial Rx!
+    function_gps_disable_Rx();
 
     Serial.printf("Progress: %u%%\r", (progress / (total / 100)));
   });
