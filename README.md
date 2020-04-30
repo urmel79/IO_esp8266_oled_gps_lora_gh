@@ -1,5 +1,18 @@
 # LoRa testing bench with GPS tracking
 
+## Table of contents
+
+1. [Overview](#overview)
+2. [Node-RED Flow](#node-red-flow)
+3. [SQLite database layout](#sqlite-database-layout)
+4. [Visual impressions of my test setup](#visual-impressions-of-my-test-setup)
+5. [Bill of materials (BOM)](#bill-of-materials-bom)
+6. [Breadboard layout and schematics](#breadboard-layout-and-schematics)
+7. [Software libraries and documentation](#software-libraries-and-documentation)
+8. [License](#license)
+
+## Overview
+
 The aim of this project is to build a test environment based on ESP8266 for [LoRa](https://en.wikipedia.org/wiki/LoRa) as [LPWAN](https://en.wikipedia.org/wiki/LPWAN) long-range radio.
 
 For this purpose, two identical test modules were each equipped with a LoRa transceiver, a GPS module and an OLED display for displaying the actual data.
