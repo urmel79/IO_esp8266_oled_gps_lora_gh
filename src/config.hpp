@@ -63,14 +63,26 @@
   #define MQTT_ROOT_TOPIC "deauther_oled"
 #endif
 
-// define LoRa sender or receiver role
-#ifdef NODE_MCU_LORA_1
-  #define LORA_SENDER
-  #define LORA_OLED
-#elif NODE_MCU_LORA_2 || NODE_MCU_LORA_2_ESP32
-  #define LORA_RECEIVER
-  #define LORA_OLED
+// LoRa topology: decide between Peer-to-Peer sending between 2 LoRa nodes
+// and sending in an LoRaWAN network using a LoRaWAN gateway and The Things Network (TTN)
+#ifdef LORA_TOPO_P2P
+  #warning "Chosen topology for LoRa is Peer-to-Peer"
+  #define LORA_OLED_P2P
+
+  // define LoRa sender or receiver role
+  #ifdef NODE_MCU_LORA_1
+    #define LORA_SENDER
+  #elif NODE_MCU_LORA_2 || NODE_MCU_LORA_2_ESP32
+    #define LORA_RECEIVER
+  #endif
+#elif LORA_TOPO_TTN
+  #warning "Chosen topology for LoRa is LoRaWAN and TTN"
+  #define LORA_OLED_TTN
+#else
+  #error "Please choose a LoRa or LoRaWAN topology!"
 #endif
+
+
 
 
 
