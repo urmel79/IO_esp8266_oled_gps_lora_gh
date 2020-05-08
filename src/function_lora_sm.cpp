@@ -1,3 +1,5 @@
+#ifdef LORA_TOPO_P2P  // build only when it is really needed
+
 #include "function_lora_sm.hpp"
 
 #include <SPI.h>
@@ -51,19 +53,15 @@ void function_lora_setup( void ) {
 
   // initialize radio at 868 MHz
   if (!LoRa.begin(RF95_FREQ)) {
-#if defined(LORA_SENDER)
-    Serial.println("LoRa: initializing client node");
-#elif defined(LORA_RECEIVER)
-    Serial.println("LoRa: initializing server node");
-#endif
-    while (1);
+    while (1);  // if failed, do nothing
   }
-
+  else {
 #if defined(LORA_SENDER)
-  Serial.println("LoRa: initialisation of client succeeded");
+    Serial.println("LoRa: initialisation of client succeeded");
 #elif defined(LORA_RECEIVER)
-  Serial.println("LoRa: initialisation of server succeeded");
+    Serial.println("LoRa: initialisation of server succeeded");
 #endif
+  }
 
   Serial.print("LoRa: set spreading factor to: ");
   Serial.println(RFM95_SF);
@@ -148,10 +146,18 @@ void function_lora_send_handler( void ){
       Serial.print(message);
       Serial.println("'");
 
-#if defined(LORA_SENDER)
-      digitalWrite(LED_PIN, LOW); // negative logic: LED on
-#elif defined(LORA_RECEIVER)
+#ifdef ESP32
+  #if defined(LORA_SENDER)
+      digitalWrite(LED_PIN, HIGH); // positive logic: LED on
+  #elif defined(LORA_RECEIVER)
+      digitalWrite(LED_PIN, LOW);  // positive logic: LED off
+  #endif
+#elif ESP8266
+  #if defined(LORA_SENDER)
+      digitalWrite(LED_PIN, LOW);  // negative logic: LED on
+  #elif defined(LORA_RECEIVER)
       digitalWrite(LED_PIN, HIGH); // negative logic: LED off
+  #endif
 #endif
 
       g_b_enable_send = false;    // disable sending
@@ -173,10 +179,18 @@ void onReceive(int packetSize) {
   // if there's no packet, return
   if (packetSize == 0) return;
 
-#if defined(LORA_SENDER)
-  digitalWrite(LED_PIN, HIGH); // negative logic: LED off
-#elif defined(LORA_RECEIVER)
-  digitalWrite(LED_PIN, LOW); // negative logic: LED on
+#ifdef ESP32
+  #if defined(LORA_SENDER)
+      digitalWrite(LED_PIN, LOW);  // positive logic: LED off
+  #elif defined(LORA_RECEIVER)
+      digitalWrite(LED_PIN, HIGH); // positive logic: LED on
+  #endif
+#elif ESP8266
+  #if defined(LORA_SENDER)
+      digitalWrite(LED_PIN, HIGH); // negative logic: LED off
+  #elif defined(LORA_RECEIVER)
+      digitalWrite(LED_PIN, LOW);  // negative logic: LED on
+  #endif
 #endif
 
   // read packet header bytes:
@@ -274,7 +288,7 @@ void function_lora_serial_out( void ){
   Serial.println("### LoRa end receiving ###");
 }
 
-
+#endif // LORA_TOPO_P2P
 
 
 

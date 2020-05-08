@@ -14,8 +14,12 @@
 
 #include "function_mqtt.hpp"
 
-// #include "function_lora_rh.hpp"
-#include "function_lora_sm.hpp"
+#ifdef LORA_TOPO_P2P
+  // #include "function_lora_rh.hpp"
+  #include "function_lora_sm.hpp"
+#elif LORA_TOPO_TTN
+  #include "function_lorawan_ttn.hpp"
+#endif
 
 TinyGPSPlus g_s_gps_values;
 struct_gps_RunningAVG_Median g_s_gps_avg;
@@ -36,9 +40,9 @@ bool g_b_ledState = false;  // ledState used to set the LED
 
 void setup() {
   Serial.begin(115200);
-  while (!Serial) {
-    ; // wait for serial port to connect. Needed for native USB port only
-  }
+  // while (!Serial) {
+  //   ; // wait for serial port to connect. Needed for native USB port only
+  // }
 
   initSS_gps();
 
@@ -54,7 +58,11 @@ void setup() {
 
   g_b_iicOLED_connected = connectOLEDiic();
 
+#ifdef LORA_TOPO_P2P
   function_lora_setup();
+#elif LORA_TOPO_TTN
+  function_lorawan_ttn_setup();
+#endif
 }
 
 void loop() {
@@ -62,7 +70,11 @@ void loop() {
     function_ota_handle();  // call handler function for OTA
   }
 
+#ifdef LORA_TOPO_P2P
   function_lora_send_handler();
+#elif LORA_TOPO_TTN
+  function_lorawan_ttn_send_handler();
+#endif
 
   g_s_gps_values = read_gps();
 
@@ -81,7 +93,7 @@ void loop() {
       printOLED_begin();
       printOLED_values_str(0, "Host: ", get_wifi_hostname());
 
-#if defined(LORA_OLED)
+#if defined(LORA_OLED_P2P) && defined(LORA_TOPO_P2P)
       String l_str_msgIDs = "MsgID: " + String(function_lora_get_msgID()) + ", int: " + String(function_lora_get_msgCount());
       printOLED_str(10, l_str_msgIDs);
       String l_str_rssi_snr = "RSSI: " + String(function_lora_get_rssi()) + ", SNR: " + String(function_lora_get_snr());
@@ -91,7 +103,9 @@ void loop() {
       printOLED_values_flt(20, "RSSI: ", get_wifi_RSSI(), 2, 0);
 #endif
 
+#ifdef LORA_TOPO_P2P
       function_lora_serial_out();
+#endif
 
       Serial.println(get_wifi_hostname());
       Serial.println(get_wifi_IP_str());
