@@ -1,7 +1,8 @@
 #ifndef config_hpp
 #define config_hpp
 
-// include your own wifi credentials here ...
+// Include your own wifi credentials here ...
+// ... 'WIFI_SSID' and 'WIFI_PASSWORD' has to be defined there by yourself.
 #include "wifi_creds.hpp"
 
 // choose hostname and sensors (done by build_flags in platformio.ini)
