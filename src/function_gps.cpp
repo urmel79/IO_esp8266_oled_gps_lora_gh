@@ -139,8 +139,8 @@ TinyGPSPlus read_gps() {
       // gps_RunningAVG_lat.addValue(gps.location.lat());
       // gps_RunningAVG_lng.addValue(gps.location.lng());
       //
-      // gps_RunningMedian_lat.add(gps.location.lat());
-      // gps_RunningMedian_lng.add(gps.location.lng());
+      // gps_RunningMedian_lat.addValue(gps.location.lat());
+      // gps_RunningMedian_lng.addValue(gps.location.lng());
 
       return gps;
     }
@@ -164,12 +164,16 @@ TinyGPSPlus read_gps() {
 // is called every 2 seconds in main loop
 void gps_RunningAVG_Median_addValues() {
   if ( g_b_init_RunningAverage_values ) {
-    // fill the average with a value
+    // fill the average and median buffer with a starting value
     // the param number determines how often value is added (weight)
     // number should preferably be between 1 and size
     gps_RunningAVG_lat.fillValue(gps.location.lat(), GPS_AVG_FILTER_SIZE); // GPS_AVG_FILTER_SIZE
     gps_RunningAVG_lng.fillValue(gps.location.lng(), GPS_AVG_FILTER_SIZE); // GPS_AVG_FILTER_SIZE
     gps_RunningAVG_alt.fillValue(gps.altitude.meters(), GPS_AVG_FILTER_SIZE); // GPS_AVG_FILTER_SIZE
+
+    gps_RunningMedian_lat.fillValue(gps.location.lat(), GPS_MED_FILTER_SIZE); // GPS_MED_FILTER_SIZE
+    gps_RunningMedian_lng.fillValue(gps.location.lng(), GPS_MED_FILTER_SIZE); // GPS_MED_FILTER_SIZE
+    gps_RunningMedian_alt.fillValue(gps.altitude.meters(), GPS_MED_FILTER_SIZE); // GPS_MED_FILTER_SIZE
 
     // gps_RunningAVG_lat.fillValue(51.003935333, GPS_AVG_FILTER_SIZE); // GPS_AVG_FILTER_SIZE
     // gps_RunningAVG_lng.fillValue(13.686355833, GPS_AVG_FILTER_SIZE); // GPS_AVG_FILTER_SIZE
@@ -180,11 +184,11 @@ void gps_RunningAVG_Median_addValues() {
     gps_RunningAVG_lat.addValue(gps.location.lat());
     gps_RunningAVG_lng.addValue(gps.location.lng());
     gps_RunningAVG_alt.addValue(gps.altitude.meters());
-  }
 
-  gps_RunningMedian_lat.add(gps.location.lat());
-  gps_RunningMedian_lng.add(gps.location.lng());
-  gps_RunningMedian_alt.add(gps.altitude.meters());
+    gps_RunningMedian_lat.addValue(gps.location.lat());
+    gps_RunningMedian_lng.addValue(gps.location.lng());
+    gps_RunningMedian_alt.addValue(gps.altitude.meters());
+  }
 }
 
 // is called every 2 seconds in main loop
@@ -214,11 +218,13 @@ struct_gps_RunningAVG_Median get_gps_RunningAVG_Median() {
 void function_gps_disable_Rx( void ) {
   // Disable interrupts on the rx pin
   serial_gps.enableRx(false);
+  Serial.println("GPS: disable Rx because of conflicting interrupts.");
 }
 
 void function_gps_enable_Rx( void ) {
   // Enable interrupts on the rx pin after wifi reconnect
   serial_gps.enableRx(true);
+  Serial.println("GPS: enable Rx again.");
 }
 
 
