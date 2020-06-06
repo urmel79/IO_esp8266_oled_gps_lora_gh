@@ -80,7 +80,7 @@
   #warning "Chosen topology for LoRa is LoRaWAN and TTN"
   #define LORA_OLED_TTN
 #else
-  #error "Please choose a LoRa or LoRaWAN topology!"
+  #warning "You didn't choose a LoRa or LoRaWAN topology!"
 #endif
 
 
