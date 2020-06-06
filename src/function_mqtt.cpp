@@ -3,6 +3,7 @@
 #include <ArduinoJson.h>
 
 #include "function_wifi.hpp"
+#include "function_gps.hpp"
 
 AsyncMqttClient mqttClient;
 Ticker mqttReconnectTimer;
@@ -31,7 +32,7 @@ float g_f_lat_median;
 float g_f_lng_median;
 float g_f_alt_median;
 
-void configureMqtt() {
+void function_mqtt_setup() {
   mqttClient.onConnect(onMqttConnect);
   mqttClient.onDisconnect(onMqttDisconnect);
   mqttClient.onSubscribe(onMqttSubscribe);
@@ -41,13 +42,13 @@ void configureMqtt() {
   mqttClient.setServer(MQTT_HOST, MQTT_PORT);
 }
 
-void connectToMqtt() {
+void function_mqtt_connect() {
   Serial.print("Connecting to MQTT host: ");
   Serial.println(String(MQTT_HOST));
   mqttClient.connect();
 }
 
-void connectMqttPubTasks() {
+void function_mqtt_connect_PubTasks() {
   mqtt_pub_wifi_quality.attach(2, mqttPub_wifi_rssi);
   mqtt_pub_gps_json.attach(2, mqttPub_gps_json);
 }
@@ -59,10 +60,12 @@ void onMqttConnect(bool sessionPresent) {
 }
 
 void onMqttDisconnect(AsyncMqttClientDisconnectReason reason) {
+  function_gps_disable_Rx();
+
   Serial.println("Disconnected from MQTT.");
 
   if (get_wifi_isConnected()) {
-    mqttReconnectTimer.once(2, connectToMqtt);
+    mqttReconnectTimer.once(2, function_mqtt_connect);
   }
 }
 

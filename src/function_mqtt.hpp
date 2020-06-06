@@ -6,9 +6,9 @@
 
 #include "config.hpp"
 
-void configureMqtt();
-void connectToMqtt();
-void connectMqttPubTasks();
+void function_mqtt_setup();
+void function_mqtt_connect();
+void function_mqtt_connect_PubTasks();
 
 void onMqttConnect(bool sessionPresent);
 
