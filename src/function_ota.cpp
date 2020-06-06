@@ -1,6 +1,7 @@
 #include "function_ota.hpp"
 
 #include "function_gps.hpp"
+#include "function_lorawan_ttn.hpp"
 
 void function_ota_setup( const char *chr_hostname ) {
   // Port defaults to 8266
@@ -29,6 +30,9 @@ void function_ota_setup( const char *chr_hostname ) {
     // here: serial communication to the gps sensor causes interrupts, when receiving new data
     // Rx interrupts are conflicting with OTA updates => disable serial Rx!
     function_gps_disable_Rx();
+#if LORA_TOPO_TTN
+    function_LoRaEvent_disable();
+#endif
 
     String type;
     if (ArduinoOTA.getCommand() == U_FLASH) {
@@ -59,6 +63,9 @@ void function_ota_setup( const char *chr_hostname ) {
 
     // Rx interrupts are conflicting with OTA updates => disable serial Rx!
     function_gps_disable_Rx();
+#if LORA_TOPO_TTN
+    function_LoRaEvent_disable();
+#endif
 
     Serial.printf("Progress: %u%%\r", (progress / (total / 100)));
   });
