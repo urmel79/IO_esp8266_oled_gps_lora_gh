@@ -16,12 +16,15 @@
 
 #include "config.hpp"
 
-void configureWifi();
-void connectToWifi();
+void function_wifi_setup();
+void function_wifi_connect();
+void function_wifi_reconnect();
 
 // 'ESP32' and 'ESP8266' are defined within PlatformIO
 #ifdef ESP32
   void WiFiEvent(WiFiEvent_t event);
+  void function_wifiEvent_enable( void );
+  void function_wifiEvent_disable( void );
 #elif ESP8266
   void onWifiConnect(const WiFiEventStationModeGotIP& event);
   void onWifiDisconnect(const WiFiEventStationModeDisconnected& event);
