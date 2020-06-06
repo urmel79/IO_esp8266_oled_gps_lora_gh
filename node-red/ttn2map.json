@@ -1,0 +1,771 @@
+[
+    {
+        "id": "dc903b44.eb4e8",
+        "type": "tab",
+        "label": "TTN 2 map",
+        "disabled": false,
+        "info": ""
+    },
+    {
+        "id": "d41a176b.a96158",
+        "type": "http request",
+        "z": "dc903b44.eb4e8",
+        "name": "TTN Gateway Status DD",
+        "method": "GET",
+        "ret": "obj",
+        "paytoqs": false,
+        "url": "https://www.thethingsnetwork.org/gateway-data/location?latitude=51.047438&amp;longitude=13.73703&amp;distance=100000",
+        "tls": "",
+        "proxy": "",
+        "authType": "",
+        "x": 450,
+        "y": 1040,
+        "wires": [
+            [
+                "db8a6b35.5d90f8",
+                "d8a373e9.78bca"
+            ]
+        ]
+    },
+    {
+        "id": "7948d7dd.4d1b4",
+        "type": "inject",
+        "z": "dc903b44.eb4e8",
+        "name": "",
+        "topic": "",
+        "payload": "",
+        "payloadType": "date",
+        "repeat": "60",
+        "crontab": "",
+        "once": false,
+        "onceDelay": 0.1,
+        "x": 160,
+        "y": 1040,
+        "wires": [
+            [
+                "d41a176b.a96158"
+            ]
+        ]
+    },
+    {
+        "id": "db8a6b35.5d90f8",
+        "type": "debug",
+        "z": "dc903b44.eb4e8",
+        "name": "",
+        "active": true,
+        "tosidebar": true,
+        "console": false,
+        "tostatus": false,
+        "complete": "false",
+        "x": 760,
+        "y": 990,
+        "wires": []
+    },
+    {
+        "id": "b04fd2b3.dae8",
+        "type": "worldmap in",
+        "z": "dc903b44.eb4e8",
+        "name": "",
+        "path": "/worldmap_ttn",
+        "events": "",
+        "x": 130,
+        "y": 1120,
+        "wires": [
+            [
+                "6251f84b.a479c8"
+            ]
+        ]
+    },
+    {
+        "id": "6251f84b.a479c8",
+        "type": "function",
+        "z": "dc903b44.eb4e8",
+        "name": "retrigger from map",
+        "func": "if (msg.payload.action === \"connected\") \nreturn msg;",
+        "outputs": 1,
+        "noerr": 0,
+        "x": 430,
+        "y": 1120,
+        "wires": [
+            [
+                "d41a176b.a96158"
+            ]
+        ]
+    },
+    {
+        "id": "d8a373e9.78bca",
+        "type": "function",
+        "z": "dc903b44.eb4e8",
+        "name": "extract Geo & Status",
+        "func": "var NumOfGW = Object.keys(msg.payload).length; \nvar gwArr=[];\nvar mapArr=[];\nvar timeDiff15 = new Date((new Date()) -15*1000*60).toLocaleString('de-DE', { hour12:false });\nvar timeDiff60 = new Date((new Date()) -60*1000*60).toLocaleString('de-DE', { hour12:false });\n\nfor (var i = 0; i<NumOfGW; i++) {\n    gwArr.push(Object.keys(msg.payload)[i]); \n}\n\nfor (i = 0; i<NumOfGW; i++) {\nif (typeof(msg.payload[gwArr[i]].location) !== \"undefined\") {\n  var last_seen = new Date(msg.payload[gwArr[i]].last_seen).toLocaleString('de-DE', { hour12:false });\n\n  message = {\n    lat: msg.payload[gwArr[i]].location.latitude,\n    lon: msg.payload[gwArr[i]].location.longitude,\n    name: msg.payload[gwArr[i]].id,\n    Description: msg.payload[gwArr[i]].description,\n    Owner: msg.payload[gwArr[i]].owner,\n    brand: msg.payload[gwArr[i]].attributes.brand,\n    model: msg.payload[gwArr[i]].attributes.model,\n    frequency: msg.payload[gwArr[i]].attributes.frequency_plan,\n    \"last seen (local: DE)\": last_seen,\n    draggable: true\n  };\n  \n  if (last_seen === \"undefined\") {\n      message.iconColor = \"gray\";\n  }\n  else if (last_seen < timeDiff60) {\n      message.iconColor = \"red\";\n  }\n  else if (last_seen < timeDiff15) {\n      message.iconColor = \"orange\";\n  }\n  else {\n      message.iconColor = \"green\";\n  }\n  \n  mapArr.push(message);\n  }\n}\nmsg.payload=mapArr;\nreturn msg;",
+        "outputs": 1,
+        "noerr": 0,
+        "x": 790,
+        "y": 1040,
+        "wires": [
+            [
+                "a03a6fee.146c88"
+            ]
+        ]
+    },
+    {
+        "id": "a03a6fee.146c88",
+        "type": "worldmap",
+        "z": "dc903b44.eb4e8",
+        "name": "",
+        "lat": "51.047438",
+        "lon": "13.73703",
+        "zoom": "11",
+        "layer": "OSM",
+        "cluster": "14",
+        "maxage": "",
+        "usermenu": "show",
+        "layers": "show",
+        "panit": "false",
+        "panlock": "false",
+        "zoomlock": "false",
+        "hiderightclick": "false",
+        "coords": "deg",
+        "showgrid": "false",
+        "path": "/worldmap_ttn",
+        "x": 1060,
+        "y": 1040,
+        "wires": []
+    },
+    {
+        "id": "d5bfd905.2de89",
+        "type": "http request",
+        "z": "dc903b44.eb4e8",
+        "name": "TTN Gateway Status Deutschland",
+        "method": "GET",
+        "ret": "obj",
+        "paytoqs": false,
+        "url": "https://www.thethingsnetwork.org/gateway-data/country/de",
+        "tls": "",
+        "proxy": "",
+        "authType": "",
+        "x": 480,
+        "y": 990,
+        "wires": [
+            []
+        ]
+    },
+    {
+        "id": "1ba0d7b8.b1488",
+        "type": "comment",
+        "z": "dc903b44.eb4e8",
+        "name": "Idee: TheThingsNetwork Gateway Status und Node-Red Worldmap",
+        "info": "[https://glaskugelsehen.wordpress.com/2019/02/10/thethingsnetwork-gateway-status-und-node-red-worldmap/](https://glaskugelsehen.wordpress.com/2019/02/10/thethingsnetwork-gateway-status-und-node-red-worldmap/)",
+        "x": 290,
+        "y": 910,
+        "wires": []
+    },
+    {
+        "id": "c3da2a40.94fd58",
+        "type": "comment",
+        "z": "dc903b44.eb4e8",
+        "name": "Idee: Gateway Status abfragen über TTN API",
+        "info": "[https://www.bjoerns-techblog.de/2018/07/gateway-status-abfragen-ueber-ttn-api/](https://www.bjoerns-techblog.de/2018/07/gateway-status-abfragen-ueber-ttn-api/)",
+        "x": 220,
+        "y": 950,
+        "wires": []
+    },
+    {
+        "id": "865c291f.ad93d8",
+        "type": "ttn uplink",
+        "z": "dc903b44.eb4e8",
+        "name": "TTN-Node 2 (esp32 NodeMCU)",
+        "app": "9a87499a.9eb038",
+        "dev_id": "b827ebffffa104e6",
+        "field": "",
+        "x": 150,
+        "y": 40,
+        "wires": [
+            [
+                "e34fd4fb.efa4c",
+                "9e0ebc12.767bf8",
+                "be688505.af0728",
+                "7a461359.cc9764"
+            ]
+        ]
+    },
+    {
+        "id": "e34fd4fb.efa4c",
+        "type": "function",
+        "z": "dc903b44.eb4e8",
+        "name": "create url array for web query from TTN gateway id(s)",
+        "func": "var newMsg = {};\nvar url_Arr = [];\nvar NumOfGW = Object.keys(msg.metadata.gateways).length;\nvar gw_id;\n\n// inject gps coordinates of the node for drawing the distance line(s)\nvar gps_node = {};\ngps_node.lat = msg.payload.gps_avg[\"latitude [°]\"];\ngps_node.lon = msg.payload.gps_avg[\"longitude [°]\"];\n\n\nfor (var i = 0; i<NumOfGW; i++) {\n\tgw_id = msg.metadata.gateways[i].gtw_id;\n\n\tvar url = {}; // create new url objects in every loop\n\turl.link = \"https://account.thethingsnetwork.org/api/v2/gateways/\"+gw_id;\n\turl.gps_node = gps_node;\n\tvar radio_data = {}; // inject radio data of the gateways (create new objects in every loop)\n\tradio_data.node_name = msg.dev_id;\n\tradio_data.msg_count = msg.counter;\n\tradio_data.msg_time = msg.metadata.time;\n\tradio_data.frequency = msg.metadata.frequency;\n\tradio_data.airtime = msg.metadata.airtime;\n\tradio_data.data_rate = msg.metadata.data_rate;\n\tradio_data.coding_rate = msg.metadata.coding_rate;\n\tradio_data.gw_rssi = msg.metadata.gateways[i].rssi;\n\tradio_data.gw_snr = msg.metadata.gateways[i].snr;\n\turl.radio_data = radio_data;\n  url_Arr.push(url);\n}\n\nnewMsg.payload = url_Arr;\nreturn newMsg;",
+        "outputs": 1,
+        "noerr": 0,
+        "x": 250,
+        "y": 200,
+        "wires": [
+            [
+                "65e9ec4c.aed784",
+                "5cfd967f.cde01"
+            ]
+        ]
+    },
+    {
+        "id": "cae1ed74.c3b948",
+        "type": "function",
+        "z": "dc903b44.eb4e8",
+        "name": "rebuild object",
+        "func": "var newMsg = {};\n\nnewMsg.url = msg.payload.link;\nnewMsg.gps_node = msg.payload.gps_node;\nnewMsg.radio_data = msg.payload.radio_data;\nnewMsg.parts = msg.parts;\n\nreturn newMsg;",
+        "outputs": 1,
+        "noerr": 0,
+        "x": 120,
+        "y": 320,
+        "wires": [
+            [
+                "ed0c984.8c7f668",
+                "6eeef318.95e67c"
+            ]
+        ]
+    },
+    {
+        "id": "65e9ec4c.aed784",
+        "type": "split",
+        "z": "dc903b44.eb4e8",
+        "name": "chunk the array for sequenced web query",
+        "splt": "\\n",
+        "spltType": "str",
+        "arraySplt": 1,
+        "arraySpltType": "len",
+        "stream": false,
+        "addname": "",
+        "x": 210,
+        "y": 260,
+        "wires": [
+            [
+                "cae1ed74.c3b948",
+                "f2e23c48.85bfd"
+            ]
+        ]
+    },
+    {
+        "id": "5cfd967f.cde01",
+        "type": "debug",
+        "z": "dc903b44.eb4e8",
+        "name": "",
+        "active": false,
+        "tosidebar": true,
+        "console": false,
+        "tostatus": false,
+        "complete": "true",
+        "targetType": "full",
+        "x": 400,
+        "y": 230,
+        "wires": []
+    },
+    {
+        "id": "ed0c984.8c7f668",
+        "type": "debug",
+        "z": "dc903b44.eb4e8",
+        "name": "",
+        "active": false,
+        "tosidebar": true,
+        "console": false,
+        "tostatus": false,
+        "complete": "true",
+        "targetType": "full",
+        "x": 140,
+        "y": 350,
+        "wires": []
+    },
+    {
+        "id": "6eeef318.95e67c",
+        "type": "http request",
+        "z": "dc903b44.eb4e8",
+        "name": "TTN Gateway Status 'LG308 LoRaWAN-GW'",
+        "method": "GET",
+        "ret": "obj",
+        "paytoqs": false,
+        "url": "",
+        "tls": "",
+        "proxy": "",
+        "authType": "",
+        "x": 220,
+        "y": 410,
+        "wires": [
+            [
+                "f6d3a949.d92ea8",
+                "845b3595.dcd93"
+            ]
+        ]
+    },
+    {
+        "id": "9e0ebc12.767bf8",
+        "type": "function",
+        "z": "dc903b44.eb4e8",
+        "name": "show LoRa node",
+        "func": "var newMsg = {};\nvar name = msg.dev_id;\nvar lat_node = parseFloat(msg.payload.gps_avg[\"latitude [°]\"]);\nvar lon_node = parseFloat(msg.payload.gps_avg[\"longitude [°]\"]);\n// var datetime_local = new Date().toLocaleString('de-DE', { hour12:false });\nvar datetime_gps = new Date(msg.metadata.time).toLocaleString('de-DE', { hour12:false });\nvar temp = msg.payload.climate[\"temperature [°C]\"];\nvar hum = msg.payload.climate[\"humidity [% rH]\"];\nvar freq = msg.metadata.frequency;\n\nnewMsg.payload = {\n  name: name,\n  lat: lat_node,\n  lon: lon_node,\n  icon: \"fa-bug\",\n  iconColor: \"#00689c\",\n  color: \"#57BDF0\", // color of trace\n  popped: false,\n  label: \"LoRa node\",\n  layer: \"LoRa nodes\",\n  \"last seen (gps: DE)\": datetime_gps,\n  draggable: true,\n  \"temperature [°C]\": temp,\n  \"humidity [% rH]\": hum,\n  \"frequency [MHz]\": freq\n};\n\nreturn newMsg;",
+        "outputs": 1,
+        "noerr": 0,
+        "x": 810,
+        "y": 270,
+        "wires": [
+            [
+                "a4381cab.47ffd",
+                "7468f4e4.92c8ec",
+                "8380b5d3.9c6e78"
+            ]
+        ]
+    },
+    {
+        "id": "a4381cab.47ffd",
+        "type": "debug",
+        "z": "dc903b44.eb4e8",
+        "name": "",
+        "active": false,
+        "tosidebar": true,
+        "console": false,
+        "tostatus": false,
+        "complete": "true",
+        "targetType": "full",
+        "x": 850,
+        "y": 300,
+        "wires": []
+    },
+    {
+        "id": "eff371c8.78f55",
+        "type": "function",
+        "z": "dc903b44.eb4e8",
+        "name": "show LoRa GW",
+        "func": "var newMsg = {};\nvar name = msg.payload.attributes.description;\nvar lat = msg.payload.location.latitude;\nvar lon = msg.payload.location.longitude;\nvar alt = msg.payload.altitude;\nvar frequency = msg.payload.radio_data.frequency;\nvar rssi = msg.payload.radio_data.gw_rssi;\nvar snr = msg.payload.radio_data.gw_snr;\nvar owner = msg.payload.owner.username;\nvar datetime_local = new Date().toLocaleString('de-DE', { hour12:false });\n\nif (typeof(msg.payload.location)!== \"undefined\"){\n  newMsg.payload = {\n    name: name,\n    lat: lat,\n    lon: lon,\n    \"altitude [m]\": alt,\n    \"owner\": owner,\n\t\t\"frequency [MHz]\": frequency,\n\t\t\"rssi [dB]\": rssi,\n\t\tsnr: snr,\n    icon: \"fa-podcast\",\n    iconColor: \"#ff2d00\",\n    popped: false,\n    label: name,\n    layer: \"LoRa gateways\",\n    \"last seen (local: DE)\": datetime_local,\n    draggable: true\n  };\n}\n\nreturn newMsg;",
+        "outputs": 1,
+        "noerr": 0,
+        "x": 800,
+        "y": 410,
+        "wires": [
+            [
+                "7468f4e4.92c8ec",
+                "adfab6ec.c9add"
+            ]
+        ]
+    },
+    {
+        "id": "f2e23c48.85bfd",
+        "type": "debug",
+        "z": "dc903b44.eb4e8",
+        "name": "",
+        "active": false,
+        "tosidebar": true,
+        "console": false,
+        "tostatus": false,
+        "complete": "true",
+        "targetType": "full",
+        "x": 320,
+        "y": 290,
+        "wires": []
+    },
+    {
+        "id": "f6d3a949.d92ea8",
+        "type": "debug",
+        "z": "dc903b44.eb4e8",
+        "name": "",
+        "active": false,
+        "tosidebar": true,
+        "console": false,
+        "tostatus": false,
+        "complete": "true",
+        "targetType": "full",
+        "x": 340,
+        "y": 440,
+        "wires": []
+    },
+    {
+        "id": "adfab6ec.c9add",
+        "type": "debug",
+        "z": "dc903b44.eb4e8",
+        "name": "",
+        "active": false,
+        "tosidebar": true,
+        "console": false,
+        "tostatus": false,
+        "complete": "true",
+        "targetType": "full",
+        "x": 830,
+        "y": 440,
+        "wires": []
+    },
+    {
+        "id": "7468f4e4.92c8ec",
+        "type": "worldmap",
+        "z": "dc903b44.eb4e8",
+        "name": "",
+        "lat": "51.003718",
+        "lon": "13.686545",
+        "zoom": "18",
+        "layer": "OSM",
+        "cluster": "14",
+        "maxage": "",
+        "usermenu": "show",
+        "layers": "show",
+        "panit": "false",
+        "panlock": "false",
+        "zoomlock": "false",
+        "hiderightclick": "false",
+        "coords": "deg",
+        "showgrid": "false",
+        "path": "/worldmap_lorawan",
+        "x": 1200,
+        "y": 480,
+        "wires": []
+    },
+    {
+        "id": "4abfb330.19a144",
+        "type": "function",
+        "z": "dc903b44.eb4e8",
+        "name": "draw LoRa connections",
+        "func": "var newMsg = {};\n\nvar lat_node = parseFloat(msg.payload.gps_node.lat);\nvar lon_node = parseFloat(msg.payload.gps_node.lon);\nvar lat_gw = parseFloat(msg.payload.location.latitude);\nvar lon_gw = parseFloat(msg.payload.location.longitude);\n\nvar distance = msg.payload.radio_data.gw_dist2node;\n\nnewMsg.payload = {\n  name: \"Distance to \"+msg.payload.attributes.description+\": \"+distance+\" km\", // round to 3 decimals,\n  line: [ [lat_node, lon_node], [lat_gw, lon_gw] ],\n  stroke: true,\n  color: \"#ff7636\",\n  weight: \"5\",\n  layer: \"LoRa connections\",\n  clickable: true,\n  //\"popup\": \"LoRa connection 1\",\n  editable: true,\n  popped: true,\n  draggable: true\n}\n\nreturn newMsg;",
+        "outputs": 1,
+        "noerr": 0,
+        "x": 830,
+        "y": 340,
+        "wires": [
+            [
+                "7468f4e4.92c8ec",
+                "e40c271f.9ad5d8"
+            ]
+        ]
+    },
+    {
+        "id": "e40c271f.9ad5d8",
+        "type": "debug",
+        "z": "dc903b44.eb4e8",
+        "name": "",
+        "active": false,
+        "tosidebar": true,
+        "console": false,
+        "tostatus": false,
+        "complete": "true",
+        "targetType": "full",
+        "x": 890,
+        "y": 370,
+        "wires": []
+    },
+    {
+        "id": "114a066e.97669a",
+        "type": "comment",
+        "z": "dc903b44.eb4e8",
+        "name": "Calculate distance between two latitude-longitude points? (Haversine formula)",
+        "info": "[https://stackoverflow.com/questions/27928/calculate-distance-between-two-latitude-longitude-points-haversine-formula](https://stackoverflow.com/questions/27928/calculate-distance-between-two-latitude-longitude-points-haversine-formula)",
+        "x": 930,
+        "y": 210,
+        "wires": []
+    },
+    {
+        "id": "c05f2ba4.62019",
+        "type": "comment",
+        "z": "dc903b44.eb4e8",
+        "name": "Finding distances based on Latitude and Longitude",
+        "info": "[https://andrew.hedges.name/experiments/haversine/](https://andrew.hedges.name/experiments/haversine/)",
+        "x": 850,
+        "y": 170,
+        "wires": []
+    },
+    {
+        "id": "7a461359.cc9764",
+        "type": "delay",
+        "z": "dc903b44.eb4e8",
+        "name": "11 s delay for clearing the map",
+        "pauseType": "delay",
+        "timeout": "11",
+        "timeoutUnits": "seconds",
+        "rate": "1",
+        "nbRateUnits": "1",
+        "rateUnits": "second",
+        "randomFirst": "1",
+        "randomLast": "5",
+        "randomUnits": "seconds",
+        "drop": false,
+        "x": 210,
+        "y": 500,
+        "wires": [
+            [
+                "e8ed3b4b.dcd898"
+            ]
+        ]
+    },
+    {
+        "id": "e8ed3b4b.dcd898",
+        "type": "function",
+        "z": "dc903b44.eb4e8",
+        "name": "Remove layer \"LoRa connections\"",
+        "func": "msg.payload = {command:{clear:\"LoRa connections\"}};\nreturn msg;",
+        "outputs": 1,
+        "noerr": 0,
+        "x": 520,
+        "y": 520,
+        "wires": [
+            [
+                "7468f4e4.92c8ec"
+            ]
+        ]
+    },
+    {
+        "id": "e586d59b.740348",
+        "type": "function",
+        "z": "dc903b44.eb4e8",
+        "name": "Remove layer \"LoRa nodes\"",
+        "func": "msg.payload = {command:{clear:\"LoRa nodes\"}};\nreturn msg;",
+        "outputs": 1,
+        "noerr": 0,
+        "x": 500,
+        "y": 560,
+        "wires": [
+            [
+                "7468f4e4.92c8ec",
+                "8380b5d3.9c6e78"
+            ]
+        ]
+    },
+    {
+        "id": "9543af68.a885d8",
+        "type": "function",
+        "z": "dc903b44.eb4e8",
+        "name": "Remove layer \"LoRa gateways\"",
+        "func": "msg.payload = {command:{clear:\"LoRa gateways\"}};\nreturn msg;",
+        "outputs": 1,
+        "noerr": 0,
+        "x": 510,
+        "y": 600,
+        "wires": [
+            [
+                "7468f4e4.92c8ec"
+            ]
+        ]
+    },
+    {
+        "id": "be688505.af0728",
+        "type": "debug",
+        "z": "dc903b44.eb4e8",
+        "name": "",
+        "active": false,
+        "tosidebar": true,
+        "console": false,
+        "tostatus": false,
+        "complete": "true",
+        "targetType": "full",
+        "x": 400,
+        "y": 40,
+        "wires": []
+    },
+    {
+        "id": "8380b5d3.9c6e78",
+        "type": "worldmap-tracks",
+        "z": "dc903b44.eb4e8",
+        "name": "LoRa node track",
+        "depth": "500",
+        "layer": "combined",
+        "x": 1050,
+        "y": 270,
+        "wires": [
+            [
+                "7468f4e4.92c8ec"
+            ]
+        ]
+    },
+    {
+        "id": "31815d7d.56b4ea",
+        "type": "inject",
+        "z": "dc903b44.eb4e8",
+        "name": "remove LoRa nodes + tracks manually",
+        "topic": "",
+        "payload": "",
+        "payloadType": "date",
+        "repeat": "",
+        "crontab": "",
+        "once": false,
+        "onceDelay": 0.1,
+        "x": 190,
+        "y": 560,
+        "wires": [
+            [
+                "e586d59b.740348"
+            ]
+        ]
+    },
+    {
+        "id": "845b3595.dcd93",
+        "type": "function",
+        "z": "dc903b44.eb4e8",
+        "name": "calculate distance to node",
+        "func": "// rebuild object structure for later joining to array of objects\nvar newMsg = {};\nnewMsg.parts = msg.parts;\t// important information for joining\nnewMsg.payload = msg.payload;\nnewMsg.payload.ttn_query_url = msg.url;\nnewMsg.payload.gps_node = msg.gps_node;\nnewMsg.payload.radio_data = msg.radio_data;\n\n// function for calculating distance between two latitude-longitude points? (Haversine formula)\n// inspired by:\n// https://stackoverflow.com/questions/27928/calculate-distance-between-two-latitude-longitude-points-haversine-formula\n// https://andrew.hedges.name/experiments/haversine/\nfunction getDistanceFromLatLonInKm(lat1,lon1,lat2,lon2) {\n  var R = 6371; // Radius of the earth in km\n  var dLat = deg2rad(lat2-lat1);  // deg2rad below\n  var dLon = deg2rad(lon2-lon1); \n  var a = \n    Math.sin(dLat/2) * Math.sin(dLat/2) +\n    Math.cos(deg2rad(lat1)) * Math.cos(deg2rad(lat2)) * \n    Math.sin(dLon/2) * Math.sin(dLon/2)\n    ; \n  var c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1-a)); \n  var d = R * c; // Distance in km\n  return d;\n}\n\nfunction deg2rad(deg) {\n  return deg * (Math.PI/180)\n}\n\nvar lat_node = parseFloat(msg.gps_node.lat);\nvar lon_node = parseFloat(msg.gps_node.lon);\nvar lat_gw = parseFloat(msg.payload.location.latitude);\nvar lon_gw = parseFloat(msg.payload.location.longitude);\n\nvar distance = getDistanceFromLatLonInKm(lat_node, lon_node, lat_gw, lon_gw);\n\nnewMsg.payload.radio_data.gw_dist2node = parseFloat(distance.toFixed(3));\n\nreturn newMsg;",
+        "outputs": 1,
+        "noerr": 0,
+        "x": 550,
+        "y": 410,
+        "wires": [
+            [
+                "951a6c95.0958c",
+                "eff371c8.78f55",
+                "4abfb330.19a144",
+                "a0041c80.f1e92"
+            ]
+        ]
+    },
+    {
+        "id": "951a6c95.0958c",
+        "type": "debug",
+        "z": "dc903b44.eb4e8",
+        "name": "",
+        "active": false,
+        "tosidebar": true,
+        "console": false,
+        "tostatus": false,
+        "complete": "true",
+        "targetType": "full",
+        "x": 610,
+        "y": 440,
+        "wires": []
+    },
+    {
+        "id": "feef278a.ec8b08",
+        "type": "sqlite",
+        "z": "dc903b44.eb4e8",
+        "mydb": "23ac8d4d.5073fa",
+        "sqlquery": "msg.topic",
+        "sql": "",
+        "name": "lorawan_gps.sqlite3",
+        "x": 1240,
+        "y": 680,
+        "wires": [
+            []
+        ]
+    },
+    {
+        "id": "154280d5.29f847",
+        "type": "function",
+        "z": "dc903b44.eb4e8",
+        "name": "INSER LoRa data in DB",
+        "func": "// how many gateways we have seen?\nvar NumOfGW = Object.keys(msg.payload).length;\n\nif (NumOfGW === 1) {\n\tvar i = 0; // starting index of object array\n\n\tvar msg_count = msg.payload[i].radio_data.msg_count;\n\tvar msg_time = new Date(msg.payload[i].radio_data.msg_time).toLocaleString('de-DE', { hour12:false });\n\tvar node_name = msg.payload[i].radio_data.node_name;\n\tvar node_lat_avg = msg.payload[i].gps_node.lat;\n\tvar node_lng_avg = msg.payload[i].gps_node.lon;\n\tvar frequency = msg.payload[i].radio_data.frequency;\n\tvar airtime = msg.payload[i].radio_data.airtime / 1000000000; // in [s]\n\tvar data_rate = msg.payload[i].radio_data.data_rate;\n\tvar coding_rate = msg.payload[i].radio_data.coding_rate;\n\n\tvar gw_id_0 = msg.payload[i].id;\n\tvar gw_desc_0 = msg.payload[i].attributes.description;\n\tvar gw_rssi_0 = msg.payload[i].radio_data.gw_rssi;\n\tvar gw_snr_0 = msg.payload[i].radio_data.gw_snr;\n\tvar gw_dist2node_0 = msg.payload[i].radio_data.gw_dist2node * 1000; // in [m]\n\tvar gw_lat_0 = msg.payload[i].location.latitude;\n\tvar gw_lng_0 = msg.payload[i].location.longitude;\n\n\tvar sql_query = {\n\t\t\t\"payload\" : \"\",\n\t\t\t\"topic\" : \"INSERT INTO lorawan_gps (\" +\n\t\t\t\"msg_count, msg_time, node_name, node_lat_avg, node_lng_avg, frequency, airtime, data_rate, coding_rate, gw_id_0, gw_desc_0, gw_rssi_0, gw_snr_0, gw_dist2node_0, gw_lat_0, gw_lng_0) \" +\n\t\t\t\"VALUES (\" +\n\t\t\tmsg_count + \", \" +\n\t\t\t\"'\" + msg_time + \"', \" +\n\t\t\t\"'\" + node_name + \"', \" +\n\t\t\tnode_lat_avg + \", \" +\n\t\t\tnode_lng_avg + \", \" +\n\t\t\tfrequency + \", \" +\n\t\t\tairtime + \", \" +\n\t\t\t\"'\" + data_rate + \"', \" +\n\t\t\t\"'\" + coding_rate + \"', \" +\n\t\t\t\"'\" + gw_id_0 + \"', \" +\n\t\t\t\"'\" + gw_desc_0 + \"', \" +\n\t\t\tgw_rssi_0 + \", \" +\n\t\t\tgw_snr_0 + \", \" +\n\t\t\tgw_dist2node_0 + \", \" +\n\t\t\tgw_lat_0 + \", \" +\n\t\t\tgw_lng_0 + \")\"\n\t};\n}\nelse if (NumOfGW === 2) {\n\ti = 0; // starting index of object array\n\n\tmsg_count = msg.payload[i].radio_data.msg_count;\n\tmsg_time = new Date(msg.payload[i].radio_data.msg_time).toLocaleString('de-DE', { hour12:false });\n\tnode_name = msg.payload[i].radio_data.node_name;\n\tnode_lat_avg = msg.payload[i].gps_node.lat;\n\tnode_lng_avg = msg.payload[i].gps_node.lon;\n\tfrequency = msg.payload[i].radio_data.frequency;\n\tairtime = msg.payload[i].radio_data.airtime / 1000000000; // in [s]\n\tdata_rate = msg.payload[i].radio_data.data_rate;\n\tcoding_rate = msg.payload[i].radio_data.coding_rate;\n\n\tgw_id_0 = msg.payload[i].id;\n\tgw_desc_0 = msg.payload[i].attributes.description;\n\tgw_rssi_0 = msg.payload[i].radio_data.gw_rssi;\n\tgw_snr_0 = msg.payload[i].radio_data.gw_snr;\n\tgw_dist2node_0 = msg.payload[i].radio_data.gw_dist2node * 1000; // in [m]\n\tgw_lat_0 = msg.payload[i].location.latitude;\n\tgw_lng_0 = msg.payload[i].location.longitude;\n\n\ti++; // switch to the next gateway object\n\tvar gw_id_1 = msg.payload[i].id;\n\tvar gw_desc_1 = msg.payload[i].attributes.description;\n\tvar gw_rssi_1 = msg.payload[i].radio_data.gw_rssi;\n\tvar gw_snr_1 = msg.payload[i].radio_data.gw_snr;\n\tvar gw_dist2node_1 = msg.payload[i].radio_data.gw_dist2node * 1000; // in [m]\n\tvar gw_lat_1 = msg.payload[i].location.latitude;\n\tvar gw_lng_1 = msg.payload[i].location.longitude;\n\n\tsql_query = {\n\t\t\t\"payload\" : \"\",\n\t\t\t\"topic\" : \"INSERT INTO lorawan_gps (\" +\n\t\t\t\"msg_count, msg_time, node_name, node_lat_avg, node_lng_avg, frequency, airtime, data_rate, coding_rate, gw_id_0, gw_desc_0, gw_rssi_0, gw_snr_0, gw_dist2node_0, gw_lat_0, gw_lng_0, gw_id_1, gw_desc_1, gw_rssi_1, gw_snr_1, gw_dist2node_1, gw_lat_1, gw_lng_1) \" +\n\t\t\t\"VALUES (\" +\n\t\t\tmsg_count + \", \" +\n\t\t\t\"'\" + msg_time + \"', \" +\n\t\t\t\"'\" + node_name + \"', \" +\n\t\t\tnode_lat_avg + \", \" +\n\t\t\tnode_lng_avg + \", \" +\n\t\t\tfrequency + \", \" +\n\t\t\tairtime + \", \" +\n\t\t\t\"'\" + data_rate + \"', \" +\n\t\t\t\"'\" + coding_rate + \"', \" +\n\t\t\t\"'\" + gw_id_0 + \"', \" +\n\t\t\t\"'\" + gw_desc_0 + \"', \" +\n\t\t\tgw_rssi_0 + \", \" +\n\t\t\tgw_snr_0 + \", \" +\n\t\t\tgw_dist2node_0 + \", \" +\n\t\t\tgw_lat_0 + \", \" +\n\t\t\tgw_lng_0 + \", \" +\n\t\t\t\"'\" + gw_id_1 + \"', \" +\n\t\t\t\"'\" + gw_desc_1 + \"', \" +\n\t\t\tgw_rssi_1 + \", \" +\n\t\t\tgw_snr_1 + \", \" +\n\t\t\tgw_dist2node_1 + \", \" +\n\t\t\tgw_lat_1 + \", \" +\n\t\t\tgw_lng_1 + \")\"\n\t};\n}\nelse if (NumOfGW >= 3) {\n\ti = 0; // starting index of object array\n\n\tmsg_count = msg.payload[i].radio_data.msg_count;\n\tmsg_time = new Date(msg.payload[i].radio_data.msg_time).toLocaleString('de-DE', { hour12:false });\n\tnode_name = msg.payload[i].radio_data.node_name;\n\tnode_lat_avg = msg.payload[i].gps_node.lat;\n\tnode_lng_avg = msg.payload[i].gps_node.lon;\n\tfrequency = msg.payload[i].radio_data.frequency;\n\tairtime = msg.payload[i].radio_data.airtime / 1000000000; // in [s]\n\tdata_rate = msg.payload[i].radio_data.data_rate;\n\tcoding_rate = msg.payload[i].radio_data.coding_rate;\n\n\tgw_id_0 = msg.payload[i].id;\n\tgw_desc_0 = msg.payload[i].attributes.description;\n\tgw_rssi_0 = msg.payload[i].radio_data.gw_rssi;\n\tgw_snr_0 = msg.payload[i].radio_data.gw_snr;\n\tgw_dist2node_0 = msg.payload[i].radio_data.gw_dist2node * 1000; // in [m]\n\tgw_lat_0 = msg.payload[i].location.latitude;\n\tgw_lng_0 = msg.payload[i].location.longitude;\n\n\ti++; // switch to the next gateway object\n\tgw_id_1 = msg.payload[i].id;\n\tgw_desc_1 = msg.payload[i].attributes.description;\n\tgw_rssi_1 = msg.payload[i].radio_data.gw_rssi;\n\tgw_snr_1 = msg.payload[i].radio_data.gw_snr;\n\tgw_dist2node_1 = msg.payload[i].radio_data.gw_dist2node * 1000; // in [m]\n\tgw_lat_1 = msg.payload[i].location.latitude;\n\tgw_lng_1 = msg.payload[i].location.longitude;\n\n\ti++; // switch to the next gateway object\n\tvar gw_id_2 = msg.payload[i].id;\n\tvar gw_desc_2 = msg.payload[i].attributes.description;\n\tvar gw_rssi_2 = msg.payload[i].radio_data.gw_rssi;\n\tvar gw_snr_2 = msg.payload[i].radio_data.gw_snr;\n\tvar gw_dist2node_2 = msg.payload[i].radio_data.gw_dist2node * 1000; // in [m]\n\tvar gw_lat_2 = msg.payload[i].location.latitude;\n\tvar gw_lng_2 = msg.payload[i].location.longitude;\n\n\tsql_query = {\n\t\t\t\"payload\" : \"\",\n\t\t\t\"topic\" : \"INSERT INTO lorawan_gps (\" +\n\t\t\t\"msg_count, msg_time, node_name, node_lat_avg, node_lng_avg, frequency, airtime, data_rate, coding_rate, gw_id_0, gw_desc_0, gw_rssi_0, gw_snr_0, gw_dist2node_0, gw_lat_0, gw_lng_0, gw_id_1, gw_desc_1, gw_rssi_1, gw_snr_1, gw_dist2node_1, gw_lat_1, gw_lng_1, gw_id_2, gw_desc_2, gw_rssi_2, gw_snr_2, gw_dist2node_2, gw_lat_2, gw_lng_2) \" +\n\t\t\t\"VALUES (\" +\n\t\t\tmsg_count + \", \" +\n\t\t\t\"'\" + msg_time + \"', \" +\n\t\t\t\"'\" + node_name + \"', \" +\n\t\t\tnode_lat_avg + \", \" +\n\t\t\tnode_lng_avg + \", \" +\n\t\t\tfrequency + \", \" +\n\t\t\tairtime + \", \" +\n\t\t\t\"'\" + data_rate + \"', \" +\n\t\t\t\"'\" + coding_rate + \"', \" +\n\t\t\t\"'\" + gw_id_0 + \"', \" +\n\t\t\t\"'\" + gw_desc_0 + \"', \" +\n\t\t\tgw_rssi_0 + \", \" +\n\t\t\tgw_snr_0 + \", \" +\n\t\t\tgw_dist2node_0 + \", \" +\n\t\t\tgw_lat_0 + \", \" +\n\t\t\tgw_lng_0 + \", \" +\n\t\t\t\"'\" + gw_id_1 + \"', \" +\n\t\t\t\"'\" + gw_desc_1 + \"', \" +\n\t\t\tgw_rssi_1 + \", \" +\n\t\t\tgw_snr_1 + \", \" +\n\t\t\tgw_dist2node_1 + \", \" +\n\t\t\tgw_lat_1 + \", \" +\n\t\t\tgw_lng_1 + \", \" +\n\t\t\t\"'\" + gw_id_2 + \"', \" +\n\t\t\t\"'\" + gw_desc_2 + \"', \" +\n\t\t\tgw_rssi_2 + \", \" +\n\t\t\tgw_snr_2 + \", \" +\n\t\t\tgw_dist2node_2 + \", \" +\n\t\t\tgw_lat_2 + \", \" +\n\t\t\tgw_lng_2 + \")\"\n\t};\n}\n\nreturn sql_query;",
+        "outputs": 1,
+        "noerr": 0,
+        "x": 970,
+        "y": 680,
+        "wires": [
+            [
+                "1fea6e80.966f1a",
+                "feef278a.ec8b08"
+            ]
+        ]
+    },
+    {
+        "id": "1fea6e80.966f1a",
+        "type": "debug",
+        "z": "dc903b44.eb4e8",
+        "name": "",
+        "active": true,
+        "tosidebar": true,
+        "console": false,
+        "tostatus": false,
+        "complete": "true",
+        "targetType": "full",
+        "x": 1030,
+        "y": 710,
+        "wires": []
+    },
+    {
+        "id": "a0041c80.f1e92",
+        "type": "join",
+        "z": "dc903b44.eb4e8",
+        "name": "join LoRa objects",
+        "mode": "auto",
+        "build": "string",
+        "property": "payload",
+        "propertyType": "msg",
+        "key": "topic",
+        "joiner": "\\n",
+        "joinerType": "str",
+        "accumulate": false,
+        "timeout": "",
+        "count": "",
+        "reduceRight": false,
+        "reduceExp": "",
+        "reduceInit": "",
+        "reduceInitType": "",
+        "reduceFixup": "",
+        "x": 990,
+        "y": 590,
+        "wires": [
+            [
+                "40f0ae7e.a90d5",
+                "e0444a89.c4923",
+                "154280d5.29f847"
+            ]
+        ]
+    },
+    {
+        "id": "40f0ae7e.a90d5",
+        "type": "debug",
+        "z": "dc903b44.eb4e8",
+        "name": "",
+        "active": true,
+        "tosidebar": true,
+        "console": false,
+        "tostatus": false,
+        "complete": "true",
+        "targetType": "full",
+        "x": 1030,
+        "y": 620,
+        "wires": []
+    },
+    {
+        "id": "e0444a89.c4923",
+        "type": "function",
+        "z": "dc903b44.eb4e8",
+        "name": "get array length",
+        "func": "var newMsg = {};\n\nvar NumOfGW = Object.keys(msg.payload).length;\n\nnewMsg.payload = NumOfGW;\n\nreturn newMsg;",
+        "outputs": 1,
+        "noerr": 0,
+        "x": 1220,
+        "y": 570,
+        "wires": [
+            [
+                "5ec6738a.908fec"
+            ]
+        ]
+    },
+    {
+        "id": "5ec6738a.908fec",
+        "type": "debug",
+        "z": "dc903b44.eb4e8",
+        "name": "",
+        "active": true,
+        "tosidebar": true,
+        "console": false,
+        "tostatus": false,
+        "complete": "true",
+        "targetType": "full",
+        "x": 1250,
+        "y": 600,
+        "wires": []
+    },
+    {
+        "id": "3c82b6b3.07fe42",
+        "type": "comment",
+        "z": "dc903b44.eb4e8",
+        "name": "create table query",
+        "info": "CREATE TABLE 'lorawan_gps' ('id' INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, 'msg_count' INTEGER DEFAULT NULL, 'msg_time' DATETIME, 'node_name' TEXT, 'node_lat_avg' REAL DEFAULT NULL, 'node_lng_avg' REAL DEFAULT NULL, 'frequency' REAL DEFAULT NULL, 'airtime' REAL DEFAULT NULL, 'data_rate' TEXT, 'coding_rate' TEXT, 'gw_id_0' TEXT, 'gw_desc_0' TEXT, 'gw_rssi_0' INTEGER DEFAULT NULL, 'gw_snr_0' REAL DEFAULT NULL, 'gw_dist2node_0' REAL DEFAULT NULL, 'gw_lat_0' REAL DEFAULT NULL, 'gw_lng_0' REAL DEFAULT NULL, 'gw_id_1' TEXT, 'gw_desc_1' TEXT, 'gw_rssi_1' INTEGER DEFAULT NULL, 'gw_snr_1' REAL DEFAULT NULL, 'gw_dist2node_1' REAL DEFAULT NULL, 'gw_lat_1' REAL DEFAULT NULL, 'gw_lng_1' REAL DEFAULT NULL, 'gw_id_2' TEXT, 'gw_desc_2' TEXT, 'gw_rssi_2' INTEGER DEFAULT NULL, 'gw_snr_2' REAL DEFAULT NULL, 'gw_dist2node_2' REAL DEFAULT NULL, 'gw_lat_2' REAL DEFAULT NULL, 'gw_lng_2' REAL DEFAULT NULL)",
+        "x": 1230,
+        "y": 650,
+        "wires": []
+    },
+    {
+        "id": "9a87499a.9eb038",
+        "type": "ttn app",
+        "z": "",
+        "appId": "b827ebffffa104e6",
+        "accessKey": "ttn-account-v2.sE2MwNe6drVTm9cGA-eFOkGbM03y4z6ev1WD41lankA",
+        "discovery": "discovery.thethingsnetwork.org:1900"
+    },
+    {
+        "id": "23ac8d4d.5073fa",
+        "type": "sqlitedb",
+        "z": "",
+        "db": "/home/bk/jupyter-notebook/Python/sqlite_dbs/lora_gps.sqlite3",
+        "mode": "RWC"
+    }
+]
