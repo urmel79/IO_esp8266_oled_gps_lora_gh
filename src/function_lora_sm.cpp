@@ -9,7 +9,7 @@
 #include <LoRa.h>
 
 #if defined(LORA_SENDER)
-  #define RFM_TX_INTERVAL 2000
+  #define RFM_TX_INTERVAL 4000
   #define RFM_TX_TIMEOUT_CNT 5
   int g_i_rfm_tx_timeout_cnt_curr = 0;
   byte g_by_localAddress = 0xAA;        // address of this device
