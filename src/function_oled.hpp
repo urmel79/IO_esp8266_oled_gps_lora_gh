@@ -3,8 +3,12 @@
 
 // Libs for OLED display
 #include <Wire.h>
-//#include "SSD1306Wire.h" // legacy include: #include "SSD1306.h"
-#include "SH1106Wire.h" /* legacy include: #include "SH1106.h"*/
+
+#if defined(OLED_0_96_IN)
+  #include <SSD1306Wire.h> // legacy include: #include "SSD1306.h" for 0.96" displays
+#elif defined(OLED_1_3_IN)
+  #include <SH1106Wire.h> // legacy include: #include "SH1106.h" for 1.3" displays
+#endif
 
 /*
  * WeMos D1 Mini / NodeMCU I2C bus uses pins:

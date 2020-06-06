@@ -1,11 +1,18 @@
 #include "function_oled.hpp"
 
 // Initialize the OLED display using Wire library
-//SSD1306Wire display(0x3c, sdaPin, sclPin);
-SH1106Wire display(0x3c, sdaPin, sclPin);
+#if defined(OLED_0_96_IN)
+  SSD1306Wire display(0x3c, sdaPin, sclPin); // for 0.96" displays
+#elif defined(OLED_1_3_IN)
+  SH1106Wire display(0x3c, sdaPin, sclPin); // for 1.3" displays
+#endif
 
 bool connectOLEDiic() {
   bool status;
+
+  // choose between 100 kHz and 400 kHz I2C clock rate
+  // Important: clock rate has to comply with the values of the pullup resistors
+  Wire.setClock(100000);
 
   status = display.init();
   if (!status) Serial.println("Could not find a valid OLED SSD1306/SH1106, check wiring!");
