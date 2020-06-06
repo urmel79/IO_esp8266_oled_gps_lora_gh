@@ -48,13 +48,13 @@ void setup() {
 
   // pinMode(g_i_led_pin, OUTPUT);
 
-  configureWifi();
+  function_wifi_setup();
 
-  configureMqtt(); // setup MQTT functionality
+  function_mqtt_setup(); // setup MQTT functionality
 
-  connectToWifi();
+  function_wifi_connect();
 
-  connectMqttPubTasks();
+  function_mqtt_connect_PubTasks();
 
   g_b_iicOLED_connected = connectOLEDiic();
 
@@ -78,10 +78,10 @@ void loop() {
 
   g_s_gps_values = read_gps();
 
-  // loop to blink without delay
+  // loop main task without delay
   unsigned long currentMillis = millis();
   if (currentMillis - g_ul_previousMillis >= g_ul_delayTime) {
-    // save the last time you blinked the LED
+    // save the last time the main task was called
     g_ul_previousMillis = currentMillis;
     // if the LED is off turn it on and vice-versa:
     g_b_ledState = not(g_b_ledState);
@@ -113,11 +113,11 @@ void loop() {
 
       mqtt_set_wifi_rssi_dBm(get_wifi_RSSI());
 
-      // smoothing GPS positions: calculate running (floating) average and median
-      gps_RunningAVG_Median_addValues();
-      g_s_gps_avg = get_gps_RunningAVG_Median();
-
       if (g_s_gps_values.location.isValid()) {
+        // smoothing GPS positions: calculate running (floating) average and median
+        gps_RunningAVG_Median_addValues();
+        g_s_gps_avg = get_gps_RunningAVG_Median();
+
       // if (true) { // only for testing purpose!
         Serial.print("Latitude  : ");
         Serial.print(g_s_gps_values.location.lat(), 9);
@@ -196,6 +196,10 @@ void loop() {
                           g_s_gps_avg.gps_RunningMedian_lat,
                           g_s_gps_avg.gps_RunningMedian_lng,
                           g_s_gps_avg.gps_RunningMedian_alt);
+
+#if LORA_TOPO_TTN
+        function_lorawan_ttn_send_gps(g_s_gps_avg.gps_RunningAVG_lat, g_s_gps_avg.gps_RunningAVG_lng);
+#endif
       }
       else {
         Serial.println("#### No GPS Signal .. ####");
