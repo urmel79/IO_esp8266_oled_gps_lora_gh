@@ -22,6 +22,8 @@
 
   #include <lmic.h>     // LMIC-Arduino by IBM: https://github.com/matthijskooijman/arduino-lmic
 
+  #include <Arduino.h>
+
   void onEvent(ev_t ev);
   void do_send(osjob_t* j);
 
@@ -29,8 +31,12 @@
 
   void function_lorawan_ttn_send_handler( void );
 
+  void function_lorawan_ttn_send_gps(float lat_avg, float lng_avg);
 
+  void function_LoRaEvent_disable( void );
+  void function_LoRaEvent_enable( void );
 
+  void function_lora_reactivate_Tx( void );
 
 
 
