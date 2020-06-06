@@ -63,7 +63,7 @@ void RunningMedian::clear()
 
 // adds a new value to the data-set
 // or overwrites the oldest if full.
-void RunningMedian::add(double value)
+void RunningMedian::addValue(double value)
 {
   _ar[_idx++] = value;
   if (_idx >= _size) _idx = 0; // wrap around
@@ -164,6 +164,19 @@ void RunningMedian::sort()
     if (flag) break;
   }
   _sorted = true;
+}
+
+// fill the median with a value
+// the param number determines how often value is added (weight)
+// number should preferably be between 1 and size
+void RunningMedian::fillValue(const double value, const uint8_t number)
+{
+  clear(); // TODO conditional?  if (clr) clear();
+
+  for (uint8_t i = 0; i < number; i++)
+  {
+    addValue(value);
+  }
 }
 
 // END OF FILE

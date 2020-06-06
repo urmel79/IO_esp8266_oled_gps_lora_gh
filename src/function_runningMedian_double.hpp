@@ -14,9 +14,9 @@
 #define function_runningMedian_double_hpp
 
 #if defined(ARDUINO) && ARDUINO >= 100
-#include "Arduino.h"
+#include <Arduino.h>
 #else
-#include "WProgram.h"
+#include <WProgram.h>
 #endif
 
 #include <inttypes.h>
@@ -52,7 +52,8 @@ public:
   ~RunningMedian();                            // destructor
 
   void clear();                        // resets internal buffer and var
-  void add(const double value);        // adds a new value to internal buffer, optionally replacing the oldest element.
+  void addValue(const double value);   // adds a new value to internal buffer, optionally replacing the oldest element.
+  void fillValue(const double, const uint8_t); // fill the median with a value
   double getMedian();                  // returns the median == middle element
 
 #ifdef RUNNING_MEDIAN_ALL
