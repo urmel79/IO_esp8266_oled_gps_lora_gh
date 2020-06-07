@@ -160,9 +160,9 @@ In this section I will describe some typical hardware or software problems that 
 
 ### Observation
 
-| ![](./doc/images/OLED_display_wo_pullups_disturbed.jpeg) |  ![](./doc/images/OLED_display_w_pullups_undisturbed.jpeg) |
-|:---- | :----  |
-| Strange pixel errors on disturbed display | Undisturbed display |
+![](./doc/images/OLED_display_wo_pullups_disturbed.jpeg) |  ![](./doc/images/OLED_display_w_pullups_undisturbed.jpeg)
+:---- | :----  
+Strange pixel errors on disturbed display | Undisturbed display
 
 Hint: I blurred the GPS positions for data protection reasons.
 
