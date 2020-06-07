@@ -162,9 +162,9 @@ In this section I will describe some typical hardware or software problems that 
 
 After some time there are random pixel errors on the OLED display. It can also happen that the display turns almost completely white and nothing is readable anymore.
 
-![](./doc/images/OLED_display_wo_pullups_disturbed.jpeg) |  ![](./doc/images/OLED_display_w_pullups_undisturbed.jpeg)
-:---- | :----  
-Strange pixel errors on disturbed display | Undisturbed display
+| ![](./doc/images/OLED_display_wo_pullups_disturbed.jpeg) |  ![](./doc/images/OLED_display_w_pullups_undisturbed.jpeg) |
+| :---- | :---- |
+| Strange pixel errors on disturbed display | Undisturbed display |
 
 Hint: I blurred the GPS positions for data protection reasons.
 
