@@ -1,5 +1,5 @@
 
-# Project description: LoRa and LoRaWAN testing bench with GPS tracking
+# LoRa and LoRaWAN testing bench with GPS tracking
 
 Last changed on June 7, 2020.
 
@@ -160,7 +160,11 @@ In this section I will describe some typical hardware or software problems that 
 
 ### Observation
 
-<!-- @TODO: Bilder von gestörtem / ungestörtem Display einfügen => am besten nebeneinander -->
+| ![](./doc/images/OLED_display_wo_pullups_disturbed.jpeg) |  ![](./doc/images/OLED_display_w_pullups_undisturbed.jpeg) |
+|:---- | :----  |
+| Strange pixel errors on disturbed display | Undisturbed display |
+
+Hint: I blurred the GPS positions for data protection reasons.
 
 ### Thesis 1: EMC issues with the LoRa radio module
 
