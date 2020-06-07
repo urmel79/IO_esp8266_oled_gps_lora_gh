@@ -1,3 +1,19 @@
+---
+title: |
+    LoRa testing bench with GPS tracking
+subtitle: |
+author: |
+    Dipl.-Ing. Björn Kasper^[[bjoern.kasper@online.de](mailto:bjoern.kasper@online.de)]
+date: |
+    last changed on June 7, 2020
+lang: de-DE
+lang_babel: ngerman
+link-citations: true
+abstract:
+#nocite: |
+   #@DIN_EN_61009-1, @DIN_IEC_62710_2011
+...
+
 # LoRa testing bench with GPS tracking
 
 ## Table of contents
@@ -5,7 +21,7 @@
 <!--
 @HINT:
 autogenerate the TOC with the command line tool 'gh-md-toc' (https://github.com/ekalinin/github-markdown-toc) with following syntax:
-$ cat README.md | ../tools/github-markdown-toc/gh-md-toc -
+$ cat README.md | ./tools/github-markdown-toc/gh-md-toc -
 -->
 
 * [Introduction](#introduction)
@@ -132,9 +148,43 @@ The schematics looks like this:
 
 ![Schematics](./fritzing/NodeMcu32s_LoRa_GPS_OLED_Schematics.png)
 
-## Software libraries and documentation
+<!--## Software libraries and documentation
 
-Go to the source code: I have supplied it with many comments for explanation.
+Go to the source code: I have supplied it with many comments for explanation.-->
+
+## Troubleshooting
+
+In this section I will describe some typical hardware or software problems that I have struggled with for several days.
+
+(to be continued)
+
+### I²C: fighting strange pixel errors on OLED display
+
+#### Observation
+
+<!-- @TODO: Bilder von gestörtem / ungestörtem Display einfügen => am besten nebeneinander -->
+
+#### Thesis 1: EMC issues with the LoRa radio module
+
+Approach: Shielding with a grounded copper shield (self-adhesive copper foil) and soldered wires to ground.
+
+Results:  
+- LoRa signal strength (RSSI value in dB) decreased significantly
+- display errors still appear after a while
+
+#### Thesis 2: power supply of the MCU is to weak
+
+Approach: 
+
+
+#### Thesis 3: I²C signals at SDA and SCL line are disturbed
+
+Wikipedia:  
+- [I²C | Physical layer](https://en.wikipedia.org/wiki/I%C2%B2C#Physical_layer)
+
+Forum:  
+- [OLED mini-display for ESP32](https://forum.micropython.org/viewtopic.php?t=3764)
+- [Pull-up resistor](https://en.wikipedia.org/wiki/Pull-up_resistor)
 
 ## License
 
