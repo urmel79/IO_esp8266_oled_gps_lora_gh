@@ -109,7 +109,7 @@ Here you can see one of two test modules build on breadboard:
 
 In this picture you can see the other test module on top of the provisional and outdoor-suitable housing (watertight food storage box):
 
-![Breadboard Layout and case](./doc/images/Testboard_case.jpeg)
+![Breadboard Layout and case](./doc/images/Testboard_on_case.jpeg)
 
 # Bill of materials (BOM)
 
@@ -166,26 +166,36 @@ After some time there are random pixel errors on the OLED display. It can also h
 | :---- | :---- |
 | Strange pixel errors on disturbed display | Undisturbed display |
 
-Hint: I blurred the GPS positions for data protection reasons.
+Hint: I blurred the GPS positions for data protection reasons on both images.
 
 ### Thesis 1: EMC issues with the LoRa radio module
 
-Approach: Shielding with a grounded copper shield (self-adhesive copper foil) and soldered wires to ground.
+**Approach:**  
+Shielding with a grounded copper shield (self-adhesive copper foil) and soldered wires to ground.
 
 <!-- @TODO: Bild von Innenansicht mit Kupferfolie -->
+![Shielding with a grounded copper shield](./doc/images/esp32_housing_w_copper_shielding.jpeg)
 
-Results:  
+**Results:**  
 - LoRa signal strength (RSSI value in dB) decreased significantly
 - display errors still appear after a while
 
 ### Thesis 2: Power supply of the MCU is to weak
 
-Approach:
+**Approach:**  
 
+![External power supply via adjustable DC-DC step-down converter](./doc/images/esp32_housing_w_dc-dc_step-down_buck.jpeg)
+
+**Results:**  
 
 ### Thesis 3: I²C signals at SDA and SCL line are disturbed
 
 Because the OLED display is connected to the I²C bus, I used my storage oscilloscope to examine the signal quality on both the clock (SCL) and the data line (SDA). It turned out that both signals were very disturbed and that the signal edges were not sufficiently good.
+
+**Approach:**  
+
+
+**Results:**  
 
 Wikipedia:  
 - [I²C | Physical layer](https://en.wikipedia.org/wiki/I%C2%B2C#Physical_layer)
