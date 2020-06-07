@@ -160,9 +160,11 @@ In this section I will describe some typical hardware or software problems that 
 
 ### Observation
 
-| ![](./doc/images/OLED_display_wo_pullups_disturbed.jpeg) |  ![](./doc/images/OLED_display_w_pullups_undisturbed.jpeg) |
-|:---- | :----  |
-| Strange pixel errors on disturbed display | Undisturbed display |
+After some time there are random pixel errors on the OLED display. It can also happen that the display turns almost completely white and nothing is readable anymore.
+
+![](./doc/images/OLED_display_wo_pullups_disturbed.jpeg) |  ![](./doc/images/OLED_display_w_pullups_undisturbed.jpeg)
+:---- | :----  
+Strange pixel errors on disturbed display | Undisturbed display
 
 Hint: I blurred the GPS positions for data protection reasons.
 
@@ -182,6 +184,8 @@ Approach:
 
 
 ### Thesis 3: I²C signals at SDA and SCL line are disturbed
+
+Because the OLED display is connected to the I²C bus, I used my storage oscilloscope to examine the signal quality on both the clock (SCL) and the data line (SDA). It turned out that both signals were very disturbed and that the signal edges were not sufficiently good.
 
 Wikipedia:  
 - [I²C | Physical layer](https://en.wikipedia.org/wiki/I%C2%B2C#Physical_layer)
