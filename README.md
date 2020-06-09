@@ -162,7 +162,7 @@ Connect the ESP8266 / ESP32 via a microUSB cable directly to a Linux computer or
 
 ### Method 1: Use `minicom`
 
-Start `minicom` and configure the serial connection via `C-a o` - especially the path to the serial device (e. g. `/dev/ttyUSB0`), the correct baud rate, stop bits and so on.
+Start `minicom` and configure the serial connection via `C-a o`. Especially the path to the serial device (e. g. `/dev/ttyUSB0`), the correct baud rate (115200 baud) and the stop and parity bits (8N1) have to be set.
 
 Activate timestamps via `C-a n`. Do that several times and cycle through the timestamps modes: 'no timestamps', 'simple timestamps' and 'advanced timestamps' (with milliseconds). I use the latter mode, because the serial output with 115200 baud is really fast. See the screenshot below.
 
@@ -174,7 +174,7 @@ Activate the logging function in `minicom` via `C-a l`. In the dialog box you ha
 
 Build a pipeline with several command line tools. For getting timestamps I use the `ts` command - the package `moreutils` has to be installed first (`# apt install moreutils`).
 
-**Prerequisite:** The Serial line has to be opened first with the correct settings via another serial tool, like `minicom` e. g.
+**Prerequisite:** The serial device has to be opened first with the correct settings via another serial tool, like `minicom`.
 
 This is the complete command pipeline:
 
@@ -184,7 +184,7 @@ Here is the screenshot showing this method:
 
 ![Screenshot of minicom with activated timestamps](./doc/images/logging_w_cmd_pipe.png)
 
-The advantage of piping the `tee` command is, that you can watch the serial output while the logging is done in the background.
+The advantage of piping the `tee` command is, that you can watch the serial output while the logging is done in the background. The option `-a` means, that the given file is appended and not overwritten.
 
 ## I²C: fighting strange pixel errors on OLED display
 
