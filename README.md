@@ -1,7 +1,7 @@
 
 # LoRa and LoRaWAN testing bench with GPS tracking
 
-Last changed on June 7, 2020.
+Last changed on June 9, 2020.
 
 ## Table of contents
 
