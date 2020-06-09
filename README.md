@@ -156,6 +156,36 @@ In this section I will describe some typical hardware or software problems that 
 
 (to be continued)
 
+## Writing serial output with timestamps to a logfile
+
+Connect the ESP8266 / ESP32 via a microUSB cable directly to a Linux computer or a Raspberry Pi.
+
+### Method 1: Use `minicom`
+
+Start `minicom` and configure the serial connection via `C-a o` - especially the path to the serial device (e. g. `/dev/ttyUSB0`), the correct baud rate, stop bits and so on.
+
+Activate timestamps via `C-a n`. Do that several times and cycle through the timestamps modes: 'no timestamps', 'simple timestamps' and 'advanced timestamps' (with milliseconds). I use the latter mode, because the serial output with 115200 baud is really fast. See the screenshot below.
+
+![Screenshot of minicom with activated timestamps](./doc/images/logging_w_minicom.png)
+
+Activate the logging function in `minicom` via `C-a l`. In the dialog box you have to set your desired file name.
+
+### Method 2: Use command line tools
+
+Build a pipeline with several command line tools. For getting timestamps I use the `ts` command - the package `moreutils` has to be installed first (`# apt install moreutils`).
+
+**Prerequisite:** The Serial line has to be opened first with the correct settings via another serial tool, like `minicom` e. g.
+
+This is the complete command pipeline:
+
+`$ ts '[%Y-%m-%d %H:%M:%.S]' < /dev/ttyUSB0 | tee -a $(date +%Y-%m-%d)_esp32.log`
+
+Here is the screenshot showing this method:
+
+![Screenshot of minicom with activated timestamps](./doc/images/logging_w_cmd_pipe.png)
+
+The advantage of piping the `tee` command is, that you can watch the serial output while the logging is done in the background.
+
 ## I²C: fighting strange pixel errors on OLED display
 
 ### Observation
@@ -173,7 +203,6 @@ Hint: I blurred the GPS positions for data protection reasons on both images.
 **Approach:**  
 Shielding with a grounded copper shield (self-adhesive copper foil) and soldered wires to ground.
 
-<!-- @TODO: Bild von Innenansicht mit Kupferfolie -->
 ![Shielding with a grounded copper shield](./doc/images/esp32_housing_w_copper_shielding.jpeg)
 
 **Results:**  
