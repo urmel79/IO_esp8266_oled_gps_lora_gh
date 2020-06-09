@@ -100,16 +100,16 @@ void loop() {
       printOLED_str(20, l_str_rssi_snr);
 #else
       printOLED_values_str(10, "IP: ", get_wifi_IP_str());
-      printOLED_values_flt(20, "RSSI: ", get_wifi_RSSI(), 2, 0);
+      printOLED_values_flt(20, "RSSI: ", get_wifi_RSSI(), 2, 0, " dBm");
 #endif
 
 #ifdef LORA_TOPO_P2P
       function_lora_serial_out();
 #endif
 
-      Serial.println(get_wifi_hostname());
-      Serial.println(get_wifi_IP_str());
-      Serial.println(get_wifi_RSSI());
+      Serial.printf("[WIFI] Hostname: %s\r\n", get_wifi_hostname().c_str());
+      Serial.printf("[WIFI] IP      : %s\r\n", get_wifi_IP_str().c_str());
+      Serial.printf("[WIFI] RSSI    : %d dBm\r\n", get_wifi_RSSI());
 
       mqtt_set_wifi_rssi_dBm(get_wifi_RSSI());
 
@@ -118,60 +118,27 @@ void loop() {
         gps_RunningAVG_Median_addValues();
         g_s_gps_avg = get_gps_RunningAVG_Median();
 
-      // if (true) { // only for testing purpose!
-        Serial.print("Latitude  : ");
-        Serial.print(g_s_gps_values.location.lat(), 9);
-        Serial.print(char(176));                            // ° symbol
-        Serial.println(" N");
-        Serial.print("Longitude : ");
-        Serial.print(g_s_gps_values.location.lng(), 9);
-        Serial.print(char(176));                            // ° symbol
-        Serial.println(" E");
-        Serial.print("Lat (AVG) : ");
-        Serial.print(g_s_gps_avg.gps_RunningAVG_lat, 9);
-        Serial.print(char(176));                            // ° symbol
-        Serial.println(" N");
-        Serial.print("Lng (AVG) : ");
-        Serial.print(g_s_gps_avg.gps_RunningAVG_lng, 9);
-        Serial.print(char(176));                            // ° symbol
-        Serial.println(" E");
-        Serial.print("Elevation : ");
-        Serial.print(g_s_gps_avg.gps_RunningAVG_alt);
-        Serial.println(" m");
+        // Serial.println("### GPS Start ###");
+        Serial.printf("[GPS] Latitude  : %.9f* N\r\n", g_s_gps_values.location.lat());
+        Serial.printf("[GPS] Longitude : %.9f* E\r\n", g_s_gps_values.location.lng());
+        Serial.printf("[GPS] Lat (AVG) : %.9f* N\r\n", g_s_gps_avg.gps_RunningAVG_lat);
+        Serial.printf("[GPS] Lng (AVG) : %.9f* E\r\n", g_s_gps_avg.gps_RunningAVG_lng);
+        Serial.printf("[GPS] Elevation : %f m\r\n", g_s_gps_avg.gps_RunningAVG_alt);
 
-        Serial.print("Lat (AVG) Buffer size: ");
-        Serial.print(g_s_gps_avg.gps_RunningAVG_lat_size);
-        Serial.print(", Buffer count: ");
-        Serial.println(g_s_gps_avg.gps_RunningAVG_lat_cnt);
-        Serial.print("Lng (AVG) Buffer size: ");
-        Serial.print(g_s_gps_avg.gps_RunningAVG_lng_size);
-        Serial.print(", Buffer count: ");
-        Serial.println(g_s_gps_avg.gps_RunningAVG_lng_cnt);
-        Serial.print("Alt (AVG) Buffer size: ");
-        Serial.print(g_s_gps_avg.gps_RunningAVG_alt_size);
-        Serial.print(", Buffer count: ");
-        Serial.println(g_s_gps_avg.gps_RunningAVG_alt_cnt);
+        // Serial.printf("Lat (AVG) Buffer size: %d, Buffer count: %d\r\n", g_s_gps_avg.gps_RunningAVG_lat_size, g_s_gps_avg.gps_RunningAVG_lat_cnt);
+        // Serial.printf("Lng (AVG) Buffer size: %d, Buffer count: %d\r\n", g_s_gps_avg.gps_RunningAVG_lng_size, g_s_gps_avg.gps_RunningAVG_lng_cnt);
+        // Serial.printf("Alt (AVG) Buffer size: %d, Buffer count: %d\r\n", g_s_gps_avg.gps_RunningAVG_alt_size, g_s_gps_avg.gps_RunningAVG_alt_cnt);
 
-        Serial.print("Satellites: ");
-        Serial.println(g_s_gps_values.satellites.value());
-        Serial.print("Time Raw  : ");
-        Serial.println(g_s_gps_values.time.value());        // raw time
-        Serial.print("Time UTC  : ");
-        Serial.print(g_s_gps_values.time.hour());           // GPS time UTC
-        Serial.print(":");
-        Serial.print(g_s_gps_values.time.minute());         // Minutes
-        Serial.print(":");
-        Serial.println(g_s_gps_values.time.second());       // Seconds
-        Serial.print("Heading   : ");
-        Serial.print(g_s_gps_values.course.deg());
-        Serial.println(char(176));                          // ° symbol
-        Serial.print("Speed     : ");
-        Serial.print(g_s_gps_values.speed.kmph());
-        Serial.println(" km/h");
+        Serial.printf("[GPS] Satellites: %d\r\n", g_s_gps_values.satellites.value());
+        Serial.printf("[GPS] Time Raw  : %d\r\n", g_s_gps_values.time.value()); // raw time
+        Serial.printf("[GPS] Time UTC  : %d:%d:%d\r\n", g_s_gps_values.time.hour(), g_s_gps_values.time.minute(), g_s_gps_values.time.second()); // GPS time UTC
+        Serial.printf("[GPS] Heading   : %.2f*\r\n", g_s_gps_values.course.deg());
+        Serial.printf("[GPS] Speed     : %.2f km/h\r\n", g_s_gps_values.speed.kmph());
+        // Serial.println("### GPS End ###");
 
-        printOLED_values_flt(30, "Lat.: ", g_s_gps_values.location.lat(), 12, 9);
-        printOLED_values_flt(40, "Long.: ", g_s_gps_values.location.lng(), 12, 9);
-        printOLED_values_flt(50, "Sat.: ", g_s_gps_values.satellites.value(), 5, 0);
+        printOLED_values_flt(30, "Lat.: ", g_s_gps_values.location.lat(), 12, 9, "° N");
+        printOLED_values_flt(40, "Lng.: ", g_s_gps_values.location.lng(), 12, 9, "° E");
+        printOLED_values_flt(50, "Sat.: ", g_s_gps_values.satellites.value(), 2, 0, "");
         printOLED_end();
 
         String l_str_time = String(g_s_gps_values.date.year()) + "-"
@@ -180,7 +147,6 @@ void loop() {
                           + String(g_s_gps_values.time.hour()) + ":"
                           + String(g_s_gps_values.time.minute())  + ":"
                           + String(g_s_gps_values.time.second());
-        // String l_str_time = String(g_s_gps_values.time.value());
 
         mqtt_set_gps_valid(true);
 
