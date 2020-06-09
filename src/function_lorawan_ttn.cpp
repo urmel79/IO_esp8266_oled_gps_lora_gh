@@ -2,7 +2,10 @@
 
 #include "function_lorawan_ttn.hpp"
 
-#include "function_wifi.hpp"
+#include <Ticker.h>
+
+// #include "function_wifi.hpp"
+#include "wifi_creds.hpp"
 #include "function_gps.hpp"
 
 //
@@ -98,11 +101,11 @@ void onEvent(ev_t ev) {
     return;
   }
 
-  // deactivate interrupts from Wifi event handling
-  function_wifiEvent_disable();
+  // // deactivate interrupts from Wifi event handling
+  // function_wifiEvent_disable();
 
-  Serial.print(os_getTime());
-  Serial.print(": ");
+  // Serial.print(os_getTime());
+  // Serial.print(": ");
   switch(ev) {
     case EV_SCAN_TIMEOUT:
       Serial.println(F("EV_SCAN_TIMEOUT"));
@@ -132,16 +135,19 @@ void onEvent(ev_t ev) {
       Serial.println(F("EV_REJOIN_FAILED"));
       break;
     case EV_TXCOMPLETE:
-      Serial.println(F("EV_TXCOMPLETE (includes waiting for RX windows)"));
+      Serial.println("[LORA] EV_TXCOMPLETE (includes waiting for RX windows)");
       digitalWrite(LED_PIN, LOW);   // turn the LED off
 
+      // deactivate LoRa Tx watchdog
+      LoRa_Tx_watchdog.detach();
+
       if (LMIC.txrxFlags & TXRX_ACK)
-        Serial.println(F("Received ack"));
+        Serial.println("[LORA] Received ack");
 
       if (LMIC.dataLen) {
-        Serial.println(F("Received "));
-        Serial.println(LMIC.dataLen);
-        Serial.println(F(" bytes of payload"));
+        Serial.print("[LORA] Received ");
+        Serial.print(LMIC.dataLen);
+        Serial.println(" bytes of payload");
       }
       // Schedule next transmission
       os_setTimedCallback(&sendjob, os_getTime()+sec2osticks(TX_INTERVAL), do_send);
@@ -167,8 +173,8 @@ void onEvent(ev_t ev) {
       break;
   }
 
-  // activate interrupts from Wifi again ...
-  function_wifiEvent_enable();
+  // // activate interrupts from Wifi again ...
+  // function_wifiEvent_enable();
 }
 
 void do_send(osjob_t* j) {
@@ -191,10 +197,10 @@ void do_send(osjob_t* j) {
       Serial.println(F("Failed to read from DHT sensor or valid GPS sensor data are not available!"));
     }
     else {
-      Serial.println("");
-      Serial.print("Sending - temperature: ");
+      // Serial.println("### LORA Start ### ");
+      Serial.print("[LORA] Sending - temperature: ");
       Serial.print(t);
-      Serial.print(" °C, humidity: ");
+      Serial.print(" *C, humidity: ");
       Serial.print(h);
       Serial.println("% rH");
 
@@ -209,12 +215,13 @@ void do_send(osjob_t* j) {
       dtostrf(g_f_latitude_avg, 9, 6, &char_buffer[8]);
       // write longitude in char array beginning at position 17
       dtostrf(g_f_longitude_avg, 9, 6, &char_buffer[17]);
+      Serial.print("[LORA] ");
       Serial.println(char_buffer);
 
       memcpy(ui_buffer, char_buffer, strlen(char_buffer));  // copy char array into uint8_t array
-      Serial.print("### LORA ### ");
-      Serial.print((char*)ui_buffer);
-      Serial.println(" ### LORA ###");
+
+      // Serial.println((char*)ui_buffer);
+      // Serial.println("### LORA End ###");
 
       // Prepare upstream data transmission at the next possible time.
       LMIC_setTxData2(1, ui_buffer, sizeof(ui_buffer), 0); // sending data to FPort 1
@@ -222,9 +229,9 @@ void do_send(osjob_t* j) {
 
     digitalWrite(LED_PIN, HIGH);   // turn the LED on
 
-    Serial.println(F("Packet queued"));
+    Serial.println(F("[LORA] Packet queued"));
   }
-  // start Tx watchdog
+  // start LoRa Tx watchdog
   LoRa_Tx_watchdog.once(2*TX_INTERVAL, function_lora_reactivate_Tx);
 
   // Next TX is scheduled after TX_COMPLETE event.
@@ -318,10 +325,14 @@ void function_lorawan_ttn_send_gps(float lat_avg, float lng_avg) {
 
 void function_LoRaEvent_disable( void ) {
   g_b_LoRaEvent_enabled = false;
+  // deactivate LoRa Tx watchdog
+  LoRa_Tx_watchdog.detach();
 }
 
 void function_LoRaEvent_enable( void ) {
   g_b_LoRaEvent_enabled = true;
+  // start LoRa Tx watchdog
+  LoRa_Tx_watchdog.once(2*TX_INTERVAL, function_lora_reactivate_Tx);
 }
 
 void function_lora_reactivate_Tx( void ) {

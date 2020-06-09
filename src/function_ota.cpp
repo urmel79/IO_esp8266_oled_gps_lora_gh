@@ -2,6 +2,8 @@
 
 #include "function_gps.hpp"
 #include "function_lorawan_ttn.hpp"
+#include "function_mqtt.hpp"
+#include "function_wifi.hpp"
 
 void function_ota_setup( const char *chr_hostname ) {
   // Port defaults to 8266
@@ -30,6 +32,15 @@ void function_ota_setup( const char *chr_hostname ) {
     // here: serial communication to the gps sensor causes interrupts, when receiving new data
     // Rx interrupts are conflicting with OTA updates => disable serial Rx!
     function_gps_disable_Rx();
+
+    // disable mqtt publication
+    function_mqtt_disconnect_PubTasks();
+
+#ifdef ESP32
+    // deactivate interrupts from Wifi event handling
+    function_wifiEvent_disable();
+#endif
+
 #if LORA_TOPO_TTN
     function_LoRaEvent_disable();
 #endif
@@ -42,16 +53,13 @@ void function_ota_setup( const char *chr_hostname ) {
     }
 
     // NOTE: if updating SPIFFS this would be the place to unmount SPIFFS using SPIFFS.end()
-    Serial.println("Start updating " + type);
+    Serial.println("[OTA] Start updating " + type);
   });
 
   ArduinoOTA.onEnd([]() {
-    // enable external interrupts again => unnecessary, because mcu reboots ...
-    // ETS_GPIO_INTR_ENABLE();
-    // ets_isr_unmask((1<<ETS_GPIO_INUM)); // enable interrupts by external GPIOs
-    // ESP_INTR_ENABLE(1<<ETS_GPIO_INUM);
+    // to enable external interrupts again => unnecessary, because mcu reboots ...
 
-    Serial.println("\nEnd");
+    Serial.println("\r\n[OTA] End");
   });
 
   ArduinoOTA.onProgress([](unsigned int progress, unsigned int total) {
@@ -63,11 +71,18 @@ void function_ota_setup( const char *chr_hostname ) {
 
     // Rx interrupts are conflicting with OTA updates => disable serial Rx!
     function_gps_disable_Rx();
+
+#ifdef ESP32
+    // deactivate interrupts from Wifi event handling
+    function_wifiEvent_disable();
+#endif
+
 #if LORA_TOPO_TTN
     function_LoRaEvent_disable();
 #endif
 
-    Serial.printf("Progress: %u%%\r", (progress / (total / 100)));
+    // Serial.printf("Progress: %u%%\r", (progress / (total / 100)));
+    Serial.printf("\r[OTA] Progress: %u%%", (progress / (total / 100)));
   });
 
   ArduinoOTA.onError([](ota_error_t error) {
@@ -86,7 +101,7 @@ void function_ota_setup( const char *chr_hostname ) {
   });
 
   ArduinoOTA.begin();
-  Serial.println("OTA ready");
+  Serial.println("[OTA] OTA ready");
 }
 
 void function_ota_handle( ) {

@@ -31,6 +31,9 @@ RunningAverage gps_RunningAVG_alt(GPS_AVG_FILTER_SIZE);  // RunningAverage objec
 
 bool g_b_init_RunningAverage_values = false;
 
+// Important: initial value has to be 'true'!
+bool g_b_enableRx = true;
+
 struct_gps_RunningAVG_Median g_avg;
 
 // #####################
@@ -216,15 +219,23 @@ struct_gps_RunningAVG_Median get_gps_RunningAVG_Median() {
 
 // Rx interrupts are conflicting with OTA updates => disable serial Rx!
 void function_gps_disable_Rx( void ) {
+  // if deactivated, return asap
+  if ( !g_b_enableRx ) return;
+
   // Disable interrupts on the rx pin
   serial_gps.enableRx(false);
-  Serial.println("GPS: disable Rx because of conflicting interrupts.");
+  g_b_enableRx = false;
+  Serial.println("[GPS] disable Rx because of conflicting interrupts.");
 }
 
 void function_gps_enable_Rx( void ) {
+  // if activated, return asap
+  if ( g_b_enableRx ) return;
+
   // Enable interrupts on the rx pin after wifi reconnect
   serial_gps.enableRx(true);
-  Serial.println("GPS: enable Rx again.");
+  g_b_enableRx = true;
+  Serial.println("[GPS] enable Rx again.");
 }
 
 
