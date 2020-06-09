@@ -12,8 +12,8 @@ $ cat README.md | ./tools/github-markdown-toc/gh-md-toc - > toc.md
 -->
 
 * [Introduction](#introduction)
-   * [Aim of the project](#aim-of-the-project)
-   * [Requirements to the testing bench](#requirements-to-the-testing-bench)
+  * [Aim of the project](#aim-of-the-project)
+  * [Requirements to the testing bench](#requirements-to-the-testing-bench)
 * [A brief overview of LoRa topologies](#a-brief-overview-of-lora-topologies)
 * [LoRa or LoRaWAN? - The difference is 1 GPIO pin of the ESP](#lora-or-lorawan---the-difference-is-1-gpio-pin-of-the-esp)
 * [Node-RED Flows](#node-red-flows)
@@ -24,11 +24,14 @@ $ cat README.md | ./tools/github-markdown-toc/gh-md-toc - > toc.md
 * [Breadboard layout and schematics (version with ESP8266)](#breadboard-layout-and-schematics-version-with-esp8266)
 * [Breadboard layout and schematics (version with ESP32)](#breadboard-layout-and-schematics-version-with-esp32)
 * [Troubleshooting](#troubleshooting)
-   * [I²C: fighting strange pixel errors on OLED display](#ic-fighting-strange-pixel-errors-on-oled-display)
-      * [Observation](#observation)
-      * [Thesis 1: EMC issues with the LoRa radio module](#thesis-1-emc-issues-with-the-lora-radio-module)
-      * [Thesis 2: Power supply of the MCU is to weak](#thesis-2-power-supply-of-the-mcu-is-to-weak)
-      * [Thesis 3: I²C signals at SDA and SCL line are disturbed](#thesis-3-ic-signals-at-sda-and-scl-line-are-disturbed)
+  * [Writing serial output with timestamps to a logfile](#writing-serial-output-with-timestamps-to-a-logfile)
+    * [Method 1: Use minicom](#method-1-use-minicom)
+    * [Method 2: Use command line tools](#method-2-use-command-line-tools)
+  * [I²C: fighting strange pixel errors on OLED display](#ic-fighting-strange-pixel-errors-on-oled-display)
+    * [Observation](#observation)
+    * [Thesis 1: EMC issues with the LoRa radio module](#thesis-1-emc-issues-with-the-lora-radio-module)
+    * [Thesis 2: Power supply of the MCU is to weak](#thesis-2-power-supply-of-the-mcu-is-to-weak)
+    * [Thesis 3: I²C signals at SDA and SCL line are disturbed](#thesis-3-ic-signals-at-sda-and-scl-line-are-disturbed)
 * [License](#license)
 
 # Introduction
