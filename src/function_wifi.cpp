@@ -41,8 +41,7 @@ void function_wifi_setup() {
 }
 
 void function_wifi_connect() {
-  Serial.println("Connecting to Wi-Fi...");
-  WiFi.mode(WIFI_STA);  // client mode
+  Serial.println("[WIFI] Connecting to Wi-Fi...");
 
   // [bug] external interrupts conflict with wifi connection attempts and
   // OTA updates and lead to sporadic crashes!
@@ -56,6 +55,8 @@ void function_wifi_connect() {
   // here: serial communication to the gps sensor causes interrupts, when receiving new data
   // Rx interrupts are conflicting with OTA updates => disable serial Rx!
   function_gps_disable_Rx();
+
+  WiFi.mode(WIFI_STA);  // client mode
 
 #ifdef ESP32
   // call is only a workaround for bug in WiFi class
@@ -81,7 +82,7 @@ void function_wifi_connect() {
 }
 
 void function_wifi_reconnect() {
-  Serial.println("Trying to reconnect to Wi-Fi...");
+  Serial.println("[WIFI] Trying to reconnect to Wi-Fi...");
 
   function_gps_disable_Rx();
   WiFi.begin(WIFI_SSID, WIFI_PASSWORD);
@@ -105,10 +106,15 @@ void WiFiEvent(WiFiEvent_t event) {
     return;
   }
 
-  Serial.printf("[WiFi-event] event: %d\n", event);
+  // Rx interrupts are conflicting with OTA updates => disable serial Rx!
+  function_gps_disable_Rx();
+
+  Serial.printf("[WIFI] event: %d - ", event);
   switch(event) {
   case SYSTEM_EVENT_WIFI_READY:   // event 0
       Serial.println("WiFi interface ready");
+      // // Rx interrupts are conflicting with OTA updates => disable serial Rx!
+      // function_gps_disable_Rx();
       break;
   case SYSTEM_EVENT_SCAN_DONE:   // event 1
       Serial.println("Completed scan for access points");
@@ -118,8 +124,8 @@ void WiFiEvent(WiFiEvent_t event) {
       // [fix (better)] take care of the cause of the problem: disable the sources of interrupts
       // here: serial communication to the gps sensor causes interrupts, when receiving new data
       // Rx interrupts are conflicting with OTA updates => disable serial Rx!
-      function_gps_disable_Rx();
-      // function_lorawan_ttn_disable_Tx();
+      // function_gps_disable_Rx();
+      // function_LoRaEvent_disable();
 
       // call is only a workaround for bug in WiFi class
       // ... maybe not necessary in current version of WiFi class <== NO!
@@ -133,9 +139,6 @@ void WiFiEvent(WiFiEvent_t event) {
       //
       WiFi.setHostname(HOSTNAME);
 
-      // Enable interrupts on the rx pin after wifi (re)connect
-      // function_gps_enable_Rx();
-      // function_lorawan_ttn_enable_Tx();
       break;
   case SYSTEM_EVENT_STA_STOP:   // event 3
       Serial.println("WiFi clients stopped");
@@ -168,16 +171,22 @@ void WiFiEvent(WiFiEvent_t event) {
       // deactivate reconnecting attempts
       wifiReconnectTimer.detach();
 
-      Serial.print("WiFi AP (SSID): ");
-      Serial.println(String(WiFi.SSID()));
-      Serial.print("ESP32 hostname: ");
-      Serial.println(String(WiFi.getHostname()));
-      Serial.print("ESP32 MAC: ");
-      Serial.println(WiFi.macAddress());
-      Serial.print("ESP32 IP: ");
-      Serial.println(WiFi.localIP());
-      Serial.print("WiFi signal level: ");
-      Serial.println(WiFi.RSSI());
+      // Serial.print("[WIFI] WiFi AP (SSID): ");
+      // Serial.println(String(WiFi.SSID()));
+      // Serial.print("[WIFI] ESP32 hostname: ");
+      // Serial.println(String(WiFi.getHostname()));
+      // Serial.print("[WIFI] ESP32 MAC: ");
+      // Serial.println(WiFi.macAddress());
+      // Serial.print("[WIFI] ESP32 IP: ");
+      // Serial.println(WiFi.localIP());
+      // Serial.print("[WIFI] WiFi signal level: ");
+      // Serial.println(WiFi.RSSI());
+
+      Serial.printf("[WIFI] AP SSID : %s\r\n", WiFi.SSID().c_str());
+      Serial.printf("[WIFI] Hostname: %s\r\n", WiFi.getHostname());
+      Serial.printf("[WIFI] MAC     : %s\r\n", WiFi.macAddress().c_str());
+      Serial.printf("[WIFI] IP      : %s\r\n", WiFi.localIP().toString().c_str());
+      Serial.printf("[WIFI] RSSI    : %d dBm\r\n", WiFi.RSSI());
 
       function_ota_setup(HOSTNAME);   // setup OTA functionality
 
@@ -243,18 +252,24 @@ void WiFiEvent(WiFiEvent_t event) {
 }
 #elif ESP8266
 void onWifiConnect(const WiFiEventStationModeGotIP& event) {
-  Serial.println("Connected to Wi-Fi.");
+  Serial.println("[WIFI] Connected to Wi-Fi.");
 
-  Serial.print("WiFi AP (SSID): ");
-  Serial.println(String(WiFi.SSID()));
-  Serial.print("ESP8266 hostname: ");
-  Serial.println(String(WiFi.hostname()));
-  Serial.print("ESP8266 MAC: ");
-  Serial.println(WiFi.macAddress());
-  Serial.print("ESP8266 IP: ");
-  Serial.println(WiFi.localIP());
-  Serial.print("WiFi signal level: ");
-  Serial.println(WiFi.RSSI());
+  // Serial.print("[WIFI] WiFi AP (SSID): ");
+  // Serial.println(String(WiFi.SSID()));
+  // Serial.print("[WIFI] ESP8266 hostname: ");
+  // Serial.println(String(WiFi.hostname()));
+  // Serial.print("[WIFI] ESP8266 MAC: ");
+  // Serial.println(WiFi.macAddress());
+  // Serial.print("[WIFI] ESP8266 IP: ");
+  // Serial.println(WiFi.localIP());
+  // Serial.print("[WIFI] WiFi signal level: ");
+  // Serial.println(WiFi.RSSI());
+
+  Serial.printf("[WIFI] AP SSID : %s\r\n", WiFi.SSID().c_str());
+  Serial.printf("[WIFI] Hostname: %s\r\n", WiFi.hostname().c_str());
+  Serial.printf("[WIFI] MAC     : %s\r\n", WiFi.macAddress().c_str());
+  Serial.printf("[WIFI] IP      : %s\r\n", WiFi.localIP().toString().c_str());
+  Serial.printf("[WIFI] RSSI    : %d dBm\r\n", WiFi.RSSI());
 
   function_ota_setup(HOSTNAME);   // setup OTA functionality
 
@@ -266,7 +281,7 @@ void onWifiConnect(const WiFiEventStationModeGotIP& event) {
 }
 
 void onWifiDisconnect(const WiFiEventStationModeDisconnected& event) {
-  Serial.println("Disconnected from WiFi.");
+  Serial.println("[WIFI] Disconnected from WiFi.");
   deactivateMqtt_reconnectTimer();
   wifiReconnectTimer.once(5, function_wifi_reconnect);
 }
