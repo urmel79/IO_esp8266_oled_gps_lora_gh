@@ -9,6 +9,7 @@
 void function_mqtt_setup();
 void function_mqtt_connect();
 void function_mqtt_connect_PubTasks();
+void function_mqtt_disconnect_PubTasks();
 
 void onMqttConnect(bool sessionPresent);
 

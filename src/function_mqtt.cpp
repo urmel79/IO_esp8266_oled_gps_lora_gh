@@ -43,7 +43,7 @@ void function_mqtt_setup() {
 }
 
 void function_mqtt_connect() {
-  Serial.print("Connecting to MQTT host: ");
+  Serial.print("[MQTT] Connecting to MQTT host: ");
   Serial.println(String(MQTT_HOST));
   mqttClient.connect();
 }
@@ -53,16 +53,21 @@ void function_mqtt_connect_PubTasks() {
   mqtt_pub_gps_json.attach(2, mqttPub_gps_json);
 }
 
+void function_mqtt_disconnect_PubTasks() {
+  mqtt_pub_wifi_quality.detach();
+  mqtt_pub_gps_json.detach();
+}
+
 void onMqttConnect(bool sessionPresent) {
-  Serial.println("Connected to MQTT.");
-  Serial.print("Session present: ");
+  Serial.println("[MQTT] Connected to MQTT.");
+  Serial.print("[MQTT] Session present: ");
   Serial.println(sessionPresent);
 }
 
 void onMqttDisconnect(AsyncMqttClientDisconnectReason reason) {
   function_gps_disable_Rx();
 
-  Serial.println("Disconnected from MQTT.");
+  Serial.println("[MQTT] Disconnected from MQTT.");
 
   if (get_wifi_isConnected()) {
     mqttReconnectTimer.once(2, function_mqtt_connect);
@@ -78,16 +83,16 @@ void deactivateMqtt_reconnectTimer() {
 }
 
 void onMqttSubscribe(uint16_t packetId, uint8_t qos) {
-  Serial.println("Subscribe acknowledged.");
-  Serial.print("  packetId: ");
+  Serial.println("[MQTT] Subscribe acknowledged.");
+  Serial.print("[MQTT] packetId: ");
   Serial.println(packetId);
-  Serial.print("  qos: ");
+  Serial.print("[MQTT] qos: ");
   Serial.println(qos);
 }
 
 void onMqttUnsubscribe(uint16_t packetId) {
-  Serial.println("Unsubscribe acknowledged.");
-  Serial.print("  packetId: ");
+  Serial.println("[MQTT] Unsubscribe acknowledged.");
+  Serial.print("[MQTT] packetId: ");
   Serial.println(packetId);
 }
 
@@ -119,8 +124,8 @@ bool stringStartsWith(const char *pre, const char *str) {
 }
 
 void onMqttPublish(uint16_t packetId) {
-  Serial.println("Publish acknowledged.");
-  Serial.print("  packetId: ");
+  Serial.println("[MQTT] Publish acknowledged.");
+  Serial.print("[MQTT] packetId: ");
   Serial.println(packetId);
 }
 
@@ -141,10 +146,10 @@ void mqttPub_wifi_rssi() {
     send_success = mqttClient.publish(topic_pub.c_str(), 0, true, str_wifi_rssi_dBm.c_str());
 
     if (send_success) {
-      Serial.print("MQTT: Wi-Fi signal level = ");
+      Serial.print("[MQTT] Wi-Fi signal level = ");
       Serial.println(str_wifi_rssi_dBm);
     }
-    else Serial.println("MQTT: Error sending message.");
+    else Serial.println("[MQTT] Error sending message.");
   }
 }
 
@@ -253,10 +258,10 @@ void mqttPub_gps_json() {
     send_success = mqttClient.publish(topic_pub.c_str(), 0, true, mqttJsonPayload, n);
 
     if (send_success) {
-      Serial.print("MQTT: JSON payload = ");
+      Serial.print("[MQTT] JSON payload = ");
       Serial.println(mqttJsonPayload);
     }
-    else Serial.println("MQTT: Error sending message.");
+    else Serial.println("[MQTT] Error sending message.");
   }
 }
 
