@@ -62,6 +62,9 @@ void onMqttConnect(bool sessionPresent) {
   Serial.println("[MQTT] Connected to MQTT.");
   Serial.print("[MQTT] Session present: ");
   Serial.println(sessionPresent);
+  
+  // Enable interrupts on the rx pin after wifi (re)connect attempt
+  function_gps_enable_Rx();
 }
 
 void onMqttDisconnect(AsyncMqttClientDisconnectReason reason) {

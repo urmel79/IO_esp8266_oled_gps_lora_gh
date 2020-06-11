@@ -185,19 +185,19 @@ void do_send(osjob_t* j) {
 
   // Check if there is not a current TX/RX job running
   if (LMIC.opmode & OP_TXRXPEND) {
-    Serial.println(F("OP_TXRXPEND, not sending"));
+    Serial.println("[LORA] OP_TXRXPEND, not sending");
   }
   else {
     float t = dht.readTemperature();
     float h = dht.readHumidity();
 
     // Check if any reads failed and exit early (to try again).
-    if (isnan(h) || isnan(t) ||
-        isnan(g_f_latitude_avg) || isnan(g_f_longitude_avg)) { // average values will always be available ...
-      Serial.println(F("Failed to read from DHT sensor or valid GPS sensor data are not available!"));
+    if (isnan(h) || isnan(t)) {
+      //   || isnan(g_f_latitude_avg) || isnan(g_f_longitude_avg)) { // average values will always be available ...
+      // Serial.println(F("Failed to read from DHT sensor or valid GPS sensor data are not available!"));
+      Serial.print("[LORA] Failed to read from DHT11 sensor!");
     }
     else {
-      // Serial.println("### LORA Start ### ");
       Serial.print("[LORA] Sending - temperature: ");
       Serial.print(t);
       Serial.print(" *C, humidity: ");
@@ -220,16 +220,13 @@ void do_send(osjob_t* j) {
 
       memcpy(ui_buffer, char_buffer, strlen(char_buffer));  // copy char array into uint8_t array
 
-      // Serial.println((char*)ui_buffer);
-      // Serial.println("### LORA End ###");
-
       // Prepare upstream data transmission at the next possible time.
       LMIC_setTxData2(1, ui_buffer, sizeof(ui_buffer), 0); // sending data to FPort 1
+
+      digitalWrite(LED_PIN, HIGH);   // turn the LED on
+
+      Serial.println(F("[LORA] Packet queued"));
     }
-
-    digitalWrite(LED_PIN, HIGH);   // turn the LED on
-
-    Serial.println(F("[LORA] Packet queued"));
   }
   // start LoRa Tx watchdog
   LoRa_Tx_watchdog.once(2*TX_INTERVAL, function_lora_reactivate_Tx);

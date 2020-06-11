@@ -193,8 +193,8 @@ void WiFiEvent(WiFiEvent_t event) {
       function_mqtt_connect();
       function_mqtt_connect_PubTasks();
 
-      // Enable interrupts on the rx pin after wifi (re)connect attempt
-      function_gps_enable_Rx();
+      // // Enable interrupts on the rx pin after wifi (re)connect attempt
+      // function_gps_enable_Rx();
       break;
   case SYSTEM_EVENT_STA_LOST_IP:   // event 8
       Serial.println("Lost IP address and IP address is reset to 0");
