@@ -38,7 +38,7 @@
 
   void function_lora_reactivate_Tx( void );
 
-
+  String function_convert_uptime2string(unsigned long time_s);
 
 
 

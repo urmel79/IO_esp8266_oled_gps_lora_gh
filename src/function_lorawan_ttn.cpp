@@ -19,19 +19,39 @@ function Decoder(bytes, port) {
 
   var newLoRaMsg = {};
 
-  if (port === 1) {
-    newLoRaMsg.climate = {
-      "temperature [°C]": String.fromCharCode.apply(null,bytes).substring(0,4),
-      "humidity [% rH]": String.fromCharCode.apply(null,bytes).substring(4,8)
-    };
+    if (port === 1) {
+      newLoRaMsg.climate = {
+        "temperature [°C]": String.fromCharCode.apply(null,bytes).substring(0,4),
+        "humidity [% rH]": String.fromCharCode.apply(null,bytes).substring(4,8)
+      };
 
-    newLoRaMsg.gps_avg = {
-      "latitude [°]": String.fromCharCode.apply(null,bytes).substring(8,17),
-      "longitude [°]": String.fromCharCode.apply(null,bytes).substring(17,26)
-    };
-  }
+      newLoRaMsg.gps_avg = {
+        "latitude [°]": String.fromCharCode.apply(null,bytes).substring(8,17),
+        "longitude [°]": String.fromCharCode.apply(null,bytes).substring(17,26)
+      };
 
-  return newLoRaMsg;
+      var uptime_s = parseInt(String.fromCharCode.apply(null,bytes).substring(26,35), 10); // 10: base is decimal
+      //var uptime_s = 184703; // for testing
+
+      var days    = Math.floor(uptime_s / 3600 / 24);
+      var hours   = Math.floor((uptime_s - (days * 3600 * 24)) / 3600);
+      var minutes = Math.floor((uptime_s - (days * 3600 * 24) - (hours * 3600)) / 60);
+      var seconds = uptime_s - (days * 3600 * 24) - (hours * 3600) - (minutes * 60);
+
+      if (days    < 10) {days    = "0"+days;}
+      if (hours   < 10) {hours   = "0"+hours;}
+      if (minutes < 10) {minutes = "0"+minutes;}
+      if (seconds < 10) {seconds = "0"+seconds;}
+
+      var uptime_str = days+'d '+hours+':'+minutes+':'+seconds;
+
+      newLoRaMsg.uptime = {
+        "uptime": uptime_str,
+        "uptime [s]": uptime_s
+      };
+    }
+
+    return newLoRaMsg;
 }
 */
 
@@ -195,17 +215,27 @@ void do_send(osjob_t* j) {
     if (isnan(h) || isnan(t)) {
       //   || isnan(g_f_latitude_avg) || isnan(g_f_longitude_avg)) { // average values will always be available ...
       // Serial.println(F("Failed to read from DHT sensor or valid GPS sensor data are not available!"));
-      Serial.print("[LORA] Failed to read from DHT11 sensor!");
+      Serial.println("[LORA] Failed to read from DHT11 sensor!");
     }
     else {
-      Serial.print("[LORA] Sending - temperature: ");
+      Serial.print("[LORA] Temperature: ");
       Serial.print(t);
       Serial.print(" *C, humidity: ");
       Serial.print(h);
       Serial.println("% rH");
 
-      char char_buffer[26]; // 8 digits for DHT11 and 18 digits for GPS sensor
-      uint8_t ui_buffer[26];
+      // get uptime [ms]
+      unsigned long l_ul_esp_uptime_s = millis() / 1000;
+      String l_str_esp_uptime = function_convert_uptime2string(l_ul_esp_uptime_s);
+
+      Serial.print("[LORA] Uptime: ");
+      Serial.print(l_str_esp_uptime);
+      Serial.print(" or ");
+      Serial.print(l_ul_esp_uptime_s);
+      Serial.println(" s");
+
+      char char_buffer[35]; // 8 digits for DHT11, 18 digits for GPS sensor and 9 digits for uptime seconds
+      uint8_t ui_buffer[35];
 
       // write temperature in char array beginning at position 0
       dtostrf(t, 4, 1, char_buffer);
@@ -215,6 +245,9 @@ void do_send(osjob_t* j) {
       dtostrf(g_f_latitude_avg, 9, 6, &char_buffer[8]);
       // write longitude in char array beginning at position 17
       dtostrf(g_f_longitude_avg, 9, 6, &char_buffer[17]);
+      // write uptime seconds in char array beginning at position 26
+      dtostrf(l_ul_esp_uptime_s, 9, 0, &char_buffer[26]);
+
       Serial.print("[LORA] ");
       Serial.println(char_buffer);
 
@@ -335,13 +368,44 @@ void function_LoRaEvent_enable( void ) {
 void function_lora_reactivate_Tx( void ) {
   digitalWrite(LED_PIN, LOW);   // turn the LED off
 
-  // reactivating next transmission
-  os_setTimedCallback(&sendjob, os_getTime()+sec2osticks(TX_INTERVAL), do_send);
+  Serial.println("[LORA] Watchdog was triggered!");
+
+  if (LMIC.opmode & OP_TXRXPEND) {
+    Serial.println("[LORA] Flag 'OP_TXRXPEND' was not reset");
+    Serial.println("[LORA] Re-initializing LoRa connection and send job");
+    function_lorawan_ttn_setup();
+
+    // probably the blocking delay() function is no good idea - anyway ...
+    delay(500);
+  }
+  else {
+    Serial.println("[LORA] Reactivating next transmission");
+    os_setTimedCallback(&sendjob, os_getTime()+sec2osticks(TX_INTERVAL), do_send);
+  }
 
   // Enable interrupts on the rx pin after wifi (re)connect attempt
   function_gps_enable_Rx();
 }
 
+String function_convert_uptime2string(unsigned long time_s) {
+  static char l_char_time[32];
+
+  long l_l_days = 0;
+  long l_l_hours = 0;
+  long l_l_mins = 0;
+  long l_l_secs = time_s;
+  // l_l_secs = time_ms / 1000; //convect milliseconds to seconds
+  l_l_mins = l_l_secs / 60;                 //convert seconds to minutes
+  l_l_hours = l_l_mins / 60;                //convert minutes to hours
+  l_l_days = l_l_hours / 24;                //convert hours to days
+  l_l_secs = l_l_secs - (l_l_mins * 60);    //subtract the coverted seconds to minutes in order to display 59 secs max
+  l_l_mins = l_l_mins - (l_l_hours * 60);   //subtract the coverted minutes to hours in order to display 59 minutes max
+  l_l_hours = l_l_hours - (l_l_days * 24);  //subtract the coverted hours to days in order to display 23 hours max
+
+  sprintf(l_char_time, "%2.2dd %2.2d:%2.2d:%2.2d", (int)l_l_days, (int)l_l_hours, (int)l_l_mins, (int)l_l_secs);
+
+  return (String)l_char_time;
+}
 
 
 
