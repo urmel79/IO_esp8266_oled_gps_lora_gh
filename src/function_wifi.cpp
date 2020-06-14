@@ -26,6 +26,9 @@
 
 Ticker wifiReconnectTimer;
 
+// Schedule wifi reconnecting attempts
+const unsigned WIFI_RECONNECT_INTERVAL = 20; // 20 s
+
 void function_wifi_setup() {
   // 'ESP32' and 'ESP8266' are defined within PlatformIO
   #ifdef ESP32
@@ -53,7 +56,7 @@ void function_wifi_connect() {
 
   // [fix (better)] take care of the cause of the problem: disable the sources of interrupts
   // here: serial communication to the gps sensor causes interrupts, when receiving new data
-  // Rx interrupts are conflicting with OTA updates => disable serial Rx!
+  // Rx interrupts are conflicting with wifi => disable serial Rx!
   function_gps_disable_Rx();
 
   WiFi.mode(WIFI_STA);  // client mode
@@ -106,14 +109,14 @@ void WiFiEvent(WiFiEvent_t event) {
     return;
   }
 
-  // Rx interrupts are conflicting with OTA updates => disable serial Rx!
+  // Rx interrupts are conflicting with wifi => disable serial Rx!
   function_gps_disable_Rx();
 
   Serial.printf("[WIFI] event: %d - ", event);
   switch(event) {
   case SYSTEM_EVENT_WIFI_READY:   // event 0
       Serial.println("WiFi interface ready");
-      // // Rx interrupts are conflicting with OTA updates => disable serial Rx!
+      // // Rx interrupts are conflicting with wifi => disable serial Rx!
       // function_gps_disable_Rx();
       break;
   case SYSTEM_EVENT_SCAN_DONE:   // event 1
@@ -123,7 +126,7 @@ void WiFiEvent(WiFiEvent_t event) {
       Serial.println("WiFi client started");
       // [fix (better)] take care of the cause of the problem: disable the sources of interrupts
       // here: serial communication to the gps sensor causes interrupts, when receiving new data
-      // Rx interrupts are conflicting with OTA updates => disable serial Rx!
+      // Rx interrupts are conflicting with wifi => disable serial Rx!
       // function_gps_disable_Rx();
       // function_LoRaEvent_disable();
 
@@ -160,7 +163,7 @@ void WiFiEvent(WiFiEvent_t event) {
       // // the function WiFiEvent() is called in a separate cyclic task automagically;
       // // so you will get a very strange behaviour with the reconnecting ticker call ...
       // // ... it seems, the ESP32 hangs in an endless loop
-      wifiReconnectTimer.attach(5, function_wifi_reconnect);
+      wifiReconnectTimer.attach(WIFI_RECONNECT_INTERVAL, function_wifi_reconnect);
       break;
   case SYSTEM_EVENT_STA_AUTHMODE_CHANGE:   // event 6
       Serial.println("Authentication mode of access point has changed");
@@ -283,7 +286,7 @@ void onWifiConnect(const WiFiEventStationModeGotIP& event) {
 void onWifiDisconnect(const WiFiEventStationModeDisconnected& event) {
   Serial.println("[WIFI] Disconnected from WiFi.");
   deactivateMqtt_reconnectTimer();
-  wifiReconnectTimer.once(5, function_wifi_reconnect);
+  wifiReconnectTimer.once(WIFI_RECONNECT_INTERVAL, function_wifi_reconnect);
 }
 #endif
 

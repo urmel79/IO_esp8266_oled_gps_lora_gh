@@ -41,9 +41,9 @@ void function_ota_setup( const char *chr_hostname ) {
     function_wifiEvent_disable();
 #endif
 
-#if LORA_TOPO_TTN
-    function_LoRaEvent_disable();
-#endif
+// #if LORA_TOPO_TTN
+//     function_LoRaEvent_disable();
+// #endif
 
     String type;
     if (ArduinoOTA.getCommand() == U_FLASH) {
@@ -77,9 +77,9 @@ void function_ota_setup( const char *chr_hostname ) {
     function_wifiEvent_disable();
 #endif
 
-#if LORA_TOPO_TTN
-    function_LoRaEvent_disable();
-#endif
+// #if LORA_TOPO_TTN
+//     function_LoRaEvent_disable();
+// #endif
 
     // Serial.printf("Progress: %u%%\r", (progress / (total / 100)));
     Serial.printf("\r[OTA] Progress: %u%%", (progress / (total / 100)));
