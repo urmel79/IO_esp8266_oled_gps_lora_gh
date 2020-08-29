@@ -1,5 +1,14 @@
 #include <Arduino.h>
 
+#ifdef WDT_ENABLE
+  #ifdef ESP32
+    #include <esp_task_wdt.h>
+
+    // 3 seconds WDT
+    #define WDT_TIMEOUT 3
+  #endif
+#endif
+
 #include "config.hpp"
 
 // include wifi functionality for asynchronous wifi handling
@@ -44,6 +53,26 @@ void setup() {
   //   ; // wait for serial port to connect. Needed for native USB port only
   // }
 
+// enable watchdog functionality
+#ifdef WDT_ENABLE
+  #ifdef ESP32
+    // Initialize the Task Watchdog Timer (TWDT)
+    // Enable panic so ESP32 restarts
+    // Parameters:
+    //   timeout: timeout period of TWDT in seconds
+    //   panic: flag that controls whether the panic handler will be executed when the TWDT times out
+    esp_task_wdt_init(WDT_TIMEOUT, true);
+
+    // Subscribe current thread (handle=NULL) to TWDT for watching
+    // Each subscribed task must periodically call esp_task_wdt_reset() to prevent the TWDT from elapsing its timeout period.
+    esp_task_wdt_add(NULL);
+  #elif ESP8266
+    ESP.wdtEnable(0); // how to set the desired timeout??
+    // disable the software watchdog (hardware watchdog will bite after timeout of about 8 s ...)
+    ESP.wdtDisable();
+  #endif
+#endif
+
   initSS_gps();
 
   // pinMode(g_i_led_pin, OUTPUT);
@@ -66,6 +95,16 @@ void setup() {
 }
 
 void loop() {
+// feed the watchdog so that hopefully it doesn't bite you
+#ifdef WDT_ENABLE
+  #ifdef ESP32
+    // reset the TWDT on behalf of the currently running task
+    esp_task_wdt_reset();
+  #elif ESP8266
+    ESP.wdtFeed();
+  #endif
+#endif
+
   if (get_wifi_isConnected()) {
     function_ota_handle();  // call handler function for OTA
   }
