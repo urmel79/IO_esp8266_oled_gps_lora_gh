@@ -5,6 +5,12 @@
 #include "function_mqtt.hpp"
 #include "function_wifi.hpp"
 
+#ifdef WDT_ENABLE
+  #ifdef ESP32
+    #include <esp_task_wdt.h>
+  #endif
+#endif
+
 void function_ota_setup( const char *chr_hostname ) {
   // Port defaults to 8266
   ArduinoOTA.setPort(OTA_ESP_PORT);
@@ -68,6 +74,16 @@ void function_ota_setup( const char *chr_hostname ) {
     // ETS_GPIO_INTR_DISABLE();
     // ets_isr_mask((1<<ETS_GPIO_INUM)); // disable interrupts by external GPIOs
     // ESP_INTR_DISABLE(1<<ETS_GPIO_INUM);
+
+// feed the watchdog during OTA upload so that hopefully it doesn't bite you
+#ifdef WDT_ENABLE
+  #ifdef ESP32
+    // reset the TWDT on behalf of the currently running task
+    esp_task_wdt_reset();
+  #elif ESP8266
+    ESP.wdtFeed();
+  #endif
+#endif
 
     // Rx interrupts are conflicting with OTA updates => disable serial Rx!
     function_gps_disable_Rx();

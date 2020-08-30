@@ -4,8 +4,10 @@
   #ifdef ESP32
     #include <esp_task_wdt.h>
 
-    // 3 seconds WDT
-    #define WDT_TIMEOUT 3
+    // watchdog timeout: give it at least 30 seconds,
+    // because some processes need some time (e.g. OTA)
+    // alternative: feed the watchdog during OTA upload ;)
+    #define WDT_TIMEOUT 10
   #endif
 #endif
 
@@ -69,6 +71,7 @@ void setup() {
   #elif ESP8266
     ESP.wdtEnable(0); // how to set the desired timeout??
     // disable the software watchdog (hardware watchdog will bite after timeout of about 8 s ...)
+    // the hardware watchdog will still remain active, causing a reset after some time
     ESP.wdtDisable();
   #endif
 #endif
