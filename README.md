@@ -236,9 +236,62 @@ Wikipedia:
 Forum:  
 - [OLED mini-display for ESP32](https://forum.micropython.org/viewtopic.php?t=3764)
 
+
+# Migrate to MySQL, phpMyAdmin and Grafana
+
+Data  from the nodes are stored in SQLite databases until now. The graphical admin gui is *phpLiteAdmin*.
+
+For advanced exploring the data *Grafana* is a very useful tool. Unfortunately it does not support SQLite databases as data sources. So the challenging task is to install MySQL, PHP7, Grafana and for administration of the MySQL databases *phpMyAdmin*. Then the massive data of the SQLite databases collected in the last half year have to be converted to the MySQL compatible format.
+
+To install the pre-requisites I had done the following on my Raspi with Raspbian GNU/Linux 9.13 (stretch):
+
+Sources:
+- [How to Install PHPMyAdmin on the Raspberry Pi](https://pimylifeup.com/raspberry-pi-phpmyadmin/)
+
+```
+# apt update
+# apt upgrade
+
+# apt install mariadb-server-10.0 mariadb-client-10.0 php7.0-mysql
+//# apt install libapache2-mod-auth-mysql phpmyadmin
+# apt install phpmyadmin
+
+# nano /etc/apache2/apache2.conf
+# service apache2 restart
+```
+
+phpMyAdmin is now reachable here: [http://192.168.16.184/phpmyadmin/](http://192.168.16.184/phpmyadmin/)
+
+```
+# nano /etc/php5/apache2/php.ini
+# nano /etc/php/7.0/apache2/php.ini
+# cat /etc/php/7.0/apache2/php.ini | grep -i extension=mysql
+# mysql -u root -p
+
+# service apache2 restart
+# wget -q -O - https://packages.grafana.com/gpg.key | sudo apt-key add -
+# echo "deb https://packages.grafana.com/oss/deb stable main" | sudo tee -a /etc/apt/sources.list.d/grafana.list
+# apt update
+# apt install grafana
+# systemctl status grafana-server
+# systemctl start grafana-server
+
+```
+
+
 # License
 
 This project is licensed under the terms of "GNU General Public License v3.0". For details see [LICENSE](LICENSE).
+
+
+
+
+
+
+
+
+
+
 
 
 
