@@ -246,13 +246,15 @@ For advanced exploring the data *Grafana* is a very useful tool. Unfortunately i
 To install the pre-requisites I had done the following on my Raspi with Raspbian GNU/Linux 9.13 (stretch):
 
 Sources:
-- [How to Install PHPMyAdmin on the Raspberry Pi](https://pimylifeup.com/raspberry-pi-phpmyadmin/)
+- [Raspberry PI: Einrichten eines MySQL Datenbankservers (+phpMyAdmin)](https://draeger-it.blog/raspberry-pi-einrichten-eines-mysql-datenbankservers/)
+- [Setup a Raspberry Pi MYSQL Database](https://pimylifeup.com/raspberry-pi-mysql/)*
+- [How to Install PHPMyAdmin on the Raspberry Pi](https://pimylifeup.com/raspberry-pi-phpmyadmin/)*
 
 ```
 # apt update
 # apt upgrade
 
-# apt install mariadb-server-10.0 mariadb-client-10.0 php7.0-mysql
+# apt install mysql-server
 //# apt install libapache2-mod-auth-mysql phpmyadmin
 # apt install phpmyadmin
 
@@ -278,6 +280,19 @@ phpMyAdmin is now reachable here: [http://192.168.16.184/phpmyadmin/](http://192
 
 ```
 
+## Convert SQLite databases to MySQL format
+
+Unfortunately the data formats and SQL syntaxes are **not** compatible between SQLite and MySQL databases! So you have to convert the database dump files from one format to the other. Especially if there are plenty of datasets the use of a tool is strongly recommended. I used the python tool [sqlite3-to-mysql](https://github.com/techouse/sqlite3-to-mysql) here. First you have to install it via `pip install sqlite3-to-mysql`.
+
+The tool will convert the SQLite data and stream it directly to the MySQL database - so it will be easier if you do it directly on the hosting Raspberry Pi (and slower of course). The name of the existing database in MySQL is here `lora_gps`.
+
+```
+$ sqlite3mysql -c 500 -f lora_gps.sqlite3 -d lora_gps -u <mysql user> -p '<password of mysql user>'
+```
+
+## Install Grafana
+
+The installation process is very straight forward and described here: [Install Grafana](https://grafana.com/tutorials/install-grafana-on-raspberry-pi/#3).
 
 # License
 
