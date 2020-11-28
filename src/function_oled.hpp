@@ -11,11 +11,15 @@
 #endif
 
 /*
- * WeMos D1 Mini / NodeMCU I2C bus uses pins:
- * D1 = SCL
+ * WeMos D1 Mini / NodeMCU uses pins for I2C bus:
  * D2 = SDA
+ * D1 = SCL
  *
- * Deauther Oled V5 I2C bus uses pins:
+ * NodeMCU ESP32 I2C uses pins for I2C bus:
+ * 21 = SDA
+ * 22 = SCL
+ *
+ * Deauther Oled V5 uses pins for I2C bus:
  * D1 = SDA
  * D2 = SCL
 */

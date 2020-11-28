@@ -1,4 +1,4 @@
-#ifdef LORA_TOPO_TTN  // build only when it is really needed
+#if defined(LORA_TOPO_TTN)  // build only when it is really needed
 
 #include "function_lorawan_ttn.hpp"
 
@@ -58,20 +58,25 @@ function Decoder(bytes, port) {
 #include <hal/hal.h>
 #include <SPI.h>
 
-// REQUIRES the following Arduino libraries:
-// - DHT Sensor Library: https://github.com/adafruit/DHT-sensor-library
-// DHT sensor library by Adafruit
-#include <DHT.h>
+#if defined(BOX_HAS_DTH11)
+  // REQUIRES the following Arduino libraries:
+  // - DHT Sensor Library: https://github.com/adafruit/DHT-sensor-library
+  // DHT sensor library by Adafruit
+  #include <DHT.h>
 
-// Connect pin 1 (on the left) of the sensor to +3.3 - +5.0 V
-// Connect pin 2 (data pin) of the sensor to whatever your DHTPIN is (GPIO of esp8266)
-// Connect a 10K resistor from pin 2 (data) to pin 1 (power) of the sensor
-// Connect pin 4 (on the right) of the sensor to GROUND
-// Let pin 3 unconnected
+  // Connect pin 1 (on the left) of the sensor to +3.3 - +5.0 V
+  // Connect pin 2 (data pin) of the sensor to whatever your DHTPIN is (GPIO of esp8266)
+  // Connect a 10K resistor from pin 2 (data) to pin 1 (power) of the sensor
+  // Connect pin 4 (on the right) of the sensor to GROUND
+  // Let pin 3 unconnected
 
-// See guide for details on sensor wiring and usage:
-// https://learn.adafruit.com/dht/overview
-DHT dht(DHTPIN, DHTTYPE);
+  // See guide for details on sensor wiring and usage:
+  // https://learn.adafruit.com/dht/overview
+  DHT dht(DHTPIN, DHTTYPE);
+
+#elif defined(BOX_HAS_SHT35)
+  #include "function_sht3x.hpp"
+#endif
 
 // Important:
 // LoRaWAN 'Device Address', 'Network Session Key' and 'App Session Key' are defined in 'wifi_creds.hpp' for security reasons
@@ -208,14 +213,25 @@ void do_send(osjob_t* j) {
     Serial.println("[LORA] OP_TXRXPEND, not sending");
   }
   else {
+
+#if defined(BOX_HAS_DTH11)
+    // read temperature and humidity from DHT11 sensor
     float t = dht.readTemperature();
     float h = dht.readHumidity();
 
+#elif defined(BOX_HAS_SHT35)
+    // read temperature and humidity from SHT35 sensor
+    float t = function_SHTx_get_temperature();
+    float h = function_SHTx_get_humidity();
+#endif
+
     // Check if any reads failed and exit early (to try again).
     if (isnan(h) || isnan(t)) {
-      //   || isnan(g_f_latitude_avg) || isnan(g_f_longitude_avg)) { // average values will always be available ...
-      // Serial.println(F("Failed to read from DHT sensor or valid GPS sensor data are not available!"));
+#if defined(BOX_HAS_DTH11)
       Serial.println("[LORA] Failed to read from DHT11 sensor!");
+#elif defined(BOX_HAS_SHT35)
+      Serial.println("[LORA] Failed to read from SHT35 sensor!");
+#endif
     }
     else {
       Serial.print("[LORA] Temperature: ");
@@ -234,7 +250,8 @@ void do_send(osjob_t* j) {
       Serial.print(l_ul_esp_uptime_s);
       Serial.println(" s");
 
-      char char_buffer[35]; // 8 digits for DHT11, 18 digits for GPS sensor and 9 digits for uptime seconds
+      // 8 digits for SHT35 (or DHT11), 18 digits for GPS sensor and 9 digits for uptime seconds
+      char char_buffer[35];
       uint8_t ui_buffer[35];
 
       // write temperature in char array beginning at position 0
@@ -274,8 +291,14 @@ void function_lorawan_ttn_setup( void ) {
   // enable LoRaWAN event and transmission handling
   g_b_LoRaEvent_enabled = true;
 
+#if defined(BOX_HAS_DTH11)
   // Initialize DHT11 sensor device
   dht.begin();
+
+#elif defined(BOX_HAS_SHT35)
+  // Initialize SHT35 sensor device
+  function_SHTx_connect_iic();
+#endif
 
   // LMIC init
   os_init();

@@ -15,7 +15,7 @@ bool connectOLEDiic() {
   Wire.setClock(100000);
 
   status = display.init();
-  if (!status) Serial.println("Could not find a valid OLED SSD1306/SH1106, check wiring!");
+  if (!status) Serial.println("[OLED] Could not find a valid OLED SSD1306/SH1106, check wiring!");
 
   display.flipScreenVertically();
   display.display();
