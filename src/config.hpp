@@ -10,26 +10,30 @@
   #define HOSTNAME "Wemos_D1_mini_pro"
   #define BOX_HAS_CCS811  // CO2 sensor
   // #define BOX 'esp8266_d1_box'
+  #define OLED_1_3_IN
 #elif NODE_MCU_LORA_1
   #define HOSTNAME "LoRaNode_1"
   // #define BOX_HAS_PIR     // PIR motion sensor
   // #define BOX_HAS_CCS811  // CO2 sensor
   // #define BOX 'esp8266_node_mcu_lora_1'
+  #define OLED_1_3_IN
 #elif NODE_MCU_LORA_2
   #define HOSTNAME "LoRaNode_2"
   // #define BOX_HAS_PIR     // PIR motion sensor
   // #define BOX_HAS_CCS811  // CO2 sensor
   // #define BOX 'esp8266_node_mcu_lora_2'
+  #define OLED_1_3_IN
 #elif NODE_MCU_LORA_2_ESP32
   #define HOSTNAME "LoRaNode_2_ESP32"
   // DTH11 temperature and humidity sensor
-  #define BOX_HAS_DTH11
+  // #define BOX_HAS_DTH11
   // SHT35 temperature and humidity sensor
-  // #define BOX_HAS_SHT35
+  #define BOX_HAS_SHT35
 
   // #define BOX_HAS_PIR     // PIR motion sensor
   // #define BOX_HAS_CCS811  // CO2 sensor
   // #define BOX 'esp32_node_mcu_lora_2'
+  #define OLED_1_3_IN
 #elif DEAUTHER_OLED
   #define HOSTNAME "Deauther_oled"
   // #define BOX 'esp8266_deauther_oled'
