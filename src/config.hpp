@@ -33,7 +33,7 @@
   // #define BOX_HAS_PIR     // PIR motion sensor
   // #define BOX_HAS_CCS811  // CO2 sensor
   // #define BOX 'esp32_node_mcu_lora_2'
-  #define OLED_1_3_IN
+  // #define OLED_1_3_IN
 #elif DEAUTHER_OLED
   #define HOSTNAME "Deauther_oled"
   // #define BOX 'esp8266_deauther_oled'
@@ -82,7 +82,7 @@
   // define LoRa sender or receiver role
   #ifdef NODE_MCU_LORA_1
     #define LORA_SENDER
-  #elif NODE_MCU_LORA_2 || NODE_MCU_LORA_2_ESP32
+  #elif defined(NODE_MCU_LORA_2) || defined(NODE_MCU_LORA_2_ESP32)
     #define LORA_RECEIVER
   #endif
 #elif LORA_TOPO_TTN
@@ -91,9 +91,6 @@
 #else
   #warning "You didn't choose a LoRa or LoRaWAN topology!"
 #endif
-
-
-
 
 
 

@@ -76,6 +76,8 @@ function Decoder(bytes, port) {
 
 #elif defined(BOX_HAS_SHT35)
   #include "function_sht3x.hpp"
+
+  bool g_b_iicSHT35_connected = false;
 #endif
 
 // Important:
@@ -250,20 +252,22 @@ void do_send(osjob_t* j) {
       Serial.print(l_ul_esp_uptime_s);
       Serial.println(" s");
 
-      // 8 digits for SHT35 (or DHT11), 18 digits for GPS sensor and 9 digits for uptime seconds
-      char char_buffer[35];
-      uint8_t ui_buffer[35];
+      // 9 digits for SHT35 (or DHT11), 18 digits for GPS sensor and 9 digits for uptime seconds
+      char char_buffer[36];
+      uint8_t ui_buffer[36];
 
       // write temperature in char array beginning at position 0
-      dtostrf(t, 4, 1, char_buffer);
-      // write humidity in char array beginning at position 4
-      dtostrf(h, 4, 1, &char_buffer[4]);
-      // write latitude in char array beginning at position 8
-      dtostrf(g_f_latitude_avg, 9, 6, &char_buffer[8]);
-      // write longitude in char array beginning at position 17
-      dtostrf(g_f_longitude_avg, 9, 6, &char_buffer[17]);
-      // write uptime seconds in char array beginning at position 26
-      dtostrf(l_ul_esp_uptime_s, 9, 0, &char_buffer[26]);
+      // layout: 2 digits, comma, 2 decimals = 5 chars
+      dtostrf(t, 5, 2, char_buffer);
+      // write humidity in char array beginning at position 5
+      // layout: 2 digits, comma, 1 decimal = 4 chars
+      dtostrf(h, 4, 1, &char_buffer[5]);
+      // write latitude in char array beginning at position 9
+      dtostrf(g_f_latitude_avg, 9, 6, &char_buffer[9]);
+      // write longitude in char array beginning at position 18
+      dtostrf(g_f_longitude_avg, 9, 6, &char_buffer[18]);
+      // write uptime seconds in char array beginning at position 27
+      dtostrf(l_ul_esp_uptime_s, 9, 0, &char_buffer[27]);
 
       Serial.print("[LORA] ");
       Serial.println(char_buffer);
@@ -297,7 +301,7 @@ void function_lorawan_ttn_setup( void ) {
 
 #elif defined(BOX_HAS_SHT35)
   // Initialize SHT35 sensor device
-  function_SHTx_connect_iic();
+  g_b_iicSHT35_connected = function_SHTx_connect_iic();
 #endif
 
   // LMIC init
