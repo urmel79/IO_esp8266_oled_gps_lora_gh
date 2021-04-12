@@ -1,3 +1,6 @@
+//
+// function decoder for TTN v2
+//
 function Decoder(bytes, port) {
   // Decode an uplink message from a buffer
   // (array) of bytes to an object of fields.
@@ -93,4 +96,44 @@ function Decoder(bytes, port) {
     temp: bytesToFloat(bytes.slice(0, 4))
   };
   */
+}
+
+//
+// function decoder for TTS v3
+//
+function decodeUplink(input) {
+  var uptime_s = parseInt(String.fromCharCode.apply(null,input.bytes).substring(27,36), 10); // 10: base is decimal
+  //var uptime_s = 184703; // for testing
+
+  var days    = Math.floor(uptime_s / 3600 / 24);
+  var hours   = Math.floor((uptime_s - (days * 3600 * 24)) / 3600);
+  var minutes = Math.floor((uptime_s - (days * 3600 * 24) - (hours * 3600)) / 60);
+  var seconds = uptime_s - (days * 3600 * 24) - (hours * 3600) - (minutes * 60);
+
+  if (days    < 10) {days    = "0"+days;}
+  if (hours   < 10) {hours   = "0"+hours;}
+  if (minutes < 10) {minutes = "0"+minutes;}
+  if (seconds < 10) {seconds = "0"+seconds;}
+
+  var uptime_str = days+'d '+hours+':'+minutes+':'+seconds;
+
+  return {
+    data: {
+      // bytes: input.bytes
+      climate: {
+        "temperature [°C]": String.fromCharCode.apply(null,input.bytes).substring(0,5),
+        "humidity [% rH]": String.fromCharCode.apply(null,input.bytes).substring(5,9)
+      },
+      gps_avg: {
+        "latitude [°]": String.fromCharCode.apply(null,input.bytes).substring(9,18),
+        "longitude [°]": String.fromCharCode.apply(null,input.bytes).substring(18,27)
+      },
+      uptime: {
+        "uptime": uptime_str,
+        "uptime [s]": uptime_s
+      }
+    },
+    warnings: [],
+    errors: []
+  };
 }
