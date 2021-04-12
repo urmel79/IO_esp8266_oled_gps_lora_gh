@@ -23,7 +23,7 @@
 // because for smoothing GPS values I need much higher precision ...
 #include "function_runningAverage_double.hpp"
 
-#define GPS_AVG_FILTER_SIZE 60
+#define GPS_AVG_FILTER_SIZE 10
 
 RunningAverage gps_RunningAVG_lat(GPS_AVG_FILTER_SIZE);  // RunningAverage object for gps latitude
 RunningAverage gps_RunningAVG_lng(GPS_AVG_FILTER_SIZE);  // RunningAverage object for gps longitude
