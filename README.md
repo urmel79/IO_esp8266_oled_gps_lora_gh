@@ -78,9 +78,9 @@ Because of this dilemma the whole project had to be migrated for the use of ESP3
 
 Here you can see the Node-RED Flow for displaying the GPS coordinates on the OpenStreetMap and for storaging in an SQLite database for 2 ESP nodes:
 
-![Node-RED Flow LoRa Nodes 1 and 2 and GPS mapping](./node-red/node-red_flow_lora_1u2_map.png)
+![Node-RED Flow LoRa Nodes 1 and 2 and GPS mapping](./node-red_ttn/node-red_flow_lora_1u2_map.png)
 
-There is my Node-RED Flow ready to import it to your own Node-RED installation [lora_1u2_map.json](./node-red/lora_1u2_map.json). To use it, you have to additionally install following Node-RED packages:
+There is my Node-RED Flow ready to import it to your own Node-RED installation [lora_1u2_map.json](./node-red_ttn/lora_1u2_map.json). To use it, you have to additionally install following Node-RED packages:
 
 - `node-red-dashboard`
 - `node-red-contrib-web-worldmap`
@@ -90,7 +90,7 @@ There is my Node-RED Flow ready to import it to your own Node-RED installation [
 
 The experimental breadboard setup (including the gps sensor) is located on the outside windowsill of my office with a view to the southeast. This is a screenshot of the OSM worldmap and the gps tracks recorded over some time:
 
-![OSM worldmap with LoRa 1](./node-red/node-red_osm_map_lora_2_c.png)
+![OSM worldmap with LoRa 1](./node-red_ttn/node-red_osm_map_lora_2_c.png)
 
 The colors of the gps tracks have the following meaning:
 
