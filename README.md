@@ -102,7 +102,7 @@ The colors of the gps tracks have the following meaning:
 
 Here is a screenshot of *phpLiteAdmin* to show my SQLite database layout for storing the GPS coordinates:
 
-![SQLite database layout](./node-red/phpLiteAdmin_db_lora_1_gps.png)
+![SQLite database layout](./node-red_ttn/phpLiteAdmin_db_lora_1_gps.png)
 
 # Visual impressions of my experimental breadboard setup
 
